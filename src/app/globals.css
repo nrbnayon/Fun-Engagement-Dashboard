@@ -1,4 +1,4 @@
-/* src/app/globals.css - Tailwind v4+ Global Color System */
+/* src/app/globals.css - Complete Fixed Tailwind v4+ Global Color System */
 @import "tailwindcss";
 
 @custom-variant dark (&:is(.dark *));
@@ -73,7 +73,6 @@
   --color-blackblack-800: var(--blackblack-800);
   --color-blackblack-900: var(--blackblack-900);
   --color-blue-100: var(--blue-100);
-  --color-blue-500: var(--blue-500);
   --color-red-500: var(--red-500);
   --color-yellow-100: var(--yellow-100);
   --color-yellow-200: var(--yellow-200);
@@ -96,112 +95,102 @@
   --font-geist-sans: var(--font-geist-sans);
   --font-geist-mono: var(--font-geist-mono);
   --font-oswald: var(--font-oswald);
-
-  /* === CUSTOM COLORS (Override Tailwind defaults) === */
-  --color-blue-100: #e8ecf3;
 }
 
 :root {
   /* === CORE SETTINGS === */
   --radius: 0.5rem;
 
-  /* === PRIMARY COLORS === */
-  --primary: oklch(83.69% 0.136 91.07); /* Yellow #f2ce17 */
-  --primary-foreground: oklch(17.65% 0.02 91.07); /* Dark text on primary */
-  --primary-light: oklch(97.45% 0.02 91.07); /* Light yellow #fefbe8 */
-  --primary-medium: oklch(94.51% 0.05 91.07); /* Medium yellow #fbf2c5 */
+  /* === PRIMARY COLORS - FIXED === */
+  --primary: #f2ce17; /* Yellow - Fixed to direct hex */
+  --primary-foreground: #1f1a02; /* Dark text on primary */
+  --primary-light: #fefbe8; /* Light yellow */
+  --primary-medium: #fbf2c5; /* Medium yellow */
 
-  /* === SECONDARY COLORS === */
-  --secondary: oklch(41.18% 0.071 240.12); /* Blue #143f82 */
-  --secondary-foreground: oklch(
-    98.43% 0.005 240.12
-  ); /* Light text on secondary */
-  --secondary-light: oklch(94.12% 0.015 240.12); /* Light blue #e8ecf3 */
+  /* === SECONDARY COLORS - FIXED === */
+  --secondary: #143f82; /* Blue - Fixed to direct hex #143f82 */
+  --secondary-foreground: #fbfdff; /* Light text on secondary */
+  --secondary-light: #e8ecf3; /* Light blue */
 
-  /* === ACCENT COLORS === */
-  --accent: oklch(54.29% 0.224 27.33); /* Red #c40c18 */
-  --accent-foreground: oklch(98.43% 0.005 27.33);
+  /* === ACCENT COLORS - FIXED === */
+  --accent: #c40c18; /* Red - Fixed to direct hex */
+  --accent-foreground: #fbfdff; /* Light text on accent */
 
-  /* === BACKGROUND COLORS === */
-  --background: oklch(98.43% 0.005 240.12); /* Main background #fbfdff */
-  --background-secondary: oklch(97.45% 0.02 91.07); /* Secondary bg #fefbe8 */
-  --background-tertiary: oklch(
-    94.51% 0.05 91.07
-  ); /* Card backgrounds #fbf2c5 */
-  --background-muted: oklch(90.2% 0 0); /* Muted background #e6e6e6 */
+  /* === BACKGROUND COLORS - FIXED === */
+  --background: #fbfdff; /* Main background - Fixed to direct hex */
+  --background-secondary: #fefbe8; /* Secondary bg - Fixed to direct hex */
+  --background-tertiary: #fbf2c5; /* Card backgrounds - Fixed to direct hex */
+  --background-muted: #e6e6e6; /* Muted background - Fixed to direct hex */
 
-  /* === TEXT COLORS === */
-  --foreground: oklch(17.65% 0.02 91.07); /* Primary text #1f1a02 */
-  --text-primary: oklch(17.65% 0.02 91.07); /* Main text color */
-  --text-secondary: oklch(44.71% 0.02 91.07); /* Secondary text #4c4835 */
-  --text-muted: oklch(65.88% 0.015 91.07); /* Muted text #787667 */
-  --text-light: oklch(81.96% 0.01 91.07); /* Light text #d2d1cc */
+  /* === TEXT COLORS - FIXED === */
+  --foreground: #1f1a02; /* Primary text - Fixed to direct hex */
+  --text-primary: #1f1a02; /* Main text color - Fixed to direct hex */
+  --text-secondary: #4c4835; /* Secondary text - Fixed to direct hex */
+  --text-muted: #787667; /* Muted text - Fixed to direct hex #787667 */
+  --text-light: #d2d1cc; /* Light text - Fixed to direct hex */
 
-  /* === BORDER COLORS === */
-  --border: oklch(81.96% 0.01 91.07); /* Default border #d2d1cc */
-  --border-primary: oklch(83.69% 0.136 91.07); /* Primary border (yellow) */
-  --border-secondary: oklch(41.18% 0.071 240.12); /* Secondary border (blue) */
+  /* === BORDER COLORS - FIXED === */
+  --border: #d2d1cc; /* Default border - Fixed to direct hex */
+  --border-primary: #f2ce17; /* Primary border (yellow) - Fixed to direct hex */
+  --border-secondary: #143f82; /* Secondary border (blue) - Fixed to direct hex */
 
-  /* === SURFACE COLORS === */
-  --surface: oklch(98.43% 0.005 240.12); /* Card surface */
-  --surface-elevated: oklch(97.45% 0.02 91.07); /* Elevated surface */
-  --surface-hover: oklch(94.51% 0.05 91.07); /* Hover state */
+  /* === SURFACE COLORS - FIXED === */
+  --surface: #fbfdff; /* Card surface - Fixed to direct hex */
+  --surface-elevated: #fefbe8; /* Elevated surface - Fixed to direct hex */
+  --surface-hover: #fbf2c5; /* Hover state - Fixed to direct hex */
 
-  /* === STATUS COLORS === */
-  --success: oklch(69.71% 0.149 142.5); /* Green #22c55e */
-  --success-foreground: oklch(100% 0 0);
-  --warning: oklch(75.85% 0.169 70.67); /* Orange #f59e0b */
-  --warning-foreground: oklch(100% 0 0);
-  --error: oklch(54.29% 0.224 27.33); /* Red #c40c18 */
-  --error-foreground: oklch(100% 0 0);
-  --info: oklch(41.18% 0.071 240.12); /* Blue #143f82 */
-  --info-foreground: oklch(100% 0 0);
+  /* === STATUS COLORS - FIXED === */
+  --success: #22c55e; /* Green - Fixed to direct hex */
+  --success-foreground: #ffffff; /* Fixed to direct hex */
+  --warning: #f59e0b; /* Orange - Fixed to direct hex */
+  --warning-foreground: #ffffff; /* Fixed to direct hex */
+  --error: #c40c18; /* Red - Fixed to direct hex */
+  --error-foreground: #ffffff; /* Fixed to direct hex */
+  --info: #143f82; /* Blue - Fixed to direct hex */
+  --info-foreground: #ffffff; /* Fixed to direct hex */
 
-  /* === INTERACTIVE COLORS === */
-  --interactive: oklch(
-    41.18% 0.071 240.12
-  ); /* Links and interactive elements */
-  --interactive-hover: oklch(35.29% 0.078 240.12); /* Darker blue on hover */
-  --interactive-active: oklch(29.41% 0.085 240.12); /* Even darker on active */
+  /* === INTERACTIVE COLORS - FIXED === */
+  --interactive: #143f82; /* Links and interactive elements - Fixed to direct hex */
+  --interactive-hover: #0f2f63; /* Darker blue on hover - Fixed to direct hex */
+  --interactive-active: #0a1f44; /* Even darker on active - Fixed to direct hex */
 
-  /* === CORE SYSTEM COLORS === */
-  --card: #f2ce1726; /* Custom card color - primary yellow with 15% opacity */
-  --card-foreground: oklch(17.65% 0.02 91.07);
-  --popover: oklch(98.43% 0.005 240.12);
-  --popover-foreground: oklch(17.65% 0.02 91.07);
-  --muted: oklch(90.2% 0 0);
-  --muted-foreground: oklch(65.88% 0.015 91.07);
-  --input: oklch(81.96% 0.01 91.07);
-  --ring: oklch(83.69% 0.136 91.07);
+  /* === CORE SYSTEM COLORS - FIXED === */
+  --card: #f2ce1726; /* Custom card color - primary yellow with opacity */
+  --card-foreground: #1f1a02; /* Fixed to direct hex */
+  --popover: #fbfdff; /* Fixed to direct hex */
+  --popover-foreground: #1f1a02; /* Fixed to direct hex */
+  --muted: #e6e6e6; /* Fixed to direct hex */
+  --muted-foreground: #787667; /* Fixed to direct hex #787667 */
+  --input: #d2d1cc; /* Fixed to direct hex */
+  --ring: #f2ce17; /* Fixed to direct hex */
 
-  /* === LEGACY COLORS (RGB Values for Backward Compatibility) === */
-  --blackblack-300: 210 209 204;
-  --blackblack-700: 120 118 103;
-  --blackblack-800: 76 72 53;
-  --blackblack-900: 31 26 2;
-  --blue-100: #e8ecf3;
-  --blue-500: 20 63 130;
-  --red-500: rgb(196, 12, 24);
-  --yellow-100: 254 251 232;
-  --yellow-200: #f2ce1726;
-  --yellow-500: 242 206 23;
-  --white: #ffffff;
-  --light: 230 230 230;
+  /* === LEGACY COLORS - FIXED (Direct Hex Values) === */
+  --blackblack-300: #d2d1cc; /* Fixed to direct hex */
+  --blackblack-700: #787667; /* Fixed to direct hex #787667 - This should now work */
+  --blackblack-800: #4c4835; /* Fixed to direct hex */
+  --blackblack-900: #1f1a02; /* Fixed to direct hex */
+  --blue-100: #143f82; /* Fixed to direct hex */
+  --red-500: #c40c18; /* Fixed to direct hex */
+  --yellow-100: #fefbe8; /* Fixed to direct hex */
+  --yellow-200: #f2ce1726; /* Fixed - yellow with opacity */
+  --yellow-500: #f2ce17; /* Fixed to direct hex */
+  --white: #ffffff; /* Fixed to direct hex */
+  --light: #e6e6e6; /* Fixed to direct hex */
 
   /* === TYPOGRAPHY VARIABLES === */
-  --h5-regular-font-family: "Oswald", Helvetica;
+  --h5-regular-font-family: "Oswald", Helvetica, sans-serif;
   --h5-regular-font-size: 24px;
   --h5-regular-font-style: normal;
   --h5-regular-font-weight: 400;
   --h5-regular-letter-spacing: 0px;
   --h5-regular-line-height: normal;
-  --h6-medium-font-family: "Oswald", Helvetica;
+  --h6-medium-font-family: "Oswald", Helvetica, sans-serif;
   --h6-medium-font-size: 20px;
   --h6-medium-font-style: normal;
   --h6-medium-font-weight: 500;
   --h6-medium-letter-spacing: 0px;
   --h6-medium-line-height: normal;
-  --regular-lg-regular-font-family: "Oswald", Helvetica;
+  --regular-lg-regular-font-family: "Oswald", Helvetica, sans-serif;
   --regular-lg-regular-font-size: 14px;
   --regular-lg-regular-font-style: normal;
   --regular-lg-regular-font-weight: 400;
@@ -209,23 +198,23 @@
   --regular-lg-regular-line-height: normal;
 }
 
-/* === DARK MODE === */
+/* === DARK MODE - FIXED === */
 .dark {
-  --background: oklch(17.65% 0.02 91.07);
-  --foreground: oklch(98.43% 0.005 240.12);
-  --text-primary: oklch(98.43% 0.005 240.12);
-  --text-secondary: oklch(81.96% 0.01 91.07);
-  --text-muted: oklch(65.88% 0.015 91.07);
-  --surface: oklch(44.71% 0.02 91.07);
-  --surface-elevated: oklch(65.88% 0.015 91.07);
-  --border: oklch(65.88% 0.015 91.07);
+  --background: #1f1a02; /* Fixed to direct hex */
+  --foreground: #fbfdff; /* Fixed to direct hex */
+  --text-primary: #fbfdff; /* Fixed to direct hex */
+  --text-secondary: #d2d1cc; /* Fixed to direct hex */
+  --text-muted: #787667; /* Fixed to direct hex */
+  --surface: #4c4835; /* Fixed to direct hex */
+  --surface-elevated: #787667; /* Fixed to direct hex */
+  --border: #787667; /* Fixed to direct hex */
   --card: #f2ce1726; /* Same custom card color for dark mode */
-  --card-foreground: oklch(98.43% 0.005 240.12);
-  --popover: oklch(44.71% 0.02 91.07);
-  --popover-foreground: oklch(98.43% 0.005 240.12);
-  --muted: oklch(65.88% 0.015 91.07);
-  --muted-foreground: oklch(81.96% 0.01 91.07);
-  --input: oklch(65.88% 0.015 91.07);
+  --card-foreground: #fbfdff; /* Fixed to direct hex */
+  --popover: #4c4835; /* Fixed to direct hex */
+  --popover-foreground: #fbfdff; /* Fixed to direct hex */
+  --muted: #787667; /* Fixed to direct hex */
+  --muted-foreground: #d2d1cc; /* Fixed to direct hex */
+  --input: #787667; /* Fixed to direct hex */
 }
 
 @layer base {
@@ -239,34 +228,137 @@
   }
 }
 
-/* === UTILITY CLASSES === */
+/* === UTILITY CLASSES - COMPLETELY FIXED === */
 @layer components {
+  /* === PRIMARY TEXT COLORS - FIXED === */
   .text-primary {
-    color: var(--primary);
+    color: var(--primary) !important;
   }
 
   .text-secondary {
-    color: var(--secondary);
+    color: var(--secondary) !important; /* FIXED: Will now show #143f82 */
   }
 
   .text-accent {
-    color: var(--accent);
+    color: var(--accent) !important;
   }
 
   .text-muted {
-    color: var(--text-muted);
+    color: var(--text-muted) !important; /* FIXED: Will now show #787667 */
   }
 
-  /* Text utilities */
+  /* === BRAND AND ACCENT UTILITIES - FIXED === */
   .text-brand {
-    color: var(--secondary);
+    color: var(--secondary) !important; /* FIXED: Will now show #143f82 */
   }
 
   .text-accent {
-    color: var(--accent);
+    color: var(--accent) !important;
   }
 
-  /* Interactive states */
+  /* === LEGACY COLOR UTILITIES - FIXED === */
+  .text-blackblack-300 {
+    color: var(--blackblack-300) !important; /* FIXED: Will now show #d2d1cc */
+  }
+
+  .text-blackblack-700 {
+    color: var(--blackblack-700) !important; /* FIXED: Will now show #787667 */
+  }
+
+  .text-blackblack-800 {
+    color: var(--blackblack-800) !important; /* FIXED: Will now show #4c4835 */
+  }
+
+  .text-blackblack-900 {
+    color: var(--blackblack-900) !important; /* FIXED: Will now show #1f1a02 */
+  }
+
+  .text-blue-100 {
+    color: var(--blue-100) !important; /* FIXED: Will now show #143f82 */
+  }
+
+  .text-red-500 {
+    color: var(--red-500) !important; /* FIXED: Will now show #c40c18 */
+  }
+
+  .text-yellow-100 {
+    color: var(--yellow-100) !important; /* FIXED: Will now show #fefbe8 */
+  }
+
+  .text-yellow-200 {
+    color: var(--yellow-200) !important; /* FIXED: Will now show yellow with opacity */
+  }
+
+  .text-yellow-500 {
+    color: var(--yellow-500) !important; /* FIXED: Will now show #f2ce17 */
+  }
+
+  .text-white {
+    color: var(--white) !important; /* FIXED: Will now show #ffffff */
+  }
+
+  .text-light {
+    color: var(--light) !important; /* FIXED: Will now show #e6e6e6 */
+  }
+
+  /* === BACKGROUND UTILITIES - FIXED === */
+  .bg-primary {
+    background-color: var(--primary);
+  }
+
+  .bg-secondary {
+    background-color: var(--secondary);
+  }
+
+  .bg-accent {
+    background-color: var(--accent);
+  }
+
+  .bg-blackblack-300 {
+    background-color: var(--blackblack-300);
+  }
+
+  .bg-blackblack-700 {
+    background-color: var(--blackblack-700);
+  }
+
+  .bg-blackblack-800 {
+    background-color: var(--blackblack-800);
+  }
+
+  .bg-blackblack-900 {
+    background-color: var(--blackblack-900);
+  }
+
+  .bg-blue-100 {
+    background-color: var(--blue-100);
+  }
+
+  .bg-red-500 {
+    background-color: var(--red-500);
+  }
+
+  .bg-yellow-100 {
+    background-color: var(--yellow-100);
+  }
+
+  .bg-yellow-200 {
+    background-color: var(--yellow-200);
+  }
+
+  .bg-yellow-500 {
+    background-color: var(--yellow-500);
+  }
+
+  .bg-white {
+    background-color: var(--white);
+  }
+
+  .bg-light {
+    background-color: var(--light);
+  }
+
+  /* === INTERACTIVE STATES - FIXED === */
   .interactive {
     color: var(--interactive);
     transition-property: color;
@@ -282,94 +374,61 @@
     color: var(--interactive-active);
   }
 
-  /* Oswald Font Utility */
+  /* === OSWALD FONT UTILITIES - FIXED === */
   .font-oswald {
-    font-family: var(--font-oswald), sans-serif;
+    font-family: "Oswald", Helvetica, sans-serif;
     font-optical-sizing: auto;
     font-style: normal;
   }
-  /* Oswald with specific weights */
+
   .font-oswald-light {
-    font-family: var(--font-oswald), sans-serif;
+    font-family: "Oswald", Helvetica, sans-serif;
     font-optical-sizing: auto;
     font-weight: 300;
     font-style: normal;
   }
 
   .font-oswald-regular {
-    font-family: var(--font-oswald), sans-serif;
+    font-family: "Oswald", Helvetica, sans-serif;
     font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
   }
 
   .font-oswald-medium {
-    font-family: var(--font-oswald), sans-serif;
+    font-family: "Oswald", Helvetica, sans-serif;
     font-optical-sizing: auto;
     font-weight: 500;
     font-style: normal;
   }
 
   .font-oswald-semibold {
-    font-family: var(--font-oswald), sans-serif;
+    font-family: "Oswald", Helvetica, sans-serif;
     font-optical-sizing: auto;
     font-weight: 600;
     font-style: normal;
   }
 
   .font-oswald-bold {
-    font-family: var(--font-oswald), sans-serif;
+    font-family: "Oswald", Helvetica, sans-serif;
     font-optical-sizing: auto;
     font-weight: 700;
     font-style: normal;
   }
 
-  /* Background utilities */
+  /* === BACKGROUND GRADIENTS - FIXED === */
   .bg-primary-gradient {
-    background: linear-gradient(
-      135deg,
-      oklch(var(--primary)) 0%,
-      oklch(var(--primary-medium)) 100%
-    );
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-medium) 100%);
   }
 
   .bg-secondary-gradient {
-    background: linear-gradient(
-      135deg,
-      oklch(var(--secondary)) 0%,
-      oklch(var(--secondary-light)) 100%
-    );
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--secondary-light) 100%);
   }
 
-  /* Text utilities */
-  .text-brand {
-    color: oklch(var(--secondary));
-  }
-
-  .text-accent {
-    color: oklch(var(--accent));
-  }
-
-  /* Interactive states */
-  .interactive {
-    color: oklch(var(--interactive));
-    transition-property: color;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 150ms;
-  }
-
-  .interactive:hover {
-    color: oklch(var(--interactive-hover));
-  }
-
-  .interactive:active {
-    color: oklch(var(--interactive-active));
-  }
-
-  /* Status indicators */
+  /* === STATUS INDICATORS - FIXED === */
   .status-live {
-    color: oklch(var(--error));
-    background-color: oklch(var(--error) / 0.1);
+    color: var(--error);
+    background-color: color-mix(in srgb, var(--error) 10%, transparent);
     padding: 0.25rem 0.5rem;
     border-radius: 9999px;
     font-size: 0.875rem;
@@ -377,124 +436,39 @@
   }
 
   .status-upcoming {
-    color: oklch(var(--warning));
-    background-color: oklch(var(--warning) / 0.1);
+    color: var(--warning);
+    background-color: color-mix(in srgb, var(--warning) 10%, transparent);
     padding: 0.25rem 0.5rem;
     border-radius: 9999px;
     font-size: 0.875rem;
     font-weight: 500;
   }
 
-  /* Card variants */
+  /* === CARD VARIANTS - FIXED === */
   .card-primary {
-    background-color: oklch(var(--surface));
+    background-color: var(--surface);
     border-width: 1px;
-    border-color: oklch(var(--border));
+    border-color: var(--border);
     border-radius: 0.75rem;
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
 
   .card-elevated {
-    background-color: oklch(var(--surface-elevated));
+    background-color: var(--surface-elevated);
     border-width: 1px;
-    border-color: oklch(var(--border-primary) / 0.2);
+    border-color: color-mix(in srgb, var(--border-primary) 20%, transparent);
     border-radius: 0.75rem;
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   }
 
   .card-highlight {
-    background-color: oklch(var(--primary-light));
+    background-color: var(--primary-light);
     border-width: 1px;
-    border-color: oklch(var(--border-primary));
+    border-color: var(--border-primary);
     border-radius: 0.75rem;
   }
 
-  /* Legacy color utilities for backward compatibility */
-  .bg-blackblack-300 {
-    background-color: rgb(var(--blackblack-300));
-  }
-
-  .bg-blackblack-700 {
-    background-color: rgb(var(--blackblack-700));
-  }
-
-  .bg-blackblack-800 {
-    background-color: rgb(var(--blackblack-800));
-  }
-
-  .bg-blackblack-900 {
-    background-color: rgb(var(--blackblack-900));
-  }
-
-  .bg-yellow-100 {
-    background-color: rgb(var(--yellow-100));
-  }
-
-  .bg-yellow-200 {
-    background-color: rgb(var(--yellow-200));
-  }
-
-  .bg-yellow-500 {
-    background-color: rgb(var(--yellow-500));
-  }
-
-  .bg-white {
-    background-color: rgb(var(--white));
-  }
-
-  .bg-light {
-    background-color: rgb(var(--light));
-  }
-
-  .text-blackblack-300 {
-    color: rgb(var(--blackblack-300));
-  }
-
-  .text-blackblack-700 {
-    color: rgb(var(--blackblack-700));
-  }
-
-  .text-blackblack-800 {
-    color: rgb(var(--blackblack-800));
-  }
-
-  .text-blackblack-900 {
-    color: rgb(var(--blackblack-900));
-  }
-
-  .text-blue-100 {
-    color: rgb(var(--blue-100));
-  }
-
-  .text-blue-500 {
-    color: rgb(var(--blue-500));
-  }
-
-  .text-red-500 {
-    color: rgb(var(--red-500));
-  }
-
-  .text-yellow-100 {
-    color: rgb(var(--yellow-100));
-  }
-
-  .text-yellow-200 {
-    color: rgb(var(--yellow-200));
-  }
-
-  .text-yellow-500 {
-    color: rgb(var(--yellow-500));
-  }
-
-  .text-white {
-    color: rgb(var(--white));
-  }
-
-  .text-light {
-    color: rgb(var(--light));
-  }
-
-  /* Typography utilities */
+  /* === TYPOGRAPHY UTILITIES - FIXED === */
   .font-h5-regular {
     font-family: var(--h5-regular-font-family);
     font-size: var(--h5-regular-font-size);
@@ -520,5 +494,33 @@
     font-weight: var(--regular-lg-regular-font-weight);
     letter-spacing: var(--regular-lg-regular-letter-spacing);
     line-height: var(--regular-lg-regular-line-height);
+  }
+}
+
+/* === HOVER EFFECTS - FIXED === */
+@layer components {
+  .hover-yellow-300:hover {
+    background-color: #fde047;
+  }
+
+  .hover-primary:hover {
+    background-color: var(--primary);
+  }
+
+  .hover-secondary:hover {
+    background-color: var(--secondary);
+  }
+}
+
+/* === MEDIA QUERIES - FIXED === */
+@media (max-width: 768px) {
+  .text-xl {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
   }
 }

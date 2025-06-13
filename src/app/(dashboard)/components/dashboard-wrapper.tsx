@@ -29,22 +29,22 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       ),
     },
     {
-      label: "Dashboard",
-      href: "/dashboard",
+      label: "Player List",
+      href: "/player-list",
       icon: (
         <IconDashboard className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
       ),
     },
     {
-      label: "Financial Plan",
-      href: "/financial-plan",
+      label: "Matchs",
+      href: "/matchs",
       icon: (
         <IconChartBar className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
       ),
     },
     {
-      label: "Profile",
-      href: "/profile",
+      label: "Voting",
+      href: "/voting",
       icon: (
         <IconUserBolt className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
       ),
@@ -75,7 +75,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className='justify-between gap-10'>
+        <SidebarBody className='justify-between gap-10 bg-card'>
           <div className='flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
             {open ? <Logo /> : <LogoIcon />}
             <div className='mt-8 flex flex-col gap-2'>
@@ -135,8 +135,8 @@ const LogoIcon = () => {
 
 const Dashboard = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='flex flex-1'>
-      <div className='p-2 md:p-10 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto'>
+    <div className='flex flex-1 bg-card'>
+      <div className='p-0 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto'>
         {children}
       </div>
     </div>
