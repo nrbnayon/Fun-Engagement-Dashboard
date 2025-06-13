@@ -34,7 +34,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   };
 
   return (
-    <header className='sticky top-0 z-10 flex w-full items-center justify-between px-6 py-4 bg-primary-light dark:bg-surface transition-colors duration-200'>
+    <header className='sticky top-0 z-50 flex w-full items-center justify-between px-6 py-4 bg-primary-light dark:bg-surface transition-colors duration-200'>
       {/* Greeting Section */}
       <div className='flex flex-col items-start gap-0.5'>
         <h1 className='font-h5-regular text-secondary dark:text-primary transition-colors duration-200'>

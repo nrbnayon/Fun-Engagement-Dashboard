@@ -74,7 +74,6 @@
   --color-blackblack-900: var(--blackblack-900);
   --color-blue-100: var(--blue-100);
   --color-red-500: var(--red-500);
-  --color-yellow-100: var(--yellow-100);
   --color-yellow-200: var(--yellow-200);
   --color-yellow-500: var(--yellow-500);
   --color-white: var(--white);
@@ -171,7 +170,6 @@
   --blackblack-900: #1f1a02; /* Fixed to direct hex */
   --blue-100: #143f82; /* Fixed to direct hex */
   --red-500: #c40c18; /* Fixed to direct hex */
-  --yellow-100: #fefbe8; /* Fixed to direct hex */
   --yellow-200: #f2ce1726; /* Fixed - yellow with opacity */
   --yellow-500: #f2ce17; /* Fixed to direct hex */
   --white: #ffffff; /* Fixed to direct hex */
@@ -281,10 +279,6 @@
     color: var(--red-500) !important; /* FIXED: Will now show #c40c18 */
   }
 
-  .text-yellow-100 {
-    color: var(--yellow-100) !important; /* FIXED: Will now show #fefbe8 */
-  }
-
   .text-yellow-200 {
     color: var(--yellow-200) !important; /* FIXED: Will now show yellow with opacity */
   }
@@ -336,10 +330,6 @@
 
   .bg-red-500 {
     background-color: var(--red-500);
-  }
-
-  .bg-yellow-100 {
-    background-color: var(--yellow-100);
   }
 
   .bg-yellow-200 {
