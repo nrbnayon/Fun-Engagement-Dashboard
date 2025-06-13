@@ -22,6 +22,7 @@ const votingData = Array(9).fill({
   goals: "2",
   players: ["11", "10", "111"],
 });
+
 export default function VotingList() {
   return (
     <main className="flex flex-col w-full items-center">
@@ -34,24 +35,24 @@ export default function VotingList() {
           </Button>
         </div>
 
-        <Card className="w-full min-h-80 rounded-xl border-2 bg-card overflow-hidden border-border">
+        <Card className="w-full min-h-74 rounded-xl border-2 bg-card overflow-hidden border-border p-0">
           <CardContent className="p-0">
             <Table>
-              <TableHeader className="border-b-2 border-primary text-xl md:text-2xl">
-                <TableRow className="">
-                  <TableHead className="font-normal text-secondary">
+              <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card">
+                <TableRow>
+                  <TableHead className="font-normal text-secondary pl-8 py-4 ">
                     User
                   </TableHead>
-                  <TableHead className="font-normal text-secondary hidden sm:table-cell">
+                  <TableHead className="font-normal text-secondary pl-8 py-4">
                     Email
                   </TableHead>
-                  <TableHead className="font-normal text-secondary">
+                  <TableHead className="font-normal text-secondary pl-8 py-4 ">
                     Who will Win
                   </TableHead>
-                  <TableHead className="font-normal text-secondary text-center">
+                  <TableHead className="font-normal text-secondary pl-8 py-4 ">
                     Goals
                   </TableHead>
-                  <TableHead className="font-normal text-secondary text-center">
+                  <TableHead className="font-normal text-secondary pl-8 py-4 ">
                     Select Player
                   </TableHead>
                 </TableRow>
@@ -90,7 +91,7 @@ export default function VotingList() {
                         {item.goals}
                       </div>
                     </TableCell>
-                    <TableCell className="px-6 py-4">
+                    <TableCell className="px-6 py-3">
                       <div className="flex items-center justify-center gap-2">
                         {item.players.map((player: string, idx: number) => (
                           <Badge
