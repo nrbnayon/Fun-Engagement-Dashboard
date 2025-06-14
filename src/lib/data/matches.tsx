@@ -15,11 +15,11 @@ export interface Match {
 
 export const generateMatchesData = (count: number): Match[] => {
   const teams: Team[] = [
-    { name: "Dumbarton", logo: "/clubcrest--2--1-3.png" },
-    { name: "Real Madrid", logo: "/clubcrest--2--1-4.png" },
+    { name: "Dumbarton", logo: "/logo.png" },
+    { name: "Real Madrid", logo: "/logo.png" },
     { name: "Manchester", logo: "/stowhy8qeoz7mplxkp2kc-1-1.png" },
     { name: "Barcelona", logo: "/clubcrest--2--1-1.png" },
-    { name: "Chelsea", logo: "/clubcrest--2--1-2.png" },
+    { name: "Chelsea", logo: "/logo.png" },
   ];
 
   const times = ["5:00 PM", "7:30 PM", "3:00 PM", "8:00 PM", "6:15 PM"];

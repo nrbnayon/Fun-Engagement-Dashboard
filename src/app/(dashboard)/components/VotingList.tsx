@@ -71,7 +71,7 @@ const generateVotingData = (count: number) => {
   return Array.from({ length: count }, (_, index) => ({
     user: {
       name: names[index % names.length],
-      avatar: "/ellipse-12-7.png",
+      avatar: "/ellipse-2-7.png",
     },
     email: emails[index % emails.length],
     team: teams[index % teams.length],

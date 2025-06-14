@@ -56,7 +56,7 @@ const matchCards = [
     title: "Upcoming Match",
     teamA: {
       name: "Dumbarton",
-      logo: "/clubcrest--2--1-2.png",
+      logo: "/logo.png",
     },
     teamB: {
       name: "Manchester",
@@ -71,7 +71,7 @@ const matchCards = [
 const votingData = Array(9).fill({
   user: {
     name: "Kristin Watson",
-    avatar: "/ellipse-12-7.png",
+    avatar: "/android-chrome-192x192.png",
   },
   email: "kristinwatson@gmail.com",
   team: "Dumbarton",
@@ -83,11 +83,11 @@ const votingData = Array(9).fill({
 const matchesData = Array(8).fill({
   teamA: {
     name: "Dumbarton",
-    logo: "/clubcrest--2--1-3.png",
+    logo: "/logo.png",
   },
   teamB: {
     name: "Real Madrid",
-    logo: "/clubcrest--2--1-4.png",
+    logo: "/ellipse-2-7.png",
   },
   time: "5:00 PM",
   date: "12 Jun 2025",

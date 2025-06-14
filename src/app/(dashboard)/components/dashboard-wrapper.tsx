@@ -141,7 +141,7 @@ const Logo = ({ open }: { open: boolean }) => {
         <Image
           className="w-full h-full object-contain"
           alt="Dumbarton Fan Logo"
-          src="/clubcrest--2--1-3.png"
+          src="/logo.png"
           width={36}
           height={36}
           style={{ width: "36px", height: "36px" }}
@@ -180,7 +180,7 @@ const LogoIcon = () => {
         <Image
           className="w-full h-full object-contain"
           alt="Dumbarton Fan Logo"
-          src="/clubcrest--2--1-3.png"
+          src="/logo.png"
           width={36}
           height={36}
           style={{ width: "36px", height: "36px" }}

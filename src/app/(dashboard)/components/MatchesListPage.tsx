@@ -184,11 +184,11 @@ export default function MatchesListPage({
     const newMatch: Match = {
       teamA: {
         name: formData.teamAName,
-        logo: "/clubcrest--2--1-3.png",
+        logo: "/logo.png",
       },
       teamB: {
         name: formData.teamBName,
-        logo: "/clubcrest--2--1-4.png",
+        logo: "/logo.png",
       },
       time: formData.time,
       date: formData.date,

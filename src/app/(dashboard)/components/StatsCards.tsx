@@ -43,7 +43,7 @@ const matchCards = [
     title: "Upcoming Match",
     teamA: {
       name: "Dumbarton",
-      logo: "/clubcrest--2--1-2.png",
+      logo: "/ellipse-2-7.png",
     },
     teamB: {
       name: "Manchester",
