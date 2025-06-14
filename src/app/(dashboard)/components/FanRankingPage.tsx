@@ -1,6 +1,5 @@
-// src/app/(dashboard)/components/VotingList.tsx
+// src\app\(dashboard)\components\FanRankingPage.tsx
 "use client";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -21,95 +20,43 @@ import {
 } from "@/components/ui/pagination";
 import Link from "next/link";
 import { useState } from "react";
+import { allFanRankingData } from "@/lib/data/fanRankData";
 
-// Generate more voting data for demonstration
-const generateVotingData = (count: number) => {
-  const names = [
-    "Kristin Watson",
-    "John Doe",
-    "Jane Smith",
-    "Michael Brown",
-    "Sarah Wilson",
-    "David Johnson",
-    "Emily Davis",
-    "Robert Miller",
-    "Lisa Anderson",
-    "James Wilson",
-    "Maria Garcia",
-    "William Taylor",
-    "Jennifer Thomas",
-    "Charles Jackson",
-    "Patricia White",
-  ];
-
-  const emails = [
-    "kristinwatson@gmail.com",
-    "john.doe@gmail.com",
-    "jane.smith@gmail.com",
-    "michael.brown@gmail.com",
-    "sarah.wilson@gmail.com",
-    "david.johnson@gmail.com",
-    "emily.davis@gmail.com",
-    "robert.miller@gmail.com",
-    "lisa.anderson@gmail.com",
-    "james.wilson@gmail.com",
-    "maria.garcia@gmail.com",
-    "william.taylor@gmail.com",
-    "jennifer.thomas@gmail.com",
-    "charles.jackson@gmail.com",
-    "patricia.white@gmail.com",
-  ];
-
-  const teams = [
-    "Dumbarton",
-    "Manchester",
-    "Real Madrid",
-    "Barcelona",
-    "Chelsea",
-  ];
-
-  return Array.from({ length: count }, (_, index) => ({
-    user: {
-      name: names[index % names.length],
-      avatar: "/ellipse-12-7.png",
-    },
-    email: emails[index % emails.length],
-    team: teams[index % teams.length],
-    goals: String(Math.floor(Math.random() * 5) + 1),
-    players: Array.from({ length: 3 }, () =>
-      String(Math.floor(Math.random() * 99) + 1)
-    ),
-  }));
-};
-
-const allVotingData = generateVotingData(50);
-
-interface VotingListProps {
+interface FanRankingListProps {
   paginate?: boolean;
   itemsPerPage?: number;
   limit?: number;
   title?: boolean;
 }
 
-export default function VotingList({
+export default function FanRankingPage({
   paginate = false,
   itemsPerPage = 12,
   limit = 5,
   title = true,
-}: VotingListProps) {
+}: FanRankingListProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
+  // Function to convert rank number to ordinal (1st, 2nd, 3rd, etc.)
+  const getOrdinalRank = (rank: number): string => {
+    const suffix = ["th", "st", "nd", "rd"];
+    const v = rank % 100;
+    return rank + (suffix[(v - 20) % 10] || suffix[v] || suffix[0]);
+  };
+
   // Determine data to show
-  const dataToShow = paginate ? allVotingData : allVotingData.slice(0, limit);
+  const dataToShow = paginate
+    ? allFanRankingData
+    : allFanRankingData.slice(0, limit);
 
   // Calculate pagination
   const totalPages = paginate
-    ? Math.ceil(allVotingData.length / itemsPerPage)
+    ? Math.ceil(allFanRankingData.length / itemsPerPage)
     : 1;
   const startIndex = paginate ? (currentPage - 1) * itemsPerPage : 0;
   const endIndex = paginate ? startIndex + itemsPerPage : dataToShow.length;
   const currentData = paginate
-    ? allVotingData.slice(startIndex, endIndex)
+    ? allFanRankingData.slice(startIndex, endIndex)
     : dataToShow;
 
   const handlePageChange = (page: number) => {
@@ -153,17 +100,13 @@ export default function VotingList({
 
   return (
     <main className="flex flex-col w-full items-center">
-      {/* Voting Section */}
+      {/* Fan Ranking Section */}
       <div className="flex flex-col items-start gap-5 w-full">
         <div className="flex items-center justify-between w-full font-oswald">
-          {title && (
-            <h1 className="text-2xl font-bold text-secondary font-oswald">
-              Voting
-            </h1>
-          )}
+          {title && <h1 className="text-2xl font-bold text-secondary font-oswald">Fan Ranking</h1>}
           {!paginate && (
             <Link
-              href="/voting"
+              href="/fan-ranking"
               className="text-secondary text-base tracking-[0] leading-[normal]"
             >
               See All
@@ -176,65 +119,43 @@ export default function VotingList({
             <Table className="border-collapse">
               <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300">
                 <TableRow>
-                  <TableHead className="font-normal text-secondary pl-8 py-4">
+                  <TableHead className="font-normal text-secondary pl-6 py-4">
+                    Rank
+                  </TableHead>
+                  <TableHead className="font-normal text-secondary pl-6 py-4">
                     User
                   </TableHead>
                   <TableHead className="font-normal text-secondary pl-6 py-4">
                     Email
                   </TableHead>
-                  <TableHead className="font-normal text-secondary pl-6 py-4">
-                    Who will Win
-                  </TableHead>
                   <TableHead className="font-normal text-center text-secondary py-4">
-                    Goals
-                  </TableHead>
-                  <TableHead className="font-normal text-center text-secondary py-4">
-                    Select Player
+                    Points
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white">
-                {currentData.map((item, index) => (
+                {currentData.map((fanRank, index) => (
                   <TableRow key={index}>
                     <TableCell className="px-6 py-3">
                       <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage
-                            className="w-10 h-10 object-cover rounded-full"
-                            alt="User avatar"
-                            src={item.user.avatar}
-                          />
-                        </Avatar>
-                        <span className="font-normal text-blackblack-700 text-xl">
-                          {item.user.name}
-                        </span>
+                        <Badge className="flex items-center justify-center px-3 w-10 h-10 bg-white rounded-full border border-solid border-border font-oswald text-md text-secondary">
+                          {getOrdinalRank(fanRank.rank)}
+                        </Badge>
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-3">
                       <div className="font-normal text-blackblack-700 text-xl">
-                        {item.email}
+                        {fanRank.name}
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-3">
                       <div className="font-normal text-blackblack-700 text-xl">
-                        {item.team}
+                        {fanRank.email}
                       </div>
                     </TableCell>
                     <TableCell className="px-6 py-3 text-center">
                       <div className="font-normal text-blackblack-700 text-xl">
-                        {item.goals}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-3">
-                      <div className="flex items-center justify-center gap-2">
-                        {item.players.map((player: string, idx: number) => (
-                          <Badge
-                            key={idx}
-                            className="flex items-center justify-center px-3 w-12 h-12 bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg"
-                          >
-                            {player}
-                          </Badge>
-                        ))}
+                        {fanRank.points} Pts
                       </div>
                     </TableCell>
                   </TableRow>

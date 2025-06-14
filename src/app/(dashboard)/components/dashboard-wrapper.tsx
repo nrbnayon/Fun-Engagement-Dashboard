@@ -3,18 +3,13 @@
 
 import React from "react";
 import { Sidebar, SidebarBody, SidebarLink } from "@/components/ui/sidebar";
-import {
-  IconDashboard,
-  IconUserBolt,
-  IconSettings,
-  IconArrowLeft,
-  IconBrandTabler,
-  IconChartBar,
-} from "@tabler/icons-react";
+import { IconBrandTabler } from "@tabler/icons-react";
+import { PiRanking } from "react-icons/pi";
 import Link from "next/link";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
+import { LogOut, Newspaper, ScrollText, Trophy, Vote } from "lucide-react";
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
@@ -26,42 +21,45 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       label: "Overview",
       href: "/overview",
       icon: (
-        <IconBrandTabler className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
+        <IconBrandTabler className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Player List",
       href: "/player-list",
       icon: (
-        <IconDashboard className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
+        <ScrollText className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Matchs",
       href: "/matchs",
       icon: (
-        <IconChartBar className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
+        <Trophy className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
       label: "Voting",
       href: "/voting",
       icon: (
-        <IconUserBolt className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
+        <Vote className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
     {
-      label: "Settings",
-      href: "/settings",
+      label: "Fan Ranking",
+      href: "/fan-ranking",
       icon: (
-        <IconSettings className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
+        <PiRanking
+          size={18}
+          className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0"
+        />
       ),
     },
     {
-      label: "Logout",
-      href: "#",
+      label: "News",
+      href: "news",
       icon: (
-        <IconArrowLeft className='text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0' />
+        <Newspaper className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
   ];
@@ -76,10 +74,10 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       )}
     >
       <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className='justify-between gap-10 bg-card dark:bg-yellow-200'>
-          <div className='flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
+        <SidebarBody className="justify-between gap-10 bg-card dark:bg-yellow-200">
+          <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
             {open ? <Logo open={open} /> : <LogoIcon />}
-            <div className='mt-10 flex flex-col gap-2'>
+            <div className="mt-10 flex flex-col gap-2">
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
               ))}
@@ -88,11 +86,20 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
           <div>
             <SidebarLink
               link={{
+                label: "Logout",
+                href: "#",
+                icon: (
+                  <LogOut className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                ),
+              }}
+            />
+            <SidebarLink
+              link={{
                 label: "John Doe",
                 href: "#",
                 icon: (
-                  <div className='h-7 w-7 flex-shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-medium'>
-                    JD
+                  <div className="h-7 w-7 flex-shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
+                    N
                   </div>
                 ),
               }}
@@ -126,15 +133,15 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
 const Logo = ({ open }: { open: boolean }) => {
   return (
     <Link
-      href='/'
-      className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20 w-full'
+      href="/overview"
+      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20 w-full"
     >
       {/* Fixed container for image to prevent jumping */}
-      <div className='w-9 h-9 flex-shrink-0 flex items-center justify-center'>
+      <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center">
         <Image
-          className='w-full h-full object-contain'
-          alt='Dumbarton Fan Logo'
-          src='/clubcrest--2--1-3.png'
+          className="w-full h-full object-contain"
+          alt="Dumbarton Fan Logo"
+          src="/clubcrest--2--1-3.png"
           width={36}
           height={36}
           style={{ width: "36px", height: "36px" }}
@@ -148,7 +155,7 @@ const Logo = ({ open }: { open: boolean }) => {
           display: open ? "inline-block" : "none",
         }}
         transition={{ duration: 0.2 }}
-        className='font-medium text-lg font-oswald bg-gradient-to-b from-[#000002] to-[#F2CE171A] bg-clip-text text-transparent dark:text-white whitespace-pre overflow-hidden'
+        className="font-medium text-lg font-oswald bg-gradient-to-b from-[#000002] to-[#F2CE171A] bg-clip-text text-transparent dark:text-white whitespace-pre overflow-hidden"
       >
         Dumbarton Fan
       </motion.span>
@@ -165,15 +172,15 @@ const LogoIcon = () => {
     //   <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
     // </Link>
     <Link
-      href='/'
-      className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20 w-full'
+      href="/overview"
+      className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20 w-full"
     >
       {/* Fixed container for image to prevent jumping */}
-      <div className='w-9 h-9 flex-shrink-0 flex items-center justify-center'>
+      <div className="w-9 h-9 flex-shrink-0 flex items-center justify-center">
         <Image
-          className='w-full h-full object-contain'
-          alt='Dumbarton Fan Logo'
-          src='/clubcrest--2--1-3.png'
+          className="w-full h-full object-contain"
+          alt="Dumbarton Fan Logo"
+          src="/clubcrest--2--1-3.png"
           width={36}
           height={36}
           style={{ width: "36px", height: "36px" }}
@@ -186,7 +193,7 @@ const LogoIcon = () => {
           opacity: 1,
         }}
         transition={{ duration: 0.2 }}
-        className='font-medium bg-gradient-to-b from-[#000002] to-[#F2CE171A] bg-clip-text text-transparent dark:text-white whitespace-pre overflow-hidden'
+        className="font-medium text-lg font-oswald bg-gradient-to-b from-[#000002] to-[#F2CE171A] bg-clip-text text-transparent dark:text-white whitespace-pre overflow-hidden"
       >
         Dumbarton Fan
       </motion.span>
@@ -196,8 +203,8 @@ const LogoIcon = () => {
 
 const Dashboard = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className='flex flex-1 bg-card'>
-      <div className='p-0 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto'>
+    <div className="flex flex-1 bg-card">
+      <div className="p-0 rounded-tl-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 flex flex-col gap-2 flex-1 w-full h-full overflow-y-auto">
         {children}
       </div>
     </div>

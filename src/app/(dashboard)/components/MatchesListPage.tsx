@@ -144,15 +144,15 @@ export default function MatchesListPage({
     const newMatch: Match = {
       teamA: {
         name: formData.teamAName,
-        logo: "/clubcrest--2--1-3.png", // Default logo
+        logo: "/clubcrest--2--1-3.png", 
       },
       teamB: {
         name: formData.teamBName,
-        logo: "/clubcrest--2--1-4.png", // Default logo
+        logo: "/clubcrest--2--1-4.png", 
       },
       time: formData.time,
       date: formData.date,
-      players: Array(16).fill("/ellipse-2-7.png"), // Default player avatars
+      players: Array(16).fill("/ellipse-2-7.png"), 
       status: "upcoming",
     };
 
@@ -206,7 +206,7 @@ export default function MatchesListPage({
     <div className='flex flex-col w-full space-y-6'>
       {/* Header with Title and Add Button */}
       <div className='flex items-center justify-between w-full'>
-        <h1 className='text-3xl font-bold text-secondary font-oswald'>
+        <h1 className='text-2xl font-bold text-secondary font-oswald'>
           Matches
         </h1>
         <Button
