@@ -68,7 +68,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         {/* User Actions Section */}
         <div className='flex items-center gap-4'>
           {/* Theme Toggle */}
-          {/* <ModeToggle /> */}
+          <ModeToggle />
 
           {/* Notifications Button */}
           <Button
