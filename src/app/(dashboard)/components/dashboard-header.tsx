@@ -57,7 +57,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           className='flex flex-col items-start gap-0.5 cursor-pointer flex-shrink min-w-0'
           onClick={handleProfileClick}
         >
-          <h1 className='font-h5-regular text-blue-100 dark:text-foreground transition-colors duration-200 text-sm sm:text-base'>
+          <h1 className='font-h5-regular text-blue-100 dark:text-foreground transition-colors duration-200 text-md sm:text-xl'>
             {getTimeGreeting()}
           </h1>
           <p className='font-oswald-medium dark:text-text-primary transition-colors duration-200 hover:text-interactive dark:hover:text-primary-light text-sm sm:text-base truncate'>
