@@ -57,7 +57,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     },
     {
       label: "News",
-      href: "news",
+      href: "/news",
       icon: (
         <Newspaper className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
@@ -93,17 +93,6 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
                 ),
               }}
             />
-            {/* <SidebarLink
-              link={{
-                label: "John Doe",
-                href: "#",
-                icon: (
-                  <div className="h-7 w-7 flex-shrink-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center text-white text-sm font-medium">
-                    N
-                  </div>
-                ),
-              }}
-            /> */}
           </div>
         </SidebarBody>
       </Sidebar>
@@ -111,24 +100,6 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
     </div>
   );
 }
-
-// const Logo = () => {
-//   return (
-//     <Link
-//       href='/'
-//       className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20'
-//     >
-//       <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
-//       <motion.span
-//         initial={{ opacity: 0 }}
-//         animate={{ opacity: 1 }}
-//         className='font-medium text-black dark:text-white whitespace-pre'
-//       >
-//         Dumbarton Fan
-//       </motion.span>
-//     </Link>
-//   );
-// };
 
 const Logo = ({ open }: { open: boolean }) => {
   return (
@@ -165,12 +136,6 @@ const Logo = ({ open }: { open: boolean }) => {
 
 const LogoIcon = () => {
   return (
-    // <Link
-    //   href='/'
-    //   className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20'
-    // >
-    //   <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
-    // </Link>
     <Link
       href="/overview"
       className="font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20 w-full"
