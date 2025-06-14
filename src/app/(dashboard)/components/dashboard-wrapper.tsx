@@ -93,7 +93,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
                 ),
               }}
             />
-            <SidebarLink
+            {/* <SidebarLink
               link={{
                 label: "John Doe",
                 href: "#",
@@ -103,7 +103,7 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
                   </div>
                 ),
               }}
-            />
+            /> */}
           </div>
         </SidebarBody>
       </Sidebar>

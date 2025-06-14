@@ -117,7 +117,7 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full"
+          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-card dark:bg-neutral-800 w-full"
         )}
         {...props}
       >
@@ -129,27 +129,40 @@ export const MobileSidebar = ({
         </div>
         <AnimatePresence>
           {open && (
-            <motion.div
-              initial={{ x: "-100%", opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
-              transition={{
-                duration: 0.3,
-                ease: "easeInOut",
-              }}
-              className={cn(
-                "fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
-                className
-              )}
-            >
-              <div
-                className='absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200 cursor-pointer'
-                onClick={() => setOpen(!open)}
+            <>
+              {/* Backdrop/Overlay */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className='fixed inset-0 bg-black/50 backdrop-blur-md z-[90]'
+                onClick={() => setOpen(false)}
+              />
+
+              {/* Sidebar Content */}
+              <motion.div
+                initial={{ x: "-100%", opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: "-100%", opacity: 0 }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeInOut",
+                }}
+                className={cn(
+                  "fixed left-0 top-0 h-full w-[280px] bg-black dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between shadow-2xl",
+                  className
+                )}
               >
-                <IconX />
-              </div>
-              {children}
-            </motion.div>
+                <div
+                  className='absolute right-6 top-6 z-50 text-neutral-800 dark:text-neutral-200 cursor-pointer hover:bg-neutral-100 dark:hover:bg-neutral-800 p-2 rounded-full transition-colors'
+                  onClick={() => setOpen(false)}
+                >
+                  <IconX size={20} />
+                </div>
+                {children}
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
       </div>
