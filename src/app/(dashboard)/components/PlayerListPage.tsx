@@ -281,85 +281,87 @@ export default function PlayerListPage({
       {/* Players Table */}
       <Card className="w-full rounded-xl overflow-hidden border-border p-0">
         <CardContent className="p-0">
-          <Table className="border-collapse">
-            <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300">
-              <TableRow>
-                <TableHead className="font-normal text-secondary pl-8 py-4">
-                  Player
-                </TableHead>
-                <TableHead className="font-normal text-secondary pl-6 py-4">
-                  Player Name
-                </TableHead>
-                <TableHead className="font-normal text-center text-secondary py-4">
-                  Jersey Number
-                </TableHead>
-                <TableHead className="font-normal text-center text-secondary py-4">
-                  Status
-                </TableHead>
-                <TableHead className="font-normal text-center text-secondary py-4">
-                  Action
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="bg-white">
-              {currentData.map((player) => (
-                <TableRow key={player.id}>
-                  <TableCell className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 flex items-center justify-center">
-                        <Image
-                          className="w-9 h-9 object-cover rounded-full"
-                          alt={`${player.playerName} avatar`}
-                          src={player.playerImage}
-                          width={36}
-                          height={36}
-                        />
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-6 py-4">
-                    <span className="font-normal text-blackblack-700 text-xl">
-                      {player.playerName}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-center">
-                    <div className="font-normal text-blackblack-700 text-xl">
-                      {player.jerseyNo}
-                    </div>
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-center">
-                    <span
-                      className={`px-2 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
-                        player.status
-                      )}`}
-                    >
-                      {player.status}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-6 py-4 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 cursor-pointer"
-                        onClick={() => handleEdit(player)}
-                      >
-                        <Edit size={16} />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 cursor-pointer text-red-600 hover:text-red-800 hover:bg-red-50"
-                        onClick={() => handleDelete(player)}
-                      >
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
-                  </TableCell>
+          <div className="overflow-x-auto">
+            <Table className="border-collapse min-w-5xl">
+              <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300">
+                <TableRow>
+                  <TableHead className="font-normal text-secondary pl-6 py-4 min-w-24">
+                    Player
+                  </TableHead>
+                  <TableHead className="font-normal text-secondary pl-5 py-4 min-w-44">
+                    Player Name
+                  </TableHead>
+                  <TableHead className="font-normal text-center text-secondary py-4 min-w-28">
+                    Jersey Number
+                  </TableHead>
+                  <TableHead className="font-normal text-center text-secondary py-4 min-w-24">
+                    Status
+                  </TableHead>
+                  <TableHead className="font-normal text-center text-secondary py-4 min-w-24">
+                    Action
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody className="bg-white">
+                {currentData.map((player) => (
+                  <TableRow key={player.id}>
+                    <TableCell className="px-6 py-4 min-w-24">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 flex items-center justify-center">
+                          <Image
+                            className="w-9 h-9 object-cover rounded-full"
+                            alt={`${player.playerName} avatar`}
+                            src={player.playerImage}
+                            width={36}
+                            height={36}
+                          />
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 min-w-44">
+                      <span className="font-normal text-blackblack-700 text-xl">
+                        {player.playerName}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-center min-w-28">
+                      <div className="font-normal text-blackblack-700 text-xl">
+                        {player.jerseyNo}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-center min-w-24">
+                      <span
+                        className={`px-2 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
+                          player.status
+                        )}`}
+                      >
+                        {player.status}
+                      </span>
+                    </TableCell>
+                    <TableCell className="px-6 py-4 text-center min-w-24">
+                      <div className="flex items-center justify-center gap-2">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 cursor-pointer"
+                          onClick={() => handleEdit(player)}
+                        >
+                          <Edit size={16} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 cursor-pointer text-red-600 hover:text-red-800 hover:bg-red-50"
+                          onClick={() => handleDelete(player)}
+                        >
+                          <Trash2 size={16} />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </CardContent>
       </Card>
 

@@ -20,7 +20,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +33,12 @@ import {
 import { toast } from "sonner";
 import { generateNewsData, News } from "@/lib/data/news";
 import Link from "next/link";
+
+import dynamic from "next/dynamic";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
+
+const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
 
 interface NewsPageProps {
   itemsPerPage?: number;
@@ -245,11 +250,11 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
         {currentData.map((newsItem) => (
           <Card
             key={newsItem.id}
-            className="overflow-hidden border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow"
+            className="overflow-hidden border border-border bg-[#FBFDFF] rounded-2xl shadow-sm hover:shadow-md transition-shadow"
           >
-            <div className="relative">
+            <div className="relative px-2 rounded-xl">
               <Image
-                src={newsItem.image}
+                src={newsItem?.image}
                 alt={newsItem.title}
                 width={300}
                 height={200}
@@ -283,13 +288,19 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
                 </span>
               </div>
               <Link href={`/news/${newsItem.id}`}>
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 cursor-pointer">
+                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 cursor-pointer font-oswald">
                   {newsItem.title}
                 </h3>
               </Link>
-              <p className="text-sm text-gray-600 line-clamp-3">
-                {newsItem.description}
-              </p>
+              <div
+                className="text-sm text-gray-600 line-clamp-3 prose prose-sm max-w-none"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    newsItem.description.length > 150
+                      ? newsItem.description.substring(0, 150) + "..."
+                      : newsItem.description,
+                }}
+              />
             </CardContent>
           </Card>
         ))}
@@ -350,7 +361,7 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
           className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0"
           showCloseButton={false}
         >
-          <DialogHeader className="bg-primary p-4 flex flex-row items-center justify-between">
+          <DialogHeader className="bg-primary p-4  flex flex-row items-center justify-between">
             <DialogTitle className="text-[#141b34] text-xl">
               {editingNews ? "Edit News" : "Add News"}
             </DialogTitle>
@@ -366,7 +377,7 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
               <X className="h-5 w-5 text-red-500" />
             </Button>
           </DialogHeader>
-          <div className="p-6 space-y-4">
+          <div className="p-6 space-y-4 pt-0">
             {/* Image Upload */}
             <div className="space-y-2">
               <label className="font-medium text-[#141b34]">News Image</label>
@@ -438,18 +449,33 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
               <label className="font-medium text-[#141b34]">
                 Description <span className="text-red-500">*</span>
               </label>
-              <Textarea
-                placeholder="Enter news description..."
-                value={formData.description}
-                onChange={(e) =>
-                  handleInputChange("description", e.target.value)
-                }
-                className="min-h-[200px] text-base resize-none"
-              />
+              <div className="border border-gray-300 rounded-lg overflow-hidden">
+                <MDEditor
+                  value={formData.description}
+                  onChange={(value) =>
+                    handleInputChange("description", value || "")
+                  }
+                  preview="edit"
+                  hideToolbar={false}
+                  visibleDragbar={false}
+                  data-color-mode="light"
+                  textareaProps={{
+                    placeholder:
+                      "Enter news description with markdown support...",
+                    style: {
+                      fontSize: 14,
+                      lineHeight: 1.5,
+                      fontFamily:
+                        'ui-monospace,SFMono-Regular,"SF Mono",Consolas,"Liberation Mono",Menlo,monospace',
+                    },
+                  }}
+                  height={200}
+                />
+              </div>
               <div className="flex justify-between items-center">
                 <p className="text-sm text-gray-500">
-                  Rich text editor would be implemented here for better
-                  formatting
+                  Supports markdown formatting (bold, italic, lists, links,
+                  etc.)
                 </p>
                 <span className="text-sm text-gray-400">
                   {formData.description.length} characters
@@ -465,7 +491,7 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
                   setIsAddNewsOpen(false);
                   resetForm();
                 }}
-                className="hover:bg-gray-50"
+                className="hover:bg-gray-300 hover:text-black"
               >
                 Cancel
               </Button>
@@ -493,7 +519,7 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setDeleteConfirmOpen(false)}
-              className="hover:bg-gray-50"
+              className="hover:bg-gray-300 hover:text-black"
             >
               Cancel
             </AlertDialogCancel>

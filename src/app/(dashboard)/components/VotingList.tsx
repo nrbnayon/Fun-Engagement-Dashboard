@@ -173,74 +173,76 @@ export default function VotingList({
 
         <Card className="w-full min-h-74 rounded-xl overflow-hidden border-border p-0">
           <CardContent className="p-0">
-            <Table className="border-collapse">
-              <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300">
-                <TableRow>
-                  <TableHead className="font-normal text-secondary pl-8 py-4">
-                    User
-                  </TableHead>
-                  <TableHead className="font-normal text-secondary pl-6 py-4">
-                    Email
-                  </TableHead>
-                  <TableHead className="font-normal text-secondary pl-6 py-4">
-                    Who will Win
-                  </TableHead>
-                  <TableHead className="font-normal text-center text-secondary py-4">
-                    Goals
-                  </TableHead>
-                  <TableHead className="font-normal text-center text-secondary py-4">
-                    Select Player
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="bg-white">
-                {currentData.map((item, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="px-6 py-3">
-                      <div className="flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage
-                            className="w-10 h-10 object-cover rounded-full"
-                            alt="User avatar"
-                            src={item.user.avatar}
-                          />
-                        </Avatar>
-                        <span className="font-normal text-blackblack-700 text-xl">
-                          {item.user.name}
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-3">
-                      <div className="font-normal text-blackblack-700 text-xl">
-                        {item.email}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-3">
-                      <div className="font-normal text-blackblack-700 text-xl">
-                        {item.team}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-3 text-center">
-                      <div className="font-normal text-blackblack-700 text-xl">
-                        {item.goals}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-3">
-                      <div className="flex items-center justify-center gap-2">
-                        {item.players.map((player: string, idx: number) => (
-                          <Badge
-                            key={idx}
-                            className="flex items-center justify-center px-3 w-12 h-12 bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg"
-                          >
-                            {player}
-                          </Badge>
-                        ))}
-                      </div>
-                    </TableCell>
+            <div className="overflow-x-auto">
+              <Table className="border-collapse min-w-5xl">
+                <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300">
+                  <TableRow>
+                    <TableHead className="font-normal text-secondary pl-6 py-4 min-w-56">
+                      User
+                    </TableHead>
+                    <TableHead className="font-normal text-secondary pl-5 py-4 min-w-56">
+                      Email
+                    </TableHead>
+                    <TableHead className="font-normal text-secondary pl-5 py-4 min-w-44">
+                      Who will Win
+                    </TableHead>
+                    <TableHead className="font-normal text-center text-secondary py-4 min-w-24">
+                      Goals
+                    </TableHead>
+                    <TableHead className="font-normal text-center text-secondary py-4 min-w-60">
+                      Select Player
+                    </TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody className="bg-white">
+                  {currentData.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="px-6 py-3 min-w-56">
+                        <div className="flex items-center gap-3">
+                          <Avatar>
+                            <AvatarImage
+                              className="w-10 h-10 object-cover rounded-full"
+                              alt="User avatar"
+                              src={item.user.avatar}
+                            />
+                          </Avatar>
+                          <span className="font-normal text-blackblack-700 text-xl">
+                            {item.user.name}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-3 min-w-56">
+                        <div className="font-normal text-blackblack-700 text-xl">
+                          {item.email}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-3 min-w-44">
+                        <div className="font-normal text-blackblack-700 text-xl">
+                          {item.team}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-3 text-center min-w-24">
+                        <div className="font-normal text-blackblack-700 text-xl">
+                          {item.goals}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-3 min-w-60">
+                        <div className="flex items-center justify-center gap-2">
+                          {item.players.map((player: string, idx: number) => (
+                            <Badge
+                              key={idx}
+                              className="flex items-center justify-center px-3 w-10 h-10 tex-xs bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg"
+                            >
+                              {player}
+                            </Badge>
+                          ))}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 
