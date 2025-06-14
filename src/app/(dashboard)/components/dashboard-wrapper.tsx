@@ -14,6 +14,7 @@ import {
 import Link from "next/link";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
@@ -77,8 +78,8 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       <Sidebar open={open} setOpen={setOpen}>
         <SidebarBody className='justify-between gap-10 bg-card dark:bg-yellow-200'>
           <div className='flex flex-col flex-1 overflow-y-auto overflow-x-hidden'>
-            {open ? <Logo /> : <LogoIcon />}
-            <div className='mt-8 flex flex-col gap-2'>
+            {open ? <Logo open={open} /> : <LogoIcon />}
+            <div className='mt-10 flex flex-col gap-2'>
               {links.map((link, idx) => (
                 <SidebarLink key={idx} link={link} />
               ))}
@@ -104,19 +105,52 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
   );
 }
 
-const Logo = () => {
+// const Logo = () => {
+//   return (
+//     <Link
+//       href='/'
+//       className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20'
+//     >
+//       <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
+//       <motion.span
+//         initial={{ opacity: 0 }}
+//         animate={{ opacity: 1 }}
+//         className='font-medium text-black dark:text-white whitespace-pre'
+//       >
+//         Dumbarton Fan
+//       </motion.span>
+//     </Link>
+//   );
+// };
+
+const Logo = ({ open }: { open: boolean }) => {
   return (
     <Link
       href='/'
-      className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20'
+      className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20 w-full'
     >
-      <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
+      {/* Fixed container for image to prevent jumping */}
+      <div className='w-9 h-9 flex-shrink-0 flex items-center justify-center'>
+        <Image
+          className='w-full h-full object-contain'
+          alt='Dumbarton Fan Logo'
+          src='/clubcrest--2--1-3.png'
+          width={36}
+          height={36}
+          style={{ width: "36px", height: "36px" }}
+        />
+      </div>
+
       <motion.span
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className='font-medium text-black dark:text-white whitespace-pre'
+        animate={{
+          opacity: open ? 1 : 0,
+          display: open ? "inline-block" : "none",
+        }}
+        transition={{ duration: 0.2 }}
+        className='font-medium text-lg font-oswald bg-gradient-to-b from-[#000002] to-[#F2CE171A] bg-clip-text text-transparent dark:text-white whitespace-pre overflow-hidden'
       >
-        Your CRM
+        Dumbarton Fan
       </motion.span>
     </Link>
   );
@@ -124,11 +158,38 @@ const Logo = () => {
 
 const LogoIcon = () => {
   return (
+    // <Link
+    //   href='/'
+    //   className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20'
+    // >
+    //   <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
+    // </Link>
     <Link
       href='/'
-      className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20'
+      className='font-normal flex space-x-2 items-center text-sm text-black py-1 relative z-20 w-full'
     >
-      <div className='h-5 w-6 bg-black dark:bg-white rounded-br-lg rounded-tr-sm rounded-tl-lg rounded-bl-sm flex-shrink-0' />
+      {/* Fixed container for image to prevent jumping */}
+      <div className='w-9 h-9 flex-shrink-0 flex items-center justify-center'>
+        <Image
+          className='w-full h-full object-contain'
+          alt='Dumbarton Fan Logo'
+          src='/clubcrest--2--1-3.png'
+          width={36}
+          height={36}
+          style={{ width: "36px", height: "36px" }}
+        />
+      </div>
+
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{
+          opacity: 1,
+        }}
+        transition={{ duration: 0.2 }}
+        className='font-medium bg-gradient-to-b from-[#000002] to-[#F2CE171A] bg-clip-text text-transparent dark:text-white whitespace-pre overflow-hidden'
+      >
+        Dumbarton Fan
+      </motion.span>
     </Link>
   );
 };

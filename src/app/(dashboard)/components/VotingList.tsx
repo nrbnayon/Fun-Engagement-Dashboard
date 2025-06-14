@@ -88,12 +88,14 @@ interface VotingListProps {
   paginate?: boolean;
   itemsPerPage?: number;
   limit?: number;
+  title?: boolean;
 }
 
 export default function VotingList({
   paginate = false,
   itemsPerPage = 12,
   limit = 5,
+  title = true,
 }: VotingListProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -154,7 +156,7 @@ export default function VotingList({
       {/* Voting Section */}
       <div className='flex flex-col items-start gap-5 w-full'>
         <div className='flex items-center justify-between w-full font-oswald'>
-          <h2 className='text-2xl text-secondary'>Voting</h2>
+          {title && <h2 className='text-2xl text-secondary'>Voting</h2>}
           {!paginate && (
             <Link
               href='voting'
