@@ -32,8 +32,8 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       ),
     },
     {
-      label: "Matchs",
-      href: "/matchs",
+      label: "Matches",
+      href: "/matches",
       icon: (
         <Trophy className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),

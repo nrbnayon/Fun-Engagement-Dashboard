@@ -260,7 +260,7 @@ export const MainOverviewContent = () => {
       <div className='flex flex-col items-start gap-5 w-full'>
         <div className='flex items-center justify-between w-full font-oswald'>
           <h2 className='text-2xl text-secondary'>Matches List</h2>
-          <Link href='matchs' className='text-secondary text-base tracking-[0] leading-[normal]'>
+          <Link href='/matches' className='text-secondary text-base tracking-[0] leading-[normal]'>
             See All
           </Link>
         </div>

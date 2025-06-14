@@ -173,29 +173,27 @@ export default function SignUpForm() {
   const passwordStrength = getPasswordStrength(password);
 
   return (
-    <div className="min-h-screen flex">
+    <div className='min-h-screen flex bg-card'>
       {/* Left Side - Welcome Message */}
-      <div className="flex-1 bg-card flex items-center justify-center p-8">
-        <div className="max-w-md text-center space-y-6">
-          <h1 className="text-4xl font-bold text-white leading-tight">
-            Join Us Today!
-          </h1>
-          <p className="text-white/80 text-lg">
+      <div className='flex-1 bg-card flex items-center justify-center p-8 text-foreground font-oswald'>
+        <div className='max-w-md text-center space-y-6'>
+          <h1 className='text-4xl font-bold leading-tight'>Join Us Today!</h1>
+          <p className='text-lg'>
             Create your account and get started with our amazing platform
           </p>
-          <div className="pt-4 space-y-3">
+          <div className='pt-4 space-y-3'>
             <Button
-              variant="outline"
+              variant='outline'
               onClick={handleDemoSignup}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20 w-full"
+              className='bg-white/10 border-white/20 text-secondary hover:bg-white/20 w-full'
             >
               Fill Demo Information
             </Button>
-            <p className="text-white/60 text-sm">
+            <p className='text-sm'>
               Already have an account?{" "}
               <Link
-                href="/login"
-                className="text-white underline font-medium hover:text-white/80"
+                href='/login'
+                className='text-secondary underline font-medium hover:text-secondary/80'
               >
                 Sign In
               </Link>
@@ -205,17 +203,17 @@ export default function SignUpForm() {
       </div>
 
       {/* Right Side - Signup Form */}
-      <div className="flex-1 bg-[#fcfcff] flex items-center justify-center p-8">
-        <Card className="w-full max-w-md border-[#e2e2e2] shadow-lg">
-          <CardHeader className="text-center pb-6">
-            <h2 className="text-2xl font-semibold text-[#222222] mb-2">
+      <div className='flex-1 bg-white font-oswald flex items-center justify-center p-8'>
+        <Card className='w-full max-w-md border-[#e2e2e2] shadow-lg'>
+          <CardHeader className='text-center pb-6'>
+            <h2 className='text-2xl font-semibold text-[#222222] mb-2'>
               Create Your Account
             </h2>
-            <p className="text-[#acacac] text-sm">
+            <p className='text-muted text-sm'>
               Already have an account?{" "}
               <Link
-                href="/login"
-                className="text-[#222222] underline font-medium hover:text-[#001d38]"
+                href='/login'
+                className='text-[#222222] underline font-medium hover:text-[#001d38]'
               >
                 Sign In
               </Link>
@@ -223,21 +221,21 @@ export default function SignUpForm() {
           </CardHeader>
 
           <CardContent>
-            <div className="space-y-6">
+            <div className='space-y-6'>
               {/* Full Name Field */}
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <label
-                  htmlFor="name"
-                  className="text-[#222222] font-medium text-sm block"
+                  htmlFor='name'
+                  className='text-[#222222] font-medium text-sm block'
                 >
                   Full Name
                 </label>
-                <div className="relative">
+                <div className='relative'>
                   <Input
-                    id="name"
-                    type="text"
-                    placeholder="Enter your full name"
-                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
+                    id='name'
+                    type='text'
+                    placeholder='Enter your full name'
+                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-muted ${
                       errors.name
                         ? "border-red-500 focus:border-red-500"
                         : "focus:border-[#001d38]"
@@ -245,29 +243,29 @@ export default function SignUpForm() {
                     {...register("name")}
                     disabled={isLoading}
                   />
-                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#acacac]" />
+                  <User className='absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted' />
                 </div>
                 {errors.name && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className='text-red-500 text-xs mt-1'>
                     {errors.name.message}
                   </p>
                 )}
               </div>
 
               {/* Email Field */}
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <label
-                  htmlFor="email"
-                  className="text-[#222222] font-medium text-sm block"
+                  htmlFor='email'
+                  className='text-[#222222] font-medium text-sm block'
                 >
                   Email Address
                 </label>
-                <div className="relative">
+                <div className='relative'>
                   <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email address"
-                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
+                    id='email'
+                    type='email'
+                    placeholder='Enter your email address'
+                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-muted ${
                       errors.email
                         ? "border-red-500 focus:border-red-500"
                         : "focus:border-[#001d38]"
@@ -275,29 +273,29 @@ export default function SignUpForm() {
                     {...register("email")}
                     disabled={isLoading}
                   />
-                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#acacac]" />
+                  <Mail className='absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted' />
                 </div>
                 {errors.email && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className='text-red-500 text-xs mt-1'>
                     {errors.email.message}
                   </p>
                 )}
               </div>
 
               {/* Password Field */}
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <label
-                  htmlFor="password"
-                  className="text-[#222222] font-medium text-sm block"
+                  htmlFor='password'
+                  className='text-[#222222] font-medium text-sm block'
                 >
                   Password
                 </label>
-                <div className="relative">
+                <div className='relative'>
                   <Input
-                    id="password"
+                    id='password'
                     type={showPassword ? "text" : "password"}
-                    placeholder="Create a strong password"
-                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
+                    placeholder='Create a strong password'
+                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-muted ${
                       errors.password
                         ? "border-red-500 focus:border-red-500"
                         : "focus:border-[#001d38]"
@@ -306,23 +304,23 @@ export default function SignUpForm() {
                     disabled={isLoading}
                   />
                   <button
-                    type="button"
+                    type='button'
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-[#001d38] transition-colors"
+                    className='absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-[#001d38] transition-colors'
                     disabled={isLoading}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-[#acacac]" />
+                      <EyeOff className='h-5 w-5 text-muted' />
                     ) : (
-                      <Eye className="h-5 w-5 text-[#acacac]" />
+                      <Eye className='h-5 w-5 text-muted' />
                     )}
                   </button>
                 </div>
 
                 {/* Password Strength Indicator */}
                 {password && (
-                  <div className="space-y-1">
-                    <div className="flex space-x-1">
+                  <div className='space-y-1'>
+                    <div className='flex space-x-1'>
                       {[1, 2, 3, 4, 5].map((level) => (
                         <div
                           key={level}
@@ -353,26 +351,26 @@ export default function SignUpForm() {
                 )}
 
                 {errors.password && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className='text-red-500 text-xs mt-1'>
                     {errors.password.message}
                   </p>
                 )}
               </div>
 
               {/* Confirm Password Field */}
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <label
-                  htmlFor="confirmPassword"
-                  className="text-[#222222] font-medium text-sm block"
+                  htmlFor='confirmPassword'
+                  className='text-[#222222] font-medium text-sm block'
                 >
                   Confirm Password
                 </label>
-                <div className="relative">
+                <div className='relative'>
                   <Input
-                    id="confirmPassword"
+                    id='confirmPassword'
                     type={showConfirmPassword ? "text" : "password"}
-                    placeholder="Confirm your password"
-                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
+                    placeholder='Confirm your password'
+                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-muted ${
                       errors.confirmPassword
                         ? "border-red-500 focus:border-red-500"
                         : "focus:border-[#001d38]"
@@ -381,30 +379,30 @@ export default function SignUpForm() {
                     disabled={isLoading}
                   />
                   <button
-                    type="button"
+                    type='button'
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-[#001d38] transition-colors"
+                    className='absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-[#001d38] transition-colors'
                     disabled={isLoading}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-5 w-5 text-[#acacac]" />
+                      <EyeOff className='h-5 w-5 text-muted' />
                     ) : (
-                      <Eye className="h-5 w-5 text-[#acacac]" />
+                      <Eye className='h-5 w-5 text-muted' />
                     )}
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className='text-red-500 text-xs mt-1'>
                     {errors.confirmPassword.message}
                   </p>
                 )}
               </div>
 
               {/* Terms and Conditions */}
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3">
+              <div className='space-y-3'>
+                <div className='flex items-start space-x-3'>
                   <Checkbox
-                    id="agreeToTerms"
+                    id='agreeToTerms'
                     className={`border-[#e2e2e2] mt-0.5 ${
                       errors.agreeToTerms ? "border-red-500" : ""
                     }`}
@@ -415,31 +413,31 @@ export default function SignUpForm() {
                     disabled={isLoading}
                   />
                   <label
-                    htmlFor="agreeToTerms"
-                    className="text-[#acacac] text-sm cursor-pointer leading-relaxed"
+                    htmlFor='agreeToTerms'
+                    className='text-muted text-sm cursor-pointer leading-relaxed'
                   >
                     I agree to the{" "}
                     <Link
-                      href="/terms"
-                      className="text-[#001d38] underline hover:text-[#001d38]/80 font-medium"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href='/terms'
+                      className='text-[#001d38] underline hover:text-[#001d38]/80 font-medium'
+                      target='_blank'
+                      rel='noopener noreferrer'
                     >
                       Terms and Conditions
                     </Link>{" "}
                     and{" "}
                     <Link
-                      href="/privacy"
-                      className="text-[#001d38] underline hover:text-[#001d38]/80 font-medium"
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href='/privacy'
+                      className='text-[#001d38] underline hover:text-[#001d38]/80 font-medium'
+                      target='_blank'
+                      rel='noopener noreferrer'
                     >
                       Privacy Policy
                     </Link>
                   </label>
                 </div>
                 {errors.agreeToTerms && (
-                  <p className="text-red-500 text-xs ml-7">
+                  <p className='text-red-500 text-xs ml-7'>
                     {errors.agreeToTerms.message}
                   </p>
                 )}
@@ -448,17 +446,17 @@ export default function SignUpForm() {
               {/* Signup Button */}
               <Button
                 onClick={handleSubmit(onSubmit)}
-                className="w-full h-12 bg-[#001d38] hover:bg-[#001d38]/90 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className='w-full h-12 bg-primary hover:bg-[#001d38]/90 text-foreground hover:text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
                 disabled={isLoading || isSubmitting}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                     Creating Account...
                   </>
                 ) : (
                   <>
-                    <CheckCircle className="mr-2 h-4 w-4" />
+                    <CheckCircle className='mr-2 h-4 w-4' />
                     Create Account
                   </>
                 )}
@@ -466,19 +464,10 @@ export default function SignUpForm() {
             </div>
 
             {/* Additional Info */}
-            <div className="mt-6 text-center space-y-2">
-              <p className="text-xs text-[#acacac]">
+            <div className='mt-6 text-center space-y-2'>
+              <p className='text-xs text-muted'>
                 By creating an account, you&apos;ll receive email notifications
                 about your account activity and our services.
-              </p>
-              <p className="text-xs text-[#acacac]">
-                Already have an account?{" "}
-                <Link
-                  href="/login"
-                  className="text-[#001d38] underline hover:text-[#001d38]/80 font-medium"
-                >
-                  Sign in here
-                </Link>
               </p>
             </div>
           </CardContent>

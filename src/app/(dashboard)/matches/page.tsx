@@ -1,4 +1,4 @@
-// src\app\(dashboard)\matchs\page.tsx
+// src\app\(dashboard)\matches\page.tsx
 
 import { DashboardHeader } from "../components/dashboard-header";
 import MatchesListPage from "../components/MatchesListPage";

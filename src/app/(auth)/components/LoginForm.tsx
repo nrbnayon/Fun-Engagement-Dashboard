@@ -101,21 +101,19 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex bg-card">
+    <div className='min-h-screen flex bg-card font-oswald'>
       {/* Left Side - Welcome Message */}
-      <div className="flex-1 bg-card flex items-center justify-center p-8">
-        <div className="max-w-md text-center space-y-6">
-          <h1 className="text-4xl font-bold text-white leading-tight">
-            Welcome Back!
-          </h1>
-          <p className="text-white/80 text-lg">
+      <div className='flex-1 bg-card flex items-center justify-center p-8 text-foreground font-oswald'>
+        <div className='max-w-md text-center space-y-6'>
+          <h1 className='text-4xl font-bold leading-tight'>Welcome Back!</h1>
+          <p className='text-muted text-lg'>
             Sign in to access your dashboard and manage your account
           </p>
-          <div className="pt-4">
+          <div className='pt-4'>
             <Button
-              variant="outline"
+              variant='outline'
               onClick={handleDemoLogin}
-              className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              className='bg-white/10 border-white/20 text-secondary hover:bg-white/20'
             >
               Try Demo Login
             </Button>
@@ -124,17 +122,17 @@ export default function LoginForm() {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 bg-[#fcfcff] flex items-center justify-center p-8">
-        <Card className="w-full max-w-md border-[#e2e2e2] shadow-lg">
-          <CardHeader className="text-center pb-6">
-            <h2 className="text-2xl font-semibold text-[#222222] mb-2">
+      <div className='flex-1 bg-white flex items-center justify-center p-8'>
+        <Card className='w-full max-w-md border-[#e2e2e2] shadow-lg'>
+          <CardHeader className='text-center pb-6'>
+            <h2 className='text-2xl font-semibold text-[#222222] mb-2'>
               Sign in to Account
             </h2>
-            <p className="text-[#acacac] text-sm">
+            <p className='text-muted text-sm'>
               Don&apos;t have an Account?{" "}
               <Link
-                href="/signup"
-                className="text-[#222222] underline font-medium hover:text-[#001d38]"
+                href='/signup'
+                className='text-[#222222] underline font-medium hover:text-[#001d38]'
               >
                 Sign Up Free
               </Link>
@@ -142,20 +140,20 @@ export default function LoginForm() {
           </CardHeader>
 
           <CardContent>
-            <div className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
               {/* Username Field */}
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <label
-                  htmlFor="username"
-                  className="text-[#222222] font-medium text-sm block"
+                  htmlFor='username'
+                  className='text-[#222222] font-medium text-sm block'
                 >
                   Username
                 </label>
-                <div className="relative">
+                <div className='relative'>
                   <Input
-                    id="username"
-                    type="text"
-                    placeholder="Enter your username"
+                    id='username'
+                    type='text'
+                    placeholder='Enter your username'
                     className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
                       errors.username
                         ? "border-red-500 focus:border-red-500"
@@ -164,28 +162,28 @@ export default function LoginForm() {
                     {...register("username")}
                     disabled={isLoading}
                   />
-                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#acacac]" />
+                  <User className='absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#acacac]' />
                 </div>
                 {errors.username && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className='text-red-500 text-xs mt-1'>
                     {errors.username.message}
                   </p>
                 )}
               </div>
 
               {/* Password Field */}
-              <div className="space-y-2">
+              <div className='space-y-2'>
                 <label
-                  htmlFor="password"
-                  className="text-[#222222] font-medium text-sm block"
+                  htmlFor='password'
+                  className='text-[#222222] font-medium text-sm block'
                 >
                   Password
                 </label>
-                <div className="relative">
+                <div className='relative'>
                   <Input
-                    id="password"
+                    id='password'
                     type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
+                    placeholder='Enter your password'
                     className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
                       errors.password
                         ? "border-red-500 focus:border-red-500"
@@ -195,31 +193,31 @@ export default function LoginForm() {
                     disabled={isLoading}
                   />
                   <button
-                    type="button"
+                    type='button'
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-[#001d38] transition-colors"
+                    className='absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-[#001d38] transition-colors'
                     disabled={isLoading}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-[#acacac]" />
+                      <EyeOff className='h-5 w-5 text-[#acacac]' />
                     ) : (
-                      <Eye className="h-5 w-5 text-[#acacac]" />
+                      <Eye className='h-5 w-5 text-[#acacac]' />
                     )}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p className='text-red-500 text-xs mt-1'>
                     {errors.password.message}
                   </p>
                 )}
               </div>
 
               {/* Remember Me and Forgot Password */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
+              <div className='flex items-center justify-between'>
+                <div className='flex items-center space-x-2'>
                   <Checkbox
-                    id="rememberMe"
-                    className="border-[#e2e2e2]"
+                    id='rememberMe'
+                    className='border-[#e2e2e2]'
                     checked={rememberMe}
                     onCheckedChange={(checked) =>
                       setValue("rememberMe", !!checked)
@@ -227,15 +225,15 @@ export default function LoginForm() {
                     disabled={isLoading}
                   />
                   <label
-                    htmlFor="rememberMe"
-                    className="text-[#acacac] text-sm cursor-pointer"
+                    htmlFor='rememberMe'
+                    className='text-muted text-sm cursor-pointer'
                   >
                     Remember me
                   </label>
                 </div>
                 <Link
-                  href="/forgot-password"
-                  className="text-[#acacac] text-sm hover:underline hover:text-[#001d38] transition-colors"
+                  href='/forgot-password'
+                  className='text-muted text-sm hover:text-blue-500 hover:underline transition-colors'
                 >
                   Forgot Password?
                 </Link>
@@ -244,12 +242,12 @@ export default function LoginForm() {
               {/* Login Button */}
               <Button
                 onClick={handleSubmit(onSubmit)}
-                className="w-full h-12 bg-[#001d38] hover:bg-[#001d38]/90 text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className='w-full h-12 bg-primary hover:bg-[#001d38]/90 text-foreground hover:text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
                 disabled={isLoading || isSubmitting}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                     Signing in...
                   </>
                 ) : (
@@ -259,16 +257,16 @@ export default function LoginForm() {
             </div>
 
             {/* Additional Info */}
-            <div className="mt-6 text-center">
-              <p className="text-xs text-[#acacac]">
+            <div className='mt-6 text-center'>
+              <p className='text-xs text-muted'>
                 By signing in, you agree to our{" "}
-                <Link href="/terms" className="underline hover:text-[#001d38]">
+                <Link href='/terms' className='underline hover:text-green-500'>
                   Terms of Service
                 </Link>{" "}
                 and{" "}
                 <Link
-                  href="/privacy"
-                  className="underline hover:text-[#001d38]"
+                  href='/privacy'
+                  className='underline hover:text-green-500'
                 >
                   Privacy Policy
                 </Link>
