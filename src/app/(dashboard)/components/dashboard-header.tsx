@@ -68,9 +68,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         {/* User Actions Section */}
         <div className='flex items-center gap-2 sm:gap-4 flex-shrink-0'>
           {/* Theme Toggle - Hidden on very small screens */}
-          <div className='hidden xs:block'>
+          {/* <div className='hidden xs:block'>
             <ModeToggle />
-          </div>
+          </div> */}
 
           {/* Notifications Button */}
           <Button
