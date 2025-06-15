@@ -12,7 +12,7 @@ export const siteConfig = {
     default: "/logo.png",
     dark: "/logo.png",
     favicon: "/favicon.ico",
-    apple: "/apple-touch-icon.png",
+    apple: "/logo.png",
     external: "https://i.postimg.cc/g2SgRtQk/logo.png",
     altText: "Football Fan Engagement Admin Dashboard Logo",
   },
