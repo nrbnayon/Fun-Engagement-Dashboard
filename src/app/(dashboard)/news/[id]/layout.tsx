@@ -5,19 +5,22 @@ import { generateArticleSchema, siteConfig } from "@/lib/seo/metadata";
 
 interface NewsDetailLayoutProps {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 // Generate metadata for individual news articles
 export async function generateMetadata({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  // Await the params
+  const { id } = await params;
+
   const newsData = generateNewsData(50);
-  const article = newsData.find((news) => news.id === params.id);
+  const article = newsData.find((news) => news.id === id);
 
   if (!article) {
     return {
@@ -64,7 +67,7 @@ export async function generateMetadata({
       images: [article.image],
     },
     alternates: {
-      canonical: `${siteConfig.url}/news/${params.id}`,
+      canonical: `${siteConfig.url}/news/${id}`,
     },
     other: {
       "article:author": siteConfig.author,
@@ -83,13 +86,16 @@ export async function generateStaticParams() {
   }));
 }
 
-export default function NewsDetailLayout({
+export default async function NewsDetailLayout({
   children,
   params,
 }: NewsDetailLayoutProps) {
+  // Await the params
+  const { id } = await params;
+
   // Get article data for JSON-LD
   const newsData = generateNewsData(50);
-  const article = newsData.find((news) => news.id === params.id);
+  const article = newsData.find((news) => news.id === id);
 
   return (
     <>

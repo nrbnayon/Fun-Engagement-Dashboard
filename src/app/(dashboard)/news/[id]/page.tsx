@@ -45,8 +45,17 @@ export default function NewsDetailPage() {
   });
 
   useEffect(() => {
+    // Since this is a client component, params should be available synchronously
+    // but we'll add a safety check
+    const id = Array.isArray(params.id) ? params.id[0] : params.id;
+
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
     const allNews = generateNewsData(50);
-    const foundNews = allNews.find((item) => item.id === params.id);
+    const foundNews = allNews.find((item) => item.id === id);
 
     setNews(foundNews || null);
     setLoading(false);
