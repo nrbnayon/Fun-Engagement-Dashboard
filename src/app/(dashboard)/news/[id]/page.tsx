@@ -95,30 +95,30 @@ export default function NewsDetailPage() {
   return (
     <div>
       <DashboardHeader />
-      <div className="p-4 md:p-8 space-y-6">
+      <div className='p-4 md:p-8 space-y-6'>
         {/* Header with Back Button */}
-        <div className="flex items-center justify-between">
+        <div className='flex items-center justify-between'>
           <Button
-            variant="outline"
+            variant='outline'
             onClick={() => router.push("/news")}
-            className="flex items-center gap-2"
+            className='flex items-center gap-2'
           >
             <ArrowLeft size={16} />
             Back to News
           </Button>
-          <div className="flex gap-2">
+          <div className='flex gap-2'>
             <Button
-              variant="outline"
+              variant='outline'
               onClick={handleEdit}
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-800"
+              className='flex items-center gap-2 text-blue-600 hover:text-blue-800'
             >
               <Edit size={16} />
               Edit
             </Button>
             <Button
-              variant="outline"
+              variant='outline'
               onClick={() => setDeleteConfirmOpen(true)}
-              className="flex items-center gap-2 text-red-600 hover:text-red-800"
+              className='flex items-center gap-2 text-red-600 hover:text-red-800'
             >
               <Trash2 size={16} />
               Delete
@@ -127,30 +127,30 @@ export default function NewsDetailPage() {
         </div>
 
         {/* News Content */}
-        <Card className="overflow-hidden bg-[#FBFDFF]">
-          <div className="relative">
+        <Card className='overflow-hidden bg-[#FBFDFF]'>
+          <div className='relative px-6 rounded-2xl'>
             <Image
               src={news.image}
               alt={news.title}
               width={1200}
               height={400}
-              className="w-full h-64 md:h-96 object-cover"
+              className='w-full h-64 md:h-96 object-cover rounded-2xl'
             />
           </div>
-          <CardContent className="p-6 md:p-8">
+          <CardContent className='p-6 md:p-8'>
             {/* Date */}
-            <div className="flex items-center gap-2 mb-4">
-              <Calendar size={16} className="text-gray-500" />
-              <span className="text-sm text-gray-500">{news.createTime}</span>
+            <div className='flex items-center gap-2 mb-4'>
+              <Calendar size={16} className='text-gray-500' />
+              <span className='text-sm text-gray-500'>{news.createTime}</span>
             </div>
 
             {/* Title */}
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
+            <h1 className='text-2xl md:text-3xl font-bold text-gray-900 mb-6'>
               {news.title}
             </h1>
 
             {/* Description */}
-            <div className="prose max-w-none bg-[#FBFDFF]">
+            <div className='prose max-w-none bg-[#FBFDFF]'>
               <MDEditor.Markdown
                 source={news.description}
                 style={{
@@ -162,11 +162,11 @@ export default function NewsDetailPage() {
             </div>
 
             {/* Additional content sections could go here */}
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <div className='mt-8 pt-8 border-t border-gray-200'>
+              <h3 className='text-lg font-semibold text-gray-900 mb-4'>
                 Related Articles
               </h3>
-              <p className="text-gray-600">
+              <p className='text-gray-600'>
                 Related articles would be displayed here...
               </p>
             </div>
@@ -189,13 +189,13 @@ export default function NewsDetailPage() {
             <AlertDialogFooter>
               <AlertDialogCancel
                 onClick={() => setDeleteConfirmOpen(false)}
-                className="hover:bg-gray-50"
+                className='hover:bg-gray-50'
               >
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleDelete}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className='bg-red-600 hover:bg-red-700 text-white'
               >
                 Delete
               </AlertDialogAction>

@@ -3,18 +3,18 @@ import type { Metadata } from "next";
 
 export const siteConfig = {
   name: "Fan Engagement Admin Dashboard",
-  shortName: "FEAD", 
+  shortName: "FEAD",
   description:
     "Comprehensive sports management platform for football clubs featuring live match tracking, player management, fan engagement analytics, and real-time news updates.",
-  url: "https://your-domain.com", 
+  url: "https://fun-engagement-dashboard.vercel.app",
   ogImage: "/logo.png",
   logo: {
     default: "/logo.png",
-    dark: "/logo-dark.png", 
+    dark: "/logo.png",
     favicon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
     external: "https://i.postimg.cc/g2SgRtQk/logo.png",
-    altText: "Fan Engagement Admin Dashboard Logo",
+    altText: "Football Fan Engagement Admin Dashboard Logo",
   },
   creator: "@nrbnayon",
   author: "Mario",
@@ -70,7 +70,7 @@ export const siteConfig = {
   ],
 
   locale: "en_US",
-  languages: ["en"], 
+  languages: ["en"],
 
   // Theme
   theme: {
@@ -137,18 +137,16 @@ export const layoutMetadata: Metadata = {
     description: siteConfig.description,
     images: [siteConfig.ogImage],
     creator: siteConfig.creator,
-    site: siteConfig.creator, 
+    site: siteConfig.creator,
   },
   icons: {
-    icon: [
-      { url: "/favicon.ico" },
-    ],
+    icon: [{ url: "/favicon.ico" }],
     apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
     other: [
       { rel: "mask-icon", url: "/safari-pinned-tab.svg", color: "#000000" },
     ],
   },
-//   manifest: "/site.webmanifest",
+  //   manifest: "/site.webmanifest",
   robots: {
     index: true,
     follow: true,

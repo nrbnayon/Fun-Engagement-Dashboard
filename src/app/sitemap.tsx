@@ -3,7 +3,7 @@ import { generateMatchesData } from "@/lib/data/matches";
 import { generateNewsData } from "@/lib/data/news";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://your-domain.com"; // Update with your domain
+  const baseUrl = "https://fun-engagement-dashboard.vercel.app"; // Update with your domain
 
   // Generate dynamic routes for matches and news
   const matches = generateMatchesData(10);

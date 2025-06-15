@@ -41,9 +41,11 @@ const sampleNews = [
   },
 ];
 
-// Generate sample dates (recent dates)
-const generateRecentDate = (daysAgo: number): string => {
+// Generate deterministic dates based on index (not random)
+const generateDeterministicDate = (index: number): string => {
   const date = new Date();
+  // Use index to create deterministic dates (not random)
+  const daysAgo = index % 30; // Cycle through 0-29 days ago
   date.setDate(date.getDate() - daysAgo);
   return date.toLocaleDateString("en-GB", {
     day: "2-digit",
@@ -58,6 +60,6 @@ export const generateNewsData = (count: number): News[] => {
     image: sampleNews[index % sampleNews.length].image,
     title: sampleNews[index % sampleNews.length].title,
     description: sampleNews[index % sampleNews.length].description,
-    createTime: generateRecentDate(Math.floor(Math.random() * 30)), // Random date within last 30 days
+    createTime: generateDeterministicDate(index), // Use deterministic date generation
   }));
 };

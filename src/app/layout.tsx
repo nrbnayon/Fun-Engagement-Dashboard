@@ -49,12 +49,14 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}
+        suppressHydrationWarning
       >
         <ThemeProvider
           attribute='class'
           defaultTheme='light'
           enableSystem={false}
           disableTransitionOnChange
+          forcedTheme='light'
         >
           {children}
           <Toaster richColors position='top-center' />

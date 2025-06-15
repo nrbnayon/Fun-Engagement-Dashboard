@@ -232,12 +232,12 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
   };
 
   return (
-    <div className="flex flex-col w-full space-y-6">
+    <div className='flex flex-col w-full space-y-6'>
       {/* Header with Title and Add Button */}
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-2xl font-bold text-secondary font-oswald">News</h1>
+      <div className='flex items-center justify-between w-full'>
+        <h1 className='text-2xl font-bold text-secondary font-oswald'>News</h1>
         <Button
-          className="bg-primary hover:bg-primary/90 text-black rounded-xl px-6 py-2"
+          className='bg-primary hover:bg-primary/90 text-black rounded-xl px-6 py-2'
           onClick={() => setIsAddNewsOpen(true)}
         >
           <Plus size={18} />
@@ -246,54 +246,54 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
       </div>
 
       {/* News Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
         {currentData.map((newsItem) => (
           <Card
             key={newsItem.id}
-            className="overflow-hidden border border-border bg-[#FBFDFF] rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+            className='overflow-hidden border p-4 border-border bg-[#FBFDFF] rounded-2xl shadow-sm hover:shadow-md transition-shadow'
           >
-            <div className="relative px-2 rounded-xl">
+            <div className='relative rounded-xl'>
               <Image
                 src={newsItem?.image}
                 alt={newsItem.title}
                 width={300}
                 height={200}
-                className="w-full h-48 object-cover"
+                className='w-full h-48 object-cover rounded-xl'
               />
               {/* Action buttons overlay */}
-              <div className="absolute top-2 right-2 flex gap-1">
+              <div className='absolute top-0.5 right-0.5 flex gap-1'>
                 <Button
-                  variant="secondary"
-                  size="icon"
-                  className="h-8 w-8 bg-white/90 hover:bg-white text-blue-600 hover:text-blue-800"
+                  variant='secondary'
+                  size='icon'
+                  className='h-8 w-8 bg-white/90 hover:bg-white text-blue-600 hover:text-blue-800'
                   onClick={() => handleEdit(newsItem)}
                 >
                   <Edit size={14} />
                 </Button>
                 <Button
-                  variant="secondary"
-                  size="icon"
-                  className="h-8 w-8 bg-white/90 hover:bg-white text-red-600 hover:text-red-800"
+                  variant='secondary'
+                  size='icon'
+                  className='h-8 w-8 bg-white/90 hover:bg-white text-red-600 hover:text-red-800'
                   onClick={() => handleDelete(newsItem)}
                 >
                   <Trash2 size={14} />
                 </Button>
               </div>
             </div>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar size={14} className="text-gray-500" />
-                <span className="text-sm text-gray-500">
+            <CardContent className='px-0 -mt-2'>
+              <div className='flex items-center gap-2 mb-1'>
+                <Calendar size={14} className='text-gray-500' />
+                <span className='text-sm text-gray-500'>
                   {newsItem.createTime}
                 </span>
               </div>
               <Link href={`/news/${newsItem.id}`}>
-                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 cursor-pointer font-oswald">
+                <h3 className='font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 cursor-pointer font-oswald'>
                   {newsItem.title}
                 </h3>
               </Link>
               <div
-                className="text-sm text-gray-600 line-clamp-3 prose prose-sm max-w-none"
+                className='text-sm text-gray-600 line-clamp-3 prose prose-sm max-w-none'
                 dangerouslySetInnerHTML={{
                   __html:
                     newsItem.description.length > 150
@@ -308,7 +308,7 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center w-full mt-8">
+        <div className='flex justify-center w-full mt-8'>
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -325,12 +325,12 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
               {generatePageNumbers().map((pageNum, index) => (
                 <PaginationItem key={index}>
                   {pageNum === "..." ? (
-                    <span className="px-3 py-2">...</span>
+                    <span className='px-3 py-2'>...</span>
                   ) : (
                     <PaginationLink
                       onClick={() => handlePageChange(pageNum as number)}
                       isActive={currentPage === pageNum}
-                      className="cursor-pointer"
+                      className='cursor-pointer'
                     >
                       {pageNum}
                     </PaginationLink>
@@ -358,48 +358,48 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
       {/* Add/Edit News Dialog */}
       <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
         <DialogContent
-          className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0"
+          className='sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0'
           showCloseButton={false}
         >
-          <DialogHeader className="bg-primary p-4  flex flex-row items-center justify-between">
-            <DialogTitle className="text-[#141b34] text-xl">
+          <DialogHeader className='bg-primary p-4  flex flex-row items-center justify-between'>
+            <DialogTitle className='text-[#141b34] text-xl'>
               {editingNews ? "Edit News" : "Add News"}
             </DialogTitle>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500"
+              variant='ghost'
+              size='icon'
+              className='h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500'
               onClick={() => {
                 setIsAddNewsOpen(false);
                 resetForm();
               }}
             >
-              <X className="h-5 w-5 text-red-500" />
+              <X className='h-5 w-5 text-red-500' />
             </Button>
           </DialogHeader>
-          <div className="p-6 space-y-4 pt-0">
+          <div className='p-6 space-y-4 pt-0'>
             {/* Image Upload */}
-            <div className="space-y-2">
-              <label className="font-medium text-[#141b34]">News Image</label>
+            <div className='space-y-2'>
+              <label className='font-medium text-[#141b34]'>News Image</label>
               <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
+                className='border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors'
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
                 {formData.image ? (
-                  <div className="relative">
+                  <div className='relative'>
                     <Image
                       src={formData.image}
-                      alt="Preview"
+                      alt='Preview'
                       width={200}
                       height={120}
-                      className="mx-auto rounded-lg object-cover"
+                      className='mx-auto rounded-lg object-cover'
                     />
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white"
+                      variant='ghost'
+                      size='icon'
+                      className='absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white'
                       onClick={(e) => {
                         e.stopPropagation();
                         setFormData((prev) => ({ ...prev, image: "" }));
@@ -409,13 +409,13 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-3">
-                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                  <div className='space-y-3'>
+                    <Upload className='mx-auto h-12 w-12 text-gray-400' />
                     <div>
-                      <p className="text-lg font-medium text-gray-700">
+                      <p className='text-lg font-medium text-gray-700'>
                         Upload
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className='text-sm text-gray-500'>
                         Drag and drop an image or click to browse
                       </p>
                     </div>
@@ -423,42 +423,42 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
                 )}
                 <input
                   ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
+                  type='file'
+                  accept='image/*'
                   onChange={handleImageUpload}
-                  className="hidden"
+                  className='hidden'
                 />
               </div>
             </div>
 
             {/* Title */}
-            <div className="space-y-2">
-              <label className="font-medium text-[#141b34]">
-                Title <span className="text-red-500">*</span>
+            <div className='space-y-2'>
+              <label className='font-medium text-[#141b34]'>
+                Title <span className='text-red-500'>*</span>
               </label>
               <Input
-                placeholder="Enter news title"
+                placeholder='Enter news title'
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
-                className="text-base"
+                className='text-base'
               />
             </div>
 
             {/* Description */}
-            <div className="space-y-2">
-              <label className="font-medium text-[#141b34]">
-                Description <span className="text-red-500">*</span>
+            <div className='space-y-2'>
+              <label className='font-medium text-[#141b34]'>
+                Description <span className='text-red-500'>*</span>
               </label>
-              <div className="border border-gray-300 rounded-lg overflow-hidden">
+              <div className='border border-gray-300 rounded-lg overflow-hidden'>
                 <MDEditor
                   value={formData.description}
                   onChange={(value) =>
                     handleInputChange("description", value || "")
                   }
-                  preview="edit"
+                  preview='edit'
                   hideToolbar={false}
                   visibleDragbar={false}
-                  data-color-mode="light"
+                  data-color-mode='light'
                   textareaProps={{
                     placeholder:
                       "Enter news description with markdown support...",
@@ -472,31 +472,31 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
                   height={200}
                 />
               </div>
-              <div className="flex justify-between items-center">
-                <p className="text-sm text-gray-500">
+              <div className='flex justify-between items-center'>
+                <p className='text-sm text-gray-500'>
                   Supports markdown formatting (bold, italic, lists, links,
                   etc.)
                 </p>
-                <span className="text-sm text-gray-400">
+                <span className='text-sm text-gray-400'>
                   {formData.description.length} characters
                 </span>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex justify-end gap-3 pt-4">
+            <div className='flex justify-end gap-3 pt-4'>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => {
                   setIsAddNewsOpen(false);
                   resetForm();
                 }}
-                className="hover:bg-gray-300 hover:text-black"
+                className='hover:bg-gray-300 hover:text-black'
               >
                 Cancel
               </Button>
               <Button
-                className="bg-primary hover:bg-primary/90 text-[#141b34]"
+                className='bg-primary hover:bg-primary/90 text-[#141b34]'
                 onClick={handleSubmit}
               >
                 {editingNews ? "Update" : "Submit"}
@@ -519,13 +519,13 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setDeleteConfirmOpen(false)}
-              className="hover:bg-gray-300 hover:text-black"
+              className='hover:bg-gray-300 hover:text-black'
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className='bg-red-600 hover:bg-red-700 text-white'
             >
               Delete
             </AlertDialogAction>
