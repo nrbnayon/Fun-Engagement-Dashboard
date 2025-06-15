@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ui/mode-toggle";
+// import { ModeToggle } from "@/components/ui/mode-toggle";
 import { ChevronDownIcon } from "lucide-react";
 import { IoNotifications } from "react-icons/io5";
 import { ProfileDialog } from "@/components/ui/profile-dialog";
@@ -120,9 +120,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           </div>
 
           {/* Theme Toggle for very small screens - shown as part of profile area */}
-          <div className='block xs:hidden'>
+          {/* <div className='block xs:hidden'>
             <ModeToggle />
-          </div>
+          </div> */}
         </div>
       </header>
 

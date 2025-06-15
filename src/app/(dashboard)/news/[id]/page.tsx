@@ -1,11 +1,12 @@
 // src/app/(dashboard)/news/[id]/page.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import Image from "next/image";
-import { ArrowLeft, Calendar, Edit, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, Edit, Trash2, Upload, X } from "lucide-react";
 import { DashboardHeader } from "../../components/dashboard-header";
 import { generateNewsData, News } from "@/lib/data/news";
 import {
@@ -18,6 +19,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import MDEditor from "@uiw/react-md-editor";
 
@@ -26,7 +33,16 @@ export default function NewsDetailPage() {
   const router = useRouter();
   const [news, setNews] = useState<News | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Form data for editing
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+    image: "",
+  });
 
   useEffect(() => {
     const allNews = generateNewsData(50);
@@ -34,6 +50,15 @@ export default function NewsDetailPage() {
 
     setNews(foundNews || null);
     setLoading(false);
+
+    // Initialize form data if news is found
+    if (foundNews) {
+      setFormData({
+        title: foundNews.title,
+        description: foundNews.description,
+        image: foundNews.image,
+      });
+    }
   }, [params.id]);
 
   const handleDelete = () => {
@@ -45,22 +70,94 @@ export default function NewsDetailPage() {
   };
 
   const handleEdit = () => {
-    // In a real app, you would navigate to an edit page or open a modal
-    toast.info("Edit functionality would be implemented here");
+    setIsEditOpen(true);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFormData((prev) => ({
+          ...prev,
+          image: e.target?.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith("image/")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setFormData((prev) => ({
+            ...prev,
+            image: e.target?.result as string,
+          }));
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+  };
+
+  const handleSubmit = () => {
+    if (!formData.title.trim() || !formData.description.trim()) {
+      toast.error("Please fill in all required fields");
+      return;
+    }
+
+    // In a real app, you would make an API call to update the news
+    if (news) {
+      const updatedNews = {
+        ...news,
+        title: formData.title,
+        description: formData.description,
+        image: formData.image,
+      };
+      setNews(updatedNews);
+      toast.success("News updated successfully!");
+      setIsEditOpen(false);
+    }
+  };
+
+  const resetForm = () => {
+    if (news) {
+      setFormData({
+        title: news.title,
+        description: news.description,
+        image: news.image,
+      });
+    }
   };
 
   if (loading) {
     return (
       <div>
         <DashboardHeader />
-        <div className="p-4 md:p-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
-            <div className="h-64 bg-gray-200 rounded mb-6"></div>
-            <div className="h-6 bg-gray-200 rounded w-3/4 mb-4"></div>
-            <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+        <div className='p-4 md:p-8'>
+          <div className='animate-pulse'>
+            <div className='h-8 bg-gray-200 rounded w-1/4 mb-6'></div>
+            <div className='h-64 bg-gray-200 rounded mb-6'></div>
+            <div className='h-6 bg-gray-200 rounded w-3/4 mb-4'></div>
+            <div className='h-4 bg-gray-200 rounded w-full mb-2'></div>
+            <div className='h-4 bg-gray-200 rounded w-full mb-2'></div>
+            <div className='h-4 bg-gray-200 rounded w-2/3'></div>
           </div>
         </div>
       </div>
@@ -71,19 +168,19 @@ export default function NewsDetailPage() {
     return (
       <div>
         <DashboardHeader />
-        <div className="p-4 md:p-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className='p-4 md:p-8'>
+          <div className='text-center py-12'>
+            <h1 className='text-2xl font-bold text-gray-900 mb-4'>
               News Not Found
             </h1>
-            <p className="text-gray-600 mb-6">
+            <p className='text-gray-600 mb-6'>
               The news article you&apos;re looking for doesn&apos;t exist.
             </p>
             <Button
               onClick={() => router.push("/news")}
-              className="bg-primary hover:bg-primary/90"
+              className='bg-primary hover:bg-primary/90'
             >
-              <ArrowLeft size={16} className="mr-2" />
+              <ArrowLeft size={16} className='mr-2' />
               Back to News
             </Button>
           </div>
@@ -172,6 +269,157 @@ export default function NewsDetailPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Edit News Dialog */}
+        <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+          <DialogContent
+            className='sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0'
+            showCloseButton={false}
+          >
+            <DialogHeader className='bg-primary p-4 flex flex-row items-center justify-between'>
+              <DialogTitle className='text-[#141b34] text-xl'>
+                Edit News
+              </DialogTitle>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500'
+                onClick={() => {
+                  setIsEditOpen(false);
+                  resetForm();
+                }}
+              >
+                <X className='h-5 w-5 text-red-500' />
+              </Button>
+            </DialogHeader>
+            <div className='p-6 space-y-4 pt-0'>
+              {/* Image Upload */}
+              <div className='space-y-2'>
+                <label className='font-medium text-[#141b34]'>News Image</label>
+                <div
+                  className='border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors'
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {formData.image ? (
+                    <div className='relative'>
+                      <Image
+                        src={formData.image}
+                        alt='Preview'
+                        width={200}
+                        height={120}
+                        className='mx-auto rounded-lg object-cover'
+                      />
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white'
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFormData((prev) => ({ ...prev, image: "" }));
+                        }}
+                      >
+                        <X size={12} />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className='space-y-3'>
+                      <Upload className='mx-auto h-12 w-12 text-gray-400' />
+                      <div>
+                        <p className='text-lg font-medium text-gray-700'>
+                          Upload
+                        </p>
+                        <p className='text-sm text-gray-500'>
+                          Drag and drop an image or click to browse
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type='file'
+                    accept='image/*'
+                    onChange={handleImageUpload}
+                    className='hidden'
+                  />
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className='space-y-2'>
+                <label className='font-medium text-[#141b34]'>
+                  Title <span className='text-red-500'>*</span>
+                </label>
+                <Input
+                  placeholder='Enter news title'
+                  value={formData.title}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  className='text-base'
+                />
+              </div>
+
+              {/* Description */}
+              <div className='space-y-2'>
+                <label className='font-medium text-[#141b34]'>
+                  Description <span className='text-red-500'>*</span>
+                </label>
+                <div className='border border-gray-300 rounded-lg overflow-hidden'>
+                  <MDEditor
+                    value={formData.description}
+                    onChange={(value) =>
+                      handleInputChange("description", value || "")
+                    }
+                    preview='edit'
+                    hideToolbar={false}
+                    visibleDragbar={false}
+                    data-color-mode='light'
+                    textareaProps={{
+                      placeholder:
+                        "Enter news description with markdown support...",
+                      style: {
+                        fontSize: 14,
+                        lineHeight: 1.5,
+                        fontFamily:
+                          'ui-monospace,SFMono-Regular,"SF Mono",Consolas,"Liberation Mono",Menlo,monospace',
+                      },
+                    }}
+                    height={200}
+                  />
+                </div>
+                <div className='flex justify-between items-center'>
+                  <p className='text-sm text-gray-500'>
+                    Supports markdown formatting (bold, italic, lists, links,
+                    etc.)
+                  </p>
+                  <span className='text-sm text-gray-400'>
+                    {formData.description.length} characters
+                  </span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className='flex justify-end gap-3 pt-4'>
+                <Button
+                  variant='outline'
+                  onClick={() => {
+                    setIsEditOpen(false);
+                    resetForm();
+                  }}
+                  className='hover:bg-gray-300 hover:text-black'
+                >
+                  Cancel
+                </Button>
+                <Button
+                  className='bg-primary hover:bg-primary/90 text-[#141b34]'
+                  onClick={handleSubmit}
+                >
+                  Update
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Delete Confirmation Dialog */}
         <AlertDialog
