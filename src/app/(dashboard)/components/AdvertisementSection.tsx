@@ -52,7 +52,7 @@ interface FormData {
 const generateAdvertisementData = (count: number): Advertisement[] => {
   return Array.from({ length: count }, (_, index) => ({
     id: `ad-${index + 1}`,
-    image: `/ad-placeholder-${(index % 5) + 1}.jpg`,
+    image: `/ad-placeholder.png`,
     url: index % 3 === 0 ? `https://example.com/ad-${index + 1}` : undefined,
     createTime: new Date(
       Date.now() - Math.random() * 10000000000
