@@ -9,7 +9,7 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { LogOut, Newspaper, ScrollText, Trophy, Vote } from "lucide-react";
+import { LogOut, Megaphone, Newspaper, ScrollText, Trophy, Vote } from "lucide-react";
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
@@ -60,6 +60,13 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
       href: "/news",
       icon: (
         <Newspaper className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      ),
+    },
+    {
+      label: "Advertisements",
+      href: "/advertisements",
+      icon: (
+        <Megaphone className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
       ),
     },
   ];
