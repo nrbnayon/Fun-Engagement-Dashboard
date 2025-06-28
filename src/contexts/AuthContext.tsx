@@ -31,7 +31,7 @@ import {
   PasswordResetRequest,
   PasswordResetConfirm,
 } from "@/lib/axios";
-import { PROTECTED_ROUTES } from "../../middleware";
+import { PROTECTED_ROUTES } from "../middleware";
 import { toast } from "sonner";
 
 // =============================================================================

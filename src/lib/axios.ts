@@ -27,7 +27,7 @@ const TOKEN_EXPIRY_DAYS = 7;
 interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-  isVerified?: boolean; // Optional, used for user verification status
+  isVerified?: boolean; 
 }
 interface ApiError {
   message: string;
