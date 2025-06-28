@@ -1,29 +1,27 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { User, Eye, EyeOff, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Validation schema
 const loginSchema = z.object({
-  username: z
+  email: z
     .string()
-    .min(1, "Username is required")
-    .min(3, "Username must be at least 3 characters")
-    .max(50, "Username must be less than 50 characters")
-    .regex(
-      /^[a-zA-Z0-9_-]+$/,
-      "Username can only contain letters, numbers, underscores, and hyphens"
-    ),
+    .min(1, "Email is required")
+    .max(50, "Email must be less than 50 characters")
+    .email("Invalid email format")
+    .refine((val) => !/\s/.test(val), {
+      message: "Email must not contain spaces",
+    }),
   password: z
     .string()
     .min(1, "Password is required")
@@ -36,8 +34,13 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+  const { login, isLoading, error, clearError } = useAuth();
+
+  // Fix hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const {
     register,
@@ -48,7 +51,7 @@ export default function LoginForm() {
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
       rememberMe: false,
     },
@@ -56,83 +59,96 @@ export default function LoginForm() {
 
   const rememberMe = watch("rememberMe");
 
+  // Clear error when component mounts or when form values change
+  const watchedEmail = watch("email");
+  const watchedPassword = watch("password");
+  useEffect(() => {
+    if (error) {
+      clearError();
+    }
+  }, [watchedEmail, watchedPassword, clearError, error]);
+
   const onSubmit = async (data: LoginFormData) => {
-    setIsLoading(true);
-
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Clear any previous errors
+      clearError();
 
-      // Log the form data to console
       console.log("Login Form Data:", {
-        username: data.username,
+        username: data.email,
         password: data.password,
         rememberMe: data.rememberMe,
-        timestamp: new Date().toISOString(),
       });
 
-      // Simulate successful login
-      toast.success("Login successful!", {
-        description: `Welcome back, ${data.username}!`,
-        duration: 2000,
+      // Call login function
+      await login({
+        email: data.email,
+        password: data.password,
+        rememberMe: data.rememberMe,
       });
 
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        router.push("/overview");
-      }, 1000);
+      // Don't reset form here - let AuthContext handle success flow
     } catch (error) {
-      console.error("Login error:", error);
-      toast.error("Login failed", {
-        description: "Please check your credentials and try again.",
-        duration: 3000,
-      });
-    } finally {
-      setIsLoading(false);
+      console.error("Login submission error:", error);
+      // Error is handled by AuthContext, just ensure form doesn't reset
     }
   };
 
-  const handleDemoLogin = () => {
-    setValue("username", "demo_user");
-    setValue("password", "demo123");
-    toast.info("Demo credentials filled", {
-      description: "Click Login to continue with demo account",
-    });
-  };
+  // Handle form submission with proper error handling
+  const handleFormSubmit = handleSubmit(async (data) => {
+    try {
+      await onSubmit(data);
+    } catch (error) {
+      console.error("Form submission error:", error);
+      // Don't reset form on error
+    }
+  });
+
+  // Don't render until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex bg-card">
+        <div className="flex-1 bg-card flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto" />
+            <p className="mt-2 text-muted">Loading...</p>
+          </div>
+        </div>
+        <div className="flex-1 bg-white flex items-center justify-center">
+          <div className="w-full max-w-md">
+            <Card className="border-[#e2e2e2] shadow-lg">
+              <CardHeader className="h-20" />
+              <CardContent className="h-96" />
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className='min-h-screen flex bg-card font-oswald'>
+    <div className="min-h-screen flex bg-card font-oswald">
       {/* Left Side - Welcome Message */}
-      <div className='flex-1 bg-card flex items-center justify-center p-8 text-foreground font-oswald'>
-        <div className='max-w-md text-center space-y-6'>
-          <h1 className='text-4xl font-bold leading-tight'>Welcome Back!</h1>
-          <p className='text-muted text-lg'>
+      <div className="flex-1 bg-card flex items-center justify-center p-8 text-foreground font-oswald">
+        <div className="max-w-md text-center space-y-6">
+          <h1 className="text-4xl font-bold leading-tight">Welcome Back!</h1>
+          <p className="text-muted text-lg">
             Sign in to access your dashboard and manage your account
           </p>
-          <div className='pt-4'>
-            <Button
-              variant='outline'
-              onClick={handleDemoLogin}
-              className='bg-white/10 border-white/20 text-secondary hover:bg-white/20'
-            >
-              Try Demo Login
-            </Button>
-          </div>
         </div>
       </div>
 
       {/* Right Side - Login Form */}
-      <div className='flex-1 bg-white flex items-center justify-center p-8'>
-        <Card className='w-full max-w-md border-[#e2e2e2] shadow-lg'>
-          <CardHeader className='text-center pb-6'>
-            <h2 className='text-2xl font-semibold text-[#222222] mb-2'>
+      <div className="flex-1 bg-white flex items-center justify-center p-8">
+        <Card className="w-full max-w-md border-[#e2e2e2] shadow-lg">
+          <CardHeader className="text-center pb-6">
+            <h2 className="text-2xl font-semibold text-[#222222] mb-2">
               Sign in to Account
             </h2>
-            <p className='text-muted text-sm'>
+            <p className="text-muted text-sm">
               Don&apos;t have an Account?{" "}
               <Link
-                href='/signup'
-                className='text-[#222222] underline font-medium hover:text-[#001d38]'
+                href="/signup"
+                className="text-[#222222] underline font-medium hover:text-[#001d38]"
               >
                 Sign Up Free
               </Link>
@@ -140,50 +156,64 @@ export default function LoginForm() {
           </CardHeader>
 
           <CardContent>
-            <div className='space-y-6' onSubmit={handleSubmit(onSubmit)}>
-              {/* Username Field */}
-              <div className='space-y-2'>
+            <form onSubmit={handleFormSubmit} className="space-y-6">
+              {/* Error Display */}
+              {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                  {error}
+                  <button
+                    type="button"
+                    onClick={clearError}
+                    className="ml-2 underline hover:no-underline"
+                  >
+                    Dismiss
+                  </button>
+                </div>
+              )}
+
+              {/* Email Field */}
+              <div className="space-y-2">
                 <label
-                  htmlFor='username'
-                  className='text-[#222222] font-medium text-sm block'
+                  htmlFor="email"
+                  className="text-[#222222] font-medium text-sm block"
                 >
-                  Username
+                  Email
                 </label>
-                <div className='relative'>
+                <div className="relative">
                   <Input
-                    id='username'
-                    type='text'
-                    placeholder='Enter your username'
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
                     className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
-                      errors.username
+                      errors.email
                         ? "border-red-500 focus:border-red-500"
                         : "focus:border-[#001d38]"
                     }`}
-                    {...register("username")}
+                    {...register("email")}
                     disabled={isLoading}
                   />
-                  <User className='absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#acacac]' />
+                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#acacac]" />
                 </div>
-                {errors.username && (
-                  <p className='text-red-500 text-xs mt-1'>
-                    {errors.username.message}
+                {errors.email && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors.email.message}
                   </p>
                 )}
               </div>
 
               {/* Password Field */}
-              <div className='space-y-2'>
+              <div className="space-y-2">
                 <label
-                  htmlFor='password'
-                  className='text-[#222222] font-medium text-sm block'
+                  htmlFor="password"
+                  className="text-[#222222] font-medium text-sm block"
                 >
                   Password
                 </label>
-                <div className='relative'>
+                <div className="relative">
                   <Input
-                    id='password'
+                    id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder='Enter your password'
+                    placeholder="Enter your password"
                     className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
                       errors.password
                         ? "border-red-500 focus:border-red-500"
@@ -193,31 +223,31 @@ export default function LoginForm() {
                     disabled={isLoading}
                   />
                   <button
-                    type='button'
+                    type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className='absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-[#001d38] transition-colors'
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 hover:text-[#001d38] transition-colors"
                     disabled={isLoading}
                   >
                     {showPassword ? (
-                      <EyeOff className='h-5 w-5 text-[#acacac]' />
+                      <EyeOff className="h-5 w-5 text-[#acacac]" />
                     ) : (
-                      <Eye className='h-5 w-5 text-[#acacac]' />
+                      <Eye className="h-5 w-5 text-[#acacac]" />
                     )}
                   </button>
                 </div>
                 {errors.password && (
-                  <p className='text-red-500 text-xs mt-1'>
+                  <p className="text-red-500 text-xs mt-1">
                     {errors.password.message}
                   </p>
                 )}
               </div>
 
               {/* Remember Me and Forgot Password */}
-              <div className='flex items-center justify-between'>
-                <div className='flex items-center space-x-2'>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
                   <Checkbox
-                    id='rememberMe'
-                    className='border-[#e2e2e2]'
+                    id="rememberMe"
+                    className="border-[#e2e2e2]"
                     checked={rememberMe}
                     onCheckedChange={(checked) =>
                       setValue("rememberMe", !!checked)
@@ -225,15 +255,15 @@ export default function LoginForm() {
                     disabled={isLoading}
                   />
                   <label
-                    htmlFor='rememberMe'
-                    className='text-muted text-sm cursor-pointer'
+                    htmlFor="rememberMe"
+                    className="text-muted text-sm cursor-pointer"
                   >
                     Remember me
                   </label>
                 </div>
                 <Link
-                  href='/forgot-password'
-                  className='text-muted text-sm hover:text-blue-500 hover:underline transition-colors'
+                  href="/forgot-password"
+                  className="text-muted text-sm hover:text-blue-500 hover:underline transition-colors"
                 >
                   Forgot Password?
                 </Link>
@@ -241,32 +271,32 @@ export default function LoginForm() {
 
               {/* Login Button */}
               <Button
-                onClick={handleSubmit(onSubmit)}
-                className='w-full h-12 bg-primary hover:bg-[#001d38]/90 text-foreground hover:text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed'
+                type="submit"
+                className="w-full h-12 bg-primary hover:bg-[#001d38]/90 text-foreground hover:text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading || isSubmitting}
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Signing in...
                   </>
                 ) : (
                   "Sign In"
                 )}
               </Button>
-            </div>
+            </form>
 
             {/* Additional Info */}
-            <div className='mt-6 text-center'>
-              <p className='text-xs text-muted'>
+            <div className="mt-6 text-center">
+              <p className="text-xs text-muted">
                 By signing in, you agree to our{" "}
-                <Link href='/terms' className='underline hover:text-green-500'>
+                <Link href="/terms" className="underline hover:text-green-500">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
                 <Link
-                  href='/privacy'
-                  className='underline hover:text-green-500'
+                  href="/privacy"
+                  className="underline hover:text-green-500"
                 >
                   Privacy Policy
                 </Link>

@@ -5,6 +5,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { layoutMetadata } from "@/lib/seo/metadata";
+import AuthProvider from "@/contexts/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,10 +31,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
-          type='application/ld+json'
+          type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
@@ -51,16 +52,20 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}
         suppressHydrationWarning
       >
-        <ThemeProvider
-          attribute='class'
-          defaultTheme='light'
-          enableSystem={false}
-          disableTransitionOnChange
-          forcedTheme='light'
-        >
-          {children}
-          <Toaster richColors position='top-center' />
-        </ThemeProvider>
+        {/* <AuthErrorBoundary> */}
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem={false}
+            disableTransitionOnChange
+            forcedTheme="light"
+          >
+            {children}
+            <Toaster richColors position="top-center" />
+          </ThemeProvider>
+        </AuthProvider>
+        {/* </AuthErrorBoundary> */}
       </body>
     </html>
   );

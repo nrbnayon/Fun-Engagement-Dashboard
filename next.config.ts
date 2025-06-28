@@ -1,4 +1,4 @@
-// next.config.ts;
+// next.config.ts
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
@@ -9,17 +9,12 @@ const nextConfig: NextConfig = {
     optimizeCss: true,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true, // Set to false to catch build errors
   },
   images: {
-    unoptimized: true,
+    unoptimized: false, // Set to false to enable image optimization unless explicitly needed
+    domains: [], // Add allowed image domains if using external images
   },
-  // webpack: (config: any) => {
-  //   config.optimization.splitChunks = {
-  //     chunks: "all",
-  //   };
-  //   return config;
-  // },
 };
 
 export default nextConfig;
