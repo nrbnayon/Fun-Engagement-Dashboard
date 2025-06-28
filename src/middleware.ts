@@ -26,7 +26,7 @@ export const PROTECTED_ROUTES = [
 // Authentication routes - redirect to overview if already logged in
 const AUTH_ROUTES = [
   "/login",
-  "/register",
+  "/signup",
   "/forgot-password",
   "/reset-password",
   "/verify-otp",

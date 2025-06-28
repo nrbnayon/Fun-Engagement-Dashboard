@@ -336,26 +336,87 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setLoading(true);
         clearError();
 
-        const { user } = await apiRegister(userData);
+        console.log(
+          "[Auth Context] Attempting registration for:",
+          userData.email
+        );
 
+        const response = await apiRegister(userData);
+
+        console.log("[Auth Context] Registration response:", response);
+
+        // Since registration returns user data but user is not authenticated yet (needs email verification)
+        // We don't set the user as authenticated until they verify their email
         updateState({
-          user,
-          isAuthenticated: true,
+          user: null, // Don't authenticate user yet
+          isAuthenticated: false, // Keep as false until email verification
           isLoading: false,
           error: null,
         });
 
-        console.log("[Auth Context] User registered:", user.email);
+        console.log(
+          "[Auth Context] User registered successfully:",
+          response.user.email
+        );
 
-        // Redirect to overview page instead of dashboard
-        router.push("/overview");
+        toast.success("Registration successful!", {
+          description:
+            "Please check your email and verify your account with the OTP sent.",
+          duration: 4000,
+        });
+
+        // Redirect to OTP verification page with email
+        router.push(`/verify-otp?email=${encodeURIComponent(userData.email)}`);
       } catch (error: unknown) {
-        const errorMessage =
-          error instanceof Error && error.message
-            ? error.message
-            : "Registration failed. Please try again.";
+        console.error("[Auth Context] Registration error:", error);
+
+        // Extract meaningful error message (similar to login error handling)
+        let errorMessage = "Registration failed. Please try again.";
+
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "response" in error &&
+          typeof (error as { response?: unknown }).response === "object" &&
+          (error as { response?: unknown }).response !== null
+        ) {
+          const response = (
+            error as {
+              response?: { data?: { message?: string; error?: string } };
+            }
+          ).response;
+          if (response && typeof response === "object") {
+            const data = (
+              response as { data?: { message?: string; error?: string } }
+            ).data;
+            if (data?.message) {
+              errorMessage = data.message;
+            } else if (data?.error) {
+              errorMessage = data.error;
+            }
+          }
+        } else if (
+          typeof error === "object" &&
+          error !== null &&
+          "message" in error &&
+          typeof (error as { message?: string }).message === "string"
+        ) {
+          errorMessage =
+            (error as { message?: string }).message ?? errorMessage;
+        }
+
+        console.log("[Auth Context] Registration error message:", errorMessage);
+
+        toast.error("Registration failed", {
+          description: errorMessage,
+          duration: 4000,
+        });
+
         setError(errorMessage);
         setLoading(false);
+
+        // Re-throw error so form can handle it if needed
+        throw new Error(errorMessage);
       }
     },
     [router, updateState, setLoading, clearError, setError]

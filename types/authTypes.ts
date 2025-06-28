@@ -34,8 +34,8 @@ export interface RegisterData {
   name: string;
   email: string;
   password: string;
-  role?: string;
-  terms_condition?: boolean;
+  role?: string; 
+  terms_condition?: boolean; 
 }
 
 export interface OtpRequest {

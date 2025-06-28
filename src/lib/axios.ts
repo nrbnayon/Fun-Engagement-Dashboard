@@ -27,7 +27,7 @@ const TOKEN_EXPIRY_DAYS = 7;
 interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-  isVerified?: boolean; 
+  isVerified?: boolean;
 }
 interface ApiError {
   message: string;
@@ -430,28 +430,27 @@ export const login = async (
 };
 
 /**
- * Register new user
+ * Register new user in axios file
  */
 export const register = async (
   userData: RegisterData
 ): Promise<{
+  message: string;
   user: UserProfile;
-  tokens: AuthTokens;
 }> => {
   try {
     const response = await apiEndpoint.post<{
+      message: string;
       user: UserProfile;
-      access_token: string;
-      refresh_token: string;
-    }>("/auth/register/", userData);
-    const tokens: AuthTokens = {
-      accessToken: response.data.access_token,
-      refreshToken: response.data.refresh_token,
-    };
-    saveTokens(tokens);
+    }>("/auth/register/", {
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+      role: userData.role || "user",
+    });
     return {
+      message: response.data.message,
       user: response.data.user,
-      tokens,
     };
   } catch (error) {
     console.error("[Auth] Registration failed:", error);

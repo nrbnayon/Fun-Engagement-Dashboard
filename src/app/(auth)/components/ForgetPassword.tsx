@@ -1,5 +1,3 @@
-/** @format */
-
 // src\app\(auth)\components\ForgetPassword.tsx
 "use client";
 import { useState } from "react";
@@ -79,23 +77,21 @@ export default function ForgetPassword() {
   };
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-dark-primary font-manrope">
+    <div className="min-h-screen flex flex-col md:flex-row bg-card">
       {/* Left Side - Welcome Message */}
-      <div className="flex-1 bg-sidebar-gradient dark:bg-dark-primary flex items-center justify-center p-8 text-white">
+      <div className="flex-1 bg-card flex items-center justify-center p-8 text-foreground font-oswald">
         <div className="max-w-md text-center space-y-6">
-          <h1 className="text-4xl font-manrope-bold leading-tight">
-            Forgot Password?
-          </h1>
-          <p className="text-lg font-manrope-regular opacity-90">
+          <h1 className="text-4xl font-bold leading-tight">Forgot Password?</h1>
+          <p className="text-lg">
             Don&lsquo;t worry! Enter your email address and we&lsquo;ll send you
             a verification code to reset your password
           </p>
           <div className="pt-4 space-y-3">
-            <p className="text-sm font-manrope-regular opacity-75">
+            <p className="text-sm">
               Remember your password?{" "}
               <Link
                 href="/login"
-                className="text-white underline font-manrope-medium hover:opacity-80"
+                className="text-foreground underline font-medium hover:opacity-80"
               >
                 Sign In
               </Link>
@@ -105,21 +101,21 @@ export default function ForgetPassword() {
       </div>
 
       {/* Right Side - Forget Password Form */}
-      <div className="flex-1 bg-white dark:bg-dark-primary font-manrope flex items-center justify-center p-8">
-        <Card className="w-full p-2 lg:p-10 max-w-2xl rounded-4xl border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800">
+      <div className="flex-1 bg-white font-oswald flex md:items-center justify-center p-8">
+        <Card className="w-full md:max-w-md border-[#e2e2e2] shadow-lg">
           <CardHeader className="text-center pb-6">
             <div className="flex items-center justify-center mb-4">
               <Link
                 href="/login"
-                className="absolute left-4 top-4 lg:left-8 lg:top-8 p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+                className="absolute left-4 top-4 lg:left-8 lg:top-8 p-2 hover:bg-gray-100 rounded-full transition-colors"
               >
-                <ArrowLeft className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                <ArrowLeft className="h-5 w-5 text-[#222222]" />
               </Link>
             </div>
-            <h2 className="text-2xl font-manrope-semibold text-gray-900 dark:text-white mb-2">
+            <h2 className="text-2xl font-semibold text-[#222222] mb-2">
               Reset Password
             </h2>
-            <p className="text-muted-foreground text-sm font-manrope-regular">
+            <p className="text-muted text-sm">
               Enter your email address and we&lsquo;ll send you a verification
               code
             </p>
@@ -131,7 +127,7 @@ export default function ForgetPassword() {
               <div className="space-y-2">
                 <label
                   htmlFor="email"
-                  className="text-foreground font-manrope-medium text-sm block"
+                  className="text-[#222222] font-medium text-sm block"
                 >
                   Email Address
                 </label>
@@ -140,18 +136,18 @@ export default function ForgetPassword() {
                     id="email"
                     type="email"
                     placeholder="Enter your email address"
-                    className={`pl-4 pr-10 h-12 border-border bg-input text-foreground placeholder:text-muted-foreground font-manrope-regular ${
+                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-muted ${
                       errors.email
-                        ? "border-error focus:border-error"
-                        : "input-focus"
+                        ? "border-red-500 focus:border-red-500"
+                        : "focus:border-[#001d38]"
                     }`}
                     {...register("email")}
                     disabled={isLoading}
                   />
-                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-muted" />
                 </div>
                 {errors.email && (
-                  <p className="text-error text-xs mt-1 font-manrope-regular">
+                  <p className="text-red-500 text-xs mt-1">
                     {errors.email.message}
                   </p>
                 )}
@@ -160,7 +156,7 @@ export default function ForgetPassword() {
               {/* Send OTP Button */}
               <Button
                 type="submit"
-                className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white font-manrope-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-indigo-500/20"
+                className="w-full h-12 bg-primary hover:bg-[#001d38]/90 text-foreground hover:text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={isLoading || isSubmitting}
               >
                 {isLoading ? (
@@ -176,11 +172,11 @@ export default function ForgetPassword() {
 
             {/* Additional Info */}
             <div className="mt-6 text-center">
-              <p className="text-xs text-muted-foreground font-manrope-regular">
+              <p className="text-xs text-muted">
                 By continuing, you agree to our{" "}
                 <Link
                   href="/terms"
-                  className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-500 dark:hover:text-indigo-300 font-manrope-medium"
+                  className="text-[#001d38] underline hover:text-[#001d38]/80 font-medium"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -189,7 +185,7 @@ export default function ForgetPassword() {
                 and{" "}
                 <Link
                   href="/privacy"
-                  className="text-indigo-600 dark:text-indigo-400 underline hover:text-indigo-500 dark:hover:text-indigo-300 font-manrope-medium"
+                  className="text-[#001d38] underline hover:text-[#001d38]/80 font-medium"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
