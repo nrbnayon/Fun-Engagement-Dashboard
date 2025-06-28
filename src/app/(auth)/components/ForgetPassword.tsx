@@ -1,16 +1,14 @@
 // src\app\(auth)\components\ForgetPassword.tsx
 "use client";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Mail, Loader2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Validation schema
 const forgetPasswordSchema = z.object({
@@ -20,13 +18,9 @@ const forgetPasswordSchema = z.object({
     .email("Please enter a valid email address")
     .max(100, "Email must be less than 100 characters"),
 });
-
 type ForgetPasswordFormData = z.infer<typeof forgetPasswordSchema>;
-
 export default function ForgetPassword() {
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-
+  const { requestPasswordReset, clearError, isLoading } = useAuth();
   const {
     register,
     handleSubmit,
@@ -37,42 +31,12 @@ export default function ForgetPassword() {
       email: "",
     },
   });
-
   const onSubmit = async (data: ForgetPasswordFormData) => {
-    setIsLoading(true);
-
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Log the form data to console
-      console.log("Forget Password Form Data:", {
-        email: data.email,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Simulate successful OTP send
-      toast.success("OTP sent successfully!", {
-        description: `Verification code sent to ${data.email}`,
-        duration: 2000,
-      });
-
-      // Store email in localStorage for OTP verification
-      localStorage.setItem("resetEmail", data.email);
-      localStorage.setItem("otpSentTime", Date.now().toString());
-
-      // Redirect to OTP verification after a short delay
-      setTimeout(() => {
-        router.push("/verify-otp");
-      }, 1000);
+      await requestPasswordReset(data);
+      clearError();
     } catch (error) {
       console.error("Forget password error:", error);
-      toast.error("Failed to send OTP", {
-        description: "Please check your email and try again.",
-        duration: 3000,
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 

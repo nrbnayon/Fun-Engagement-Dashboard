@@ -527,7 +527,7 @@ export const verifyOtp = async (
 ): Promise<{ message: string }> => {
   try {
     const response = await apiEndpoint.post<{ message: string }>(
-      "/otp/verify/",
+      "/auth/otp/verify/",
       data
     );
     return response.data;
@@ -549,7 +549,7 @@ export const requestPasswordReset = async (
 ): Promise<{ message: string }> => {
   try {
     const response = await apiEndpoint.post<{ message: string }>(
-      "/password-reset/request/",
+      "/auth/password-reset/request/",
       data
     );
     return response.data;

@@ -335,44 +335,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         setLoading(true);
         clearError();
-
         console.log(
           "[Auth Context] Attempting registration for:",
           userData.email
         );
-
         const response = await apiRegister(userData);
-
         console.log("[Auth Context] Registration response:", response);
-
-        // Since registration returns user data but user is not authenticated yet (needs email verification)
-        // We don't set the user as authenticated until they verify their email
         updateState({
-          user: null, // Don't authenticate user yet
-          isAuthenticated: false, // Keep as false until email verification
+          user: null,
+          isAuthenticated: false,
           isLoading: false,
           error: null,
         });
-
         console.log(
           "[Auth Context] User registered successfully:",
           response.user.email
         );
-
+        localStorage.setItem("registrationEmail", userData.email);
+        localStorage.setItem("otpSentTime", Date.now().toString());
         toast.success("Registration successful!", {
           description:
             "Please check your email and verify your account with the OTP sent.",
           duration: 4000,
         });
-
-        // Redirect to OTP verification page with email
         router.push(`/verify-otp?email=${encodeURIComponent(userData.email)}`);
       } catch (error: unknown) {
         console.error("[Auth Context] Registration error:", error);
-
-        // Extract meaningful error message (similar to login error handling)
         let errorMessage = "Registration failed. Please try again.";
-
         if (
           typeof error === "object" &&
           error !== null &&
@@ -404,18 +393,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           errorMessage =
             (error as { message?: string }).message ?? errorMessage;
         }
-
         console.log("[Auth Context] Registration error message:", errorMessage);
-
         toast.error("Registration failed", {
           description: errorMessage,
           duration: 4000,
         });
-
         setError(errorMessage);
         setLoading(false);
-
-        // Re-throw error so form can handle it if needed
         throw new Error(errorMessage);
       }
     },
@@ -576,23 +560,56 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const requestPasswordReset = useCallback(
     async (data: PasswordResetRequest): Promise<{ message: string }> => {
       try {
+        setLoading(true);
         clearError();
         const result = await apiRequestPasswordReset(data);
         console.log("[Auth Context] Password reset requested successfully");
-        return result;
+        localStorage.setItem("resetEmail", data.email);
+        localStorage.setItem("otpSentTime", Date.now().toString());
+        toast.success("Reset code sent!", {
+          description: "Please check your email for the verification code.",
+          duration: 4000,
+        });
+        router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
+        return result && typeof result === "object" && "message" in result
+          ? result
+          : { message: "Reset code sent!" };
       } catch (error: unknown) {
-        const errorMessage =
+        console.error("[Auth Context] Forgot password error:", error);
+        let errorMessage = "Failed to send reset code. Please try again.";
+        if (
           typeof error === "object" &&
           error !== null &&
-          "message" in error &&
-          typeof (error as { message?: string }).message === "string"
-            ? (error as { message: string }).message
-            : "Password reset request failed. Please try again.";
+          "response" in error &&
+          typeof (error as { response?: unknown }).response === "object" &&
+          (error as { response?: unknown }).response !== null
+        ) {
+          const response = (
+            error as {
+              response?: { data?: { message?: string; error?: string } };
+            }
+          ).response;
+          if (response && typeof response === "object") {
+            const data = (
+              response as { data?: { message?: string; error?: string } }
+            ).data;
+            if (data?.message) {
+              errorMessage = data.message;
+            } else if (data?.error) {
+              errorMessage = data.error;
+            }
+          }
+        }
+        toast.error("Failed to send reset code", {
+          description: errorMessage,
+          duration: 4000,
+        });
         setError(errorMessage);
-        throw error;
+        setLoading(false);
+        throw new Error(errorMessage);
       }
     },
-    [clearError, setError]
+    [router, setLoading, clearError, setError]
   );
 
   /**

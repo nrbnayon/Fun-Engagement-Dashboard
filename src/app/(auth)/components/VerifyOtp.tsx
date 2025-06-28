@@ -15,6 +15,7 @@ import {
 import { Loader2, ArrowLeft, Clock, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Validation schema
 const otpSchema = z.object({
@@ -35,6 +36,8 @@ export default function VerifyOtp() {
   const [email, setEmail] = useState("");
   const router = useRouter();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const { verifyOtp, sendOtp } = useAuth();
 
   const {
     handleSubmit,
@@ -124,20 +127,17 @@ export default function VerifyOtp() {
     setIsLoading(true);
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Call verifyOtp with both email and otp
+      await verifyOtp({
+        email: email,
+        otp: data.otp,
+      });
 
       // Log the form data to console
       console.log("OTP Verification Data:", {
         email,
         otp: data.otp,
         timestamp: new Date().toISOString(),
-      });
-
-      // Simulate successful OTP verification
-      toast.success("OTP verified successfully!", {
-        description: "Redirecting to reset password...",
-        duration: 2000,
       });
 
       // Store verification status
@@ -147,10 +147,35 @@ export default function VerifyOtp() {
       // Clear timer from localStorage
       const timerKey = `otpTimer_${email}`;
       localStorage.removeItem(timerKey);
+      localStorage.removeItem("otpSentTime");
 
-      // Redirect to reset password after a short delay
+      // Determine redirect path based on the source
+      const resetEmail = localStorage.getItem("resetEmail");
+      const registrationEmail = localStorage.getItem("registrationEmail");
+
+      let redirectPath = "/success"; // default for registration
+      let toastDescription = "Registration completed successfully!";
+
+      if (resetEmail && resetEmail === email) {
+        // Coming from forgot password flow
+        redirectPath = "/reset-password";
+        toastDescription = "Redirecting to reset password...";
+      } else if (registrationEmail && registrationEmail === email) {
+        // Coming from registration flow
+        redirectPath = "/success";
+        toastDescription = "Registration completed successfully!";
+        // Clean up registration email after successful verification
+        localStorage.removeItem("registrationEmail");
+      }
+
+      toast.success("OTP verified successfully!", {
+        description: toastDescription,
+        duration: 2000,
+      });
+
+      // Redirect after a short delay
       setTimeout(() => {
-        router.push("/reset-password");
+        router.push(redirectPath);
       }, 1000);
     } catch (error) {
       console.error("OTP verification error:", error);
@@ -168,8 +193,8 @@ export default function VerifyOtp() {
     setIsResending(true);
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Call the actual sendOtp API
+      await sendOtp({ email: email });
 
       // Reset timer
       setTimeLeft(120);
@@ -177,6 +202,10 @@ export default function VerifyOtp() {
       localStorage.setItem("otpSentTime", newSentTime.toString());
       const timerKey = `otpTimer_${email}`;
       localStorage.setItem(timerKey, "120");
+
+      // Clear the current OTP input
+      setOtp("");
+      setValue("otp", "");
 
       toast.success("OTP resent successfully!", {
         description: `New verification code sent to ${email}`,

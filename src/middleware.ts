@@ -31,6 +31,7 @@ const AUTH_ROUTES = [
   "/reset-password",
   "/verify-otp",
   "/verify-email",
+  "/success",
 ];
 
 // Public routes - accessible to everyone

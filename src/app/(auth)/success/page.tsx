@@ -37,7 +37,7 @@ export default function CongratulationsPage() {
 
         {/* Next Button */}
         <Link
-          href="/overview"
+          href="/login"
           className="inline-flex items-center gap-2 bg-primary hover:bg-[#001d38]/90 text-foreground hover:text-white px-8 py-3 rounded-lg font-medium transition-colors duration-200"
         >
           Next
