@@ -53,6 +53,40 @@ const signupSchema = z
 
 type SignupFormData = z.infer<typeof signupSchema>;
 
+interface PasswordStrengthResult {
+  strength: number;
+  label: string;
+  color: string;
+}
+
+export const getPasswordStrength = (
+  password: string
+): PasswordStrengthResult => {
+  if (!password) return { strength: 0, label: "", color: "" };
+
+  let strength = 0;
+  if (password.length >= 8) strength++;
+  if (/[a-z]/.test(password)) strength++;
+  if (/[A-Z]/.test(password)) strength++;
+  if (/\d/.test(password)) strength++;
+  if (/[^a-zA-Z\d]/.test(password)) strength++;
+
+  const labels: string[] = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
+  const colors: string[] = [
+    "bg-red-500",
+    "bg-orange-500",
+    "bg-yellow-500",
+    "bg-blue-500",
+    "bg-green-500",
+  ];
+
+  return {
+    strength,
+    label: labels[strength - 1] || "",
+    color: colors[strength - 1] || "",
+  };
+};
+
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -104,37 +138,6 @@ export default function SignUpForm() {
   // };
 
   // Password strength indicator
-  interface PasswordStrengthResult {
-    strength: number;
-    label: string;
-    color: string;
-  }
-
-  const getPasswordStrength = (password: string): PasswordStrengthResult => {
-    if (!password) return { strength: 0, label: "", color: "" };
-
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/\d/.test(password)) strength++;
-    if (/[^a-zA-Z\d]/.test(password)) strength++;
-
-    const labels: string[] = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
-    const colors: string[] = [
-      "bg-red-500",
-      "bg-orange-500",
-      "bg-yellow-500",
-      "bg-blue-500",
-      "bg-green-500",
-    ];
-
-    return {
-      strength,
-      label: labels[strength - 1] || "",
-      color: colors[strength - 1] || "",
-    };
-  };
 
   const passwordStrength = getPasswordStrength(password);
 

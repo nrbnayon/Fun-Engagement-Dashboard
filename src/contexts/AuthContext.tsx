@@ -570,7 +570,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           description: "Please check your email for the verification code.",
           duration: 4000,
         });
-        router.push(`/verify-otp?email=${encodeURIComponent(data.email)}`);
+        router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
         return result && typeof result === "object" && "message" in result
           ? result
           : { message: "Reset code sent!" };

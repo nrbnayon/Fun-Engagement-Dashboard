@@ -509,7 +509,7 @@ export const sendOtp = async (
 ): Promise<{ message: string }> => {
   try {
     const response = await apiEndpoint.post<{ message: string }>(
-      "/otp/create/",
+      "/auth/otp/create/",
       data
     );
     return response.data;
