@@ -1,13 +1,13 @@
-// contexts/AuthContext.tsx
 "use client";
 
-import React, {
+import type React from "react";
+import {
   createContext,
   useContext,
   useEffect,
   useState,
   useCallback,
-  ReactNode,
+  type ReactNode,
   useRef,
 } from "react";
 import { useRouter } from "next/navigation";
@@ -23,13 +23,13 @@ import {
   confirmPasswordReset as apiConfirmPasswordReset,
   isAuthenticated as checkIsAuthenticated,
   clearTokens,
-  UserProfile,
-  LoginCredentials,
-  RegisterData,
-  OtpRequest,
-  OtpVerification,
-  PasswordResetRequest,
-  PasswordResetConfirm,
+  type UserProfile,
+  type LoginCredentials,
+  type RegisterData,
+  type OtpRequest,
+  type OtpVerification,
+  type PasswordResetRequest,
+  type PasswordResetConfirm,
 } from "@/lib/axios";
 import { PROTECTED_ROUTES } from "../middleware";
 import { toast } from "sonner";
@@ -50,15 +50,12 @@ interface AuthContextValue extends AuthState {
   login: (credentials: LoginCredentials) => Promise<void>;
   register: (userData: RegisterData) => Promise<void>;
   logout: () => Promise<void>;
-
   // Profile methods
   updateProfile: (profileData: FormData) => Promise<void>;
   refreshUser: () => Promise<void>;
-
   // OTP methods
   sendOtp: (data: OtpRequest) => Promise<{ message: string }>;
   verifyOtp: (data: OtpVerification) => Promise<{ message: string }>;
-
   // Password reset methods
   requestPasswordReset: (
     data: PasswordResetRequest
@@ -66,23 +63,12 @@ interface AuthContextValue extends AuthState {
   confirmPasswordReset: (
     data: PasswordResetConfirm
   ) => Promise<{ message: string }>;
-
   // Utility methods
   clearError: () => void;
 }
 
 interface AuthProviderProps {
   children: ReactNode;
-}
-
-interface ErrorBoundaryState {
-  hasError: boolean;
-  error: Error | null;
-}
-
-interface ErrorBoundaryProps {
-  children: ReactNode;
-  fallback?: ReactNode;
 }
 
 // =============================================================================
@@ -181,6 +167,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Fetch user profile
       const userProfile = await getUserProfile();
 
+      // 🔥 ADDED: Debug log to see what we're getting
+      console.log("[Auth Context] User profile fetched:", userProfile);
+
       updateState({
         user: userProfile,
         isAuthenticated: true,
@@ -191,24 +180,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log("[Auth Context] User authenticated:", userProfile.email);
     } catch (error: unknown) {
       console.error("[Auth Context] Initialize auth failed:", error);
-
       // Clear invalid tokens
       clearTokens();
-
       updateState({
         user: null,
         isAuthenticated: false,
         isLoading: false,
         error: null,
       });
-      const currentPath = window.location.pathname;
-      if (PROTECTED_ROUTES.some((route) => currentPath.startsWith(route))) {
-        console.log(
-          "[Auth Context] Auth failed on protected route, redirecting to login"
-        );
-        window.location.href = `/login?redirect=${encodeURIComponent(
-          currentPath
-        )}`;
+
+      // Only redirect if we're on a protected route
+      if (typeof window !== "undefined") {
+        const currentPath = window.location.pathname;
+        if (PROTECTED_ROUTES.some((route) => currentPath.startsWith(route))) {
+          console.log(
+            "[Auth Context] Auth failed on protected route, redirecting to login"
+          );
+          window.location.href = `/login?redirect=${encodeURIComponent(
+            currentPath
+          )}`;
+        }
       }
     }
   }, [updateState, setLoading, clearError]);
@@ -238,6 +229,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
 
         const { user } = response;
+
         console.log("[Auth Context] User logged in successfully:", user);
 
         updateState({
@@ -335,33 +327,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         setLoading(true);
         clearError();
+
         console.log(
           "[Auth Context] Attempting registration for:",
           userData.email
         );
+
         const response = await apiRegister(userData);
+
         console.log("[Auth Context] Registration response:", response);
+
         updateState({
           user: null,
           isAuthenticated: false,
           isLoading: false,
           error: null,
         });
+
         console.log(
           "[Auth Context] User registered successfully:",
           response.user.email
         );
+
         localStorage.setItem("registrationEmail", userData.email);
         localStorage.setItem("otpSentTime", Date.now().toString());
+
         toast.success("Registration successful!", {
           description:
             "Please check your email and verify your account with the OTP sent.",
           duration: 4000,
         });
+
         router.push(`/verify-otp?email=${encodeURIComponent(userData.email)}`);
       } catch (error: unknown) {
         console.error("[Auth Context] Registration error:", error);
+
         let errorMessage = "Registration failed. Please try again.";
+
         if (
           typeof error === "object" &&
           error !== null &&
@@ -393,13 +395,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           errorMessage =
             (error as { message?: string }).message ?? errorMessage;
         }
+
         console.log("[Auth Context] Registration error message:", errorMessage);
+
         toast.error("Registration failed", {
           description: errorMessage,
           duration: 4000,
         });
+
         setError(errorMessage);
         setLoading(false);
+
         throw new Error(errorMessage);
       }
     },
@@ -432,6 +438,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       // Force local logout even if API call fails
       clearTokens();
+
       updateState({
         user: null,
         isAuthenticated: false,
@@ -470,6 +477,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           error instanceof Error && error.message
             ? error.message
             : "Profile update failed. Please try again.";
+
         setError(errorMessage);
         setLoading(false);
         throw error;
@@ -483,8 +491,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
    */
   const refreshUser = useCallback(async () => {
     try {
-      if (!state.isAuthenticated) return;
+      if (!checkIsAuthenticated()) {
+        console.log("[Auth Context] No valid tokens for refresh");
+        return;
+      }
 
+      console.log("[Auth Context] Refreshing user profile...");
       const userProfile = await getUserProfile();
 
       updateState({
@@ -492,12 +504,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         error: null,
       });
 
-      console.log("[Auth Context] User profile refreshed");
+      console.log("[Auth Context] User profile refreshed successfully");
     } catch (error: unknown) {
       console.error("[Auth Context] Refresh user failed:", error);
-      // Don't set error for refresh failures
+      // Don't set error for refresh failures, but clear user if tokens are invalid
+      if (error && typeof error === "object" && "response" in error) {
+        const response = (error as { response?: { status?: number } }).response;
+        if (response?.status === 401) {
+          clearTokens();
+          updateState({
+            user: null,
+            isAuthenticated: false,
+          });
+        }
+      }
     }
-  }, [state.isAuthenticated, updateState]);
+  }, [updateState]);
 
   // =============================================================================
   // OTP METHODS
@@ -510,14 +532,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     async (data: OtpRequest): Promise<{ message: string }> => {
       try {
         clearError();
+
         const result = await apiSendOtp(data);
+
         console.log("[Auth Context] OTP sent successfully");
+
         return result;
       } catch (error: unknown) {
         const errorMessage =
           error instanceof Error && error.message
             ? error.message
             : "Failed to send OTP. Please try again.";
+
         setError(errorMessage);
         throw error;
       }
@@ -532,8 +558,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     async (data: OtpVerification): Promise<{ message: string }> => {
       try {
         clearError();
+
         const result = await apiVerifyOtp(data);
+
         console.log("[Auth Context] OTP verified successfully");
+
         return result;
       } catch (error: unknown) {
         const errorMessage =
@@ -543,6 +572,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           typeof (error as { message?: string }).message === "string"
             ? (error as { message: string }).message
             : "OTP verification failed. Please try again.";
+
         setError(errorMessage);
         throw error;
       }
@@ -562,21 +592,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       try {
         setLoading(true);
         clearError();
+
         const result = await apiRequestPasswordReset(data);
+
         console.log("[Auth Context] Password reset requested successfully");
+
         localStorage.setItem("resetEmail", data.email);
         localStorage.setItem("otpSentTime", Date.now().toString());
+
         toast.success("Reset code sent!", {
           description: "Please check your email for the verification code.",
           duration: 4000,
         });
+
         router.push(`/reset-password?email=${encodeURIComponent(data.email)}`);
+
         return result && typeof result === "object" && "message" in result
           ? result
           : { message: "Reset code sent!" };
       } catch (error: unknown) {
         console.error("[Auth Context] Forgot password error:", error);
+
         let errorMessage = "Failed to send reset code. Please try again.";
+
         if (
           typeof error === "object" &&
           error !== null &&
@@ -600,12 +638,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             }
           }
         }
+
         toast.error("Failed to send reset code", {
           description: errorMessage,
           duration: 4000,
         });
+
         setError(errorMessage);
         setLoading(false);
+
         throw new Error(errorMessage);
       }
     },
@@ -619,8 +660,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     async (data: PasswordResetConfirm): Promise<{ message: string }> => {
       try {
         clearError();
+
         const result = await apiConfirmPasswordReset(data);
+
         console.log("[Auth Context] Password reset confirmed successfully");
+
         return result;
       } catch (error: unknown) {
         const errorMessage =
@@ -630,6 +674,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           typeof (error as { message?: string }).message === "string"
             ? (error as { message: string }).message
             : "Password reset failed. Please try again.";
+
         setError(errorMessage);
         throw error;
       }
@@ -673,6 +718,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Listen for Next.js route changes
     const handlePopState = () => handleRouteChange();
+
     window.addEventListener("popstate", handlePopState);
 
     return () => {
@@ -717,89 +763,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 };
 
-// =============================================================================
-// ERROR BOUNDARY COMPONENT
-// =============================================================================
-
-class AuthErrorBoundaryClass extends React.Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
-  constructor(props: ErrorBoundaryProps) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
-
-  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("[Auth Error Boundary] Error caught:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      if (this.props.fallback) {
-        return this.props.fallback;
-      }
-
-      return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50">
-          <div className="max-w-md w-full bg-white shadow-lg rounded-lg p-6">
-            <div className="text-center">
-              <div className="text-red-500 text-6xl mb-4">⚠️</div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Authentication Error
-              </h1>
-              <p className="text-gray-600 mb-6">
-                Something went wrong with the authentication system. Please
-                refresh the page or try again later.
-              </p>
-              <div className="space-y-2">
-                <button
-                  onClick={() => window.location.reload()}
-                  className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                >
-                  Refresh Page
-                </button>
-                <button
-                  onClick={() => {
-                    clearTokens();
-                    window.location.href = "/login";
-                  }}
-                  className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition-colors"
-                >
-                  Go to Login
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
-// Export the error boundary as a functional component wrapper
-export const AuthErrorBoundary: React.FC<ErrorBoundaryProps> = ({
-  children,
-  fallback,
-}) => {
-  return (
-    <AuthErrorBoundaryClass fallback={fallback}>
-      {children}
-    </AuthErrorBoundaryClass>
-  );
-};
-
-// =============================================================================
-// EXPORTS
-// =============================================================================
-
 export default AuthProvider;
+
 export { AuthContext };
 
 // Export additional utility hooks

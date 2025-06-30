@@ -52,7 +52,6 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${oswald.variable} antialiased`}
         suppressHydrationWarning
       >
-        {/* <AuthErrorBoundary> */}
         <AuthProvider>
           <ThemeProvider
             attribute="class"
@@ -65,7 +64,6 @@ export default function RootLayout({
             <Toaster richColors position="top-center" />
           </ThemeProvider>
         </AuthProvider>
-        {/* </AuthErrorBoundary> */}
       </body>
     </html>
   );
