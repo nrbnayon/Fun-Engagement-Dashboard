@@ -70,38 +70,29 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      // Clear any previous errors
-      clearError();
-
+      // clearError();
       console.log("Login Form Data:", {
         username: data.email,
         password: data.password,
         rememberMe: data.rememberMe,
       });
-
-      // Call login function
       await login({
         email: data.email,
         password: data.password,
         rememberMe: data.rememberMe,
       });
 
-      // Don't reset form here - let AuthContext handle success flow
     } catch (error) {
       console.error("Login submission error:", error);
-      // Error is handled by AuthContext, just ensure form doesn't reset
     }
   };
 
   // Handle form submission with proper error handling
-  const handleFormSubmit = handleSubmit(async (data) => {
-    try {
-      await onSubmit(data);
-    } catch (error) {
-      console.error("Form submission error:", error);
-      // Don't reset form on error
-    }
-  });
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleSubmit(onSubmit)(e);
+  };
 
   // Don't render until mounted to prevent hydration mismatch
   if (!mounted) {

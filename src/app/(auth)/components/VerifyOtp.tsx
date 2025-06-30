@@ -148,6 +148,14 @@ export default function VerifyOtp() {
       const timerKey = `otpTimer_${email}`;
       localStorage.removeItem(timerKey);
       localStorage.removeItem("otpSentTime");
+      localStorage.removeItem("otpVerified");
+      localStorage.removeItem("verificationTime");
+
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith(`otpTimer_${email}`)) {
+          localStorage.removeItem(key);
+        }
+      });
 
       // Determine redirect path based on the source
       const resetEmail = localStorage.getItem("resetEmail");
@@ -164,7 +172,6 @@ export default function VerifyOtp() {
         // Coming from registration flow
         redirectPath = "/success";
         toastDescription = "Registration completed successfully!";
-        // Clean up registration email after successful verification
         localStorage.removeItem("registrationEmail");
       }
 

@@ -567,7 +567,7 @@ export const confirmPasswordReset = async (
 ): Promise<{ message: string }> => {
   try {
     const response = await apiEndpoint.post<{ message: string }>(
-      "/password-reset/confirm/",
+      "/auth/password-reset/confirm/",
       data
     );
     return response.data;
