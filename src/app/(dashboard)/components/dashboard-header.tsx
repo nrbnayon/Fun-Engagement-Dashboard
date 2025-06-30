@@ -26,28 +26,21 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
 }) => {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const { user, isLoading, refreshUser } = useAuth();
-
   // Refresh user data when component mounts
   useEffect(() => {
     if (!user && !isLoading) {
       refreshUser();
     }
   }, [user, isLoading, refreshUser]);
-
   // Extract user data with fallbacks
   const userName = user ? getProfileName(user) : defaultUserName;
   const userFullName = user?.user_profile?.name || userName;
   const userRole = user?.role || defaultUserRole;
   const userEmail = user?.email || "";
-
-
   // Handle profile picture URL
   const profilePictureUrl = user?.user_profile?.profile_picture
     ? getFullImageUrl(user.user_profile.profile_picture)
     : defaultAvatarSrc;
-
-  console.log("User::", profilePictureUrl);
-
   // Generate avatar fallback from name
   const avatarFallback =
     userFullName

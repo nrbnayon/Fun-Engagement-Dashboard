@@ -12,10 +12,14 @@ export const getFullImageUrl = (imagePath: string) => {
     return imagePath;
   }
   if (imagePath.startsWith("/media")) {
-    const assetsUrl = process.env.NEXT_ASSETS_API_URL;
-    return assetsUrl
-      ? `${assetsUrl.replace(/\/$/, "")}${imagePath}`
-      : imagePath;
+    const assetsUrl = process.env.NEXT_PUBLIC_ASSETS_API_URL;
+    if (assetsUrl) {
+      return `${assetsUrl.replace(/\/$/, "")}${imagePath}`;
+    }
+    console.warn("NEXT_PUBLIC_ASSETS_API_URL is not defined");
+    return imagePath;
   }
+
+  // For other paths, ensure they start with /
   return imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
 };
