@@ -20,69 +20,45 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getFullImageUrl } from "@/lib/utils";
+import { getAllVotings } from "@/lib/services/votingDataApi";
 
-// Generate more voting data for demonstration
-const generateVotingData = (count: number) => {
-  const names = [
-    "Kristin Watson",
-    "John Doe",
-    "Jane Smith",
-    "Michael Brown",
-    "Sarah Wilson",
-    "David Johnson",
-    "Emily Davis",
-    "Robert Miller",
-    "Lisa Anderson",
-    "James Wilson",
-    "Maria Garcia",
-    "William Taylor",
-    "Jennifer Thomas",
-    "Charles Jackson",
-    "Patricia White",
-  ];
+// Types based on your API response
+interface Player {
+  id: number;
+  image: string;
+  name: string;
+  jersey_number: number;
+  status: string;
+}
 
-  const emails = [
-    "kristinwatson@gmail.com",
-    "john.doe@gmail.com",
-    "jane.smith@gmail.com",
-    "michael.brown@gmail.com",
-    "sarah.wilson@gmail.com",
-    "david.johnson@gmail.com",
-    "emily.davis@gmail.com",
-    "robert.miller@gmail.com",
-    "lisa.anderson@gmail.com",
-    "james.wilson@gmail.com",
-    "maria.garcia@gmail.com",
-    "william.taylor@gmail.com",
-    "jennifer.thomas@gmail.com",
-    "charles.jackson@gmail.com",
-    "patricia.white@gmail.com",
-  ];
+interface UserProfile {
+  id: number;
+  user: number;
+  name: string;
+  profile_picture: string;
+  phone_number: string;
+  joined_date: string;
+}
 
-  const teams = [
-    "Dumbarton",
-    "Manchester",
-    "Real Madrid",
-    "Barcelona",
-    "Chelsea",
-  ];
+interface User {
+  id: number;
+  email: string;
+  role: string;
+  is_verified: boolean;
+  user_profile: UserProfile;
+}
 
-  return Array.from({ length: count }, (_, index) => ({
-    user: {
-      name: names[index % names.length],
-      avatar: "/ellipse-2-7.png",
-    },
-    email: emails[index % emails.length],
-    team: teams[index % teams.length],
-    goals: String(Math.floor(Math.random() * 5) + 1),
-    players: Array.from({ length: 3 }, () =>
-      String(Math.floor(Math.random() * 99) + 1)
-    ),
-  }));
-};
-
-const allVotingData = generateVotingData(50);
+interface VotingData {
+  id: number;
+  user: User;
+  match: number;
+  who_will_win: string;
+  goal_difference: number;
+  selected_players: Player[];
+  points_earned: number;
+}
 
 interface VotingListProps {
   paginate?: boolean;
@@ -98,18 +74,56 @@ export default function VotingList({
   title = true,
 }: VotingListProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [votingData, setVotingData] = useState<VotingData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch voting data from API
+  useEffect(() => {
+    const fetchVotingData = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const response = await getAllVotings();
+
+        if (response.success && Array.isArray(response.data)) {
+          setVotingData(response.data);
+        } else {
+          setError(response.error || "Failed to fetch voting data");
+        }
+      } catch (err) {
+        console.error("Error fetching voting data:", err);
+        setError("An unexpected error occurred");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVotingData();
+  }, []);
+
+  // Helper function to get team name from who_will_win
+  const getTeamName = (whoWillWin: string) => {
+    switch (whoWillWin) {
+      case "team_a":
+        return "Team A";
+      case "team_b":
+        return "Team B";
+      default:
+        return whoWillWin;
+    }
+  };
 
   // Determine data to show
-  const dataToShow = paginate ? allVotingData : allVotingData.slice(0, limit);
+  const dataToShow = paginate ? votingData : votingData.slice(0, limit);
 
   // Calculate pagination
-  const totalPages = paginate
-    ? Math.ceil(allVotingData.length / itemsPerPage)
-    : 1;
+  const totalPages = paginate ? Math.ceil(votingData.length / itemsPerPage) : 1;
   const startIndex = paginate ? (currentPage - 1) * itemsPerPage : 0;
   const endIndex = paginate ? startIndex + itemsPerPage : dataToShow.length;
   const currentData = paginate
-    ? allVotingData.slice(startIndex, endIndex)
+    ? votingData.slice(startIndex, endIndex)
     : dataToShow;
 
   const handlePageChange = (page: number) => {
@@ -195,51 +209,90 @@ export default function VotingList({
                   </TableRow>
                 </TableHeader>
                 <TableBody className="bg-white">
-                  {currentData.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="px-6 py-3 min-w-56">
-                        <div className="flex items-center gap-3">
-                          <Avatar>
-                            <AvatarImage
-                              className="w-10 h-10 object-cover rounded-full"
-                              alt="User avatar"
-                              src={item.user.avatar}
-                            />
-                          </Avatar>
-                          <span className="font-normal text-blackblack-700 text-xl">
-                            {item.user.name}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-6 py-3 min-w-56">
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8">
                         <div className="font-normal text-blackblack-700 text-xl">
-                          {item.email}
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-6 py-3 min-w-44">
-                        <div className="font-normal text-blackblack-700 text-xl">
-                          {item.team}
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-6 py-3 text-center min-w-24">
-                        <div className="font-normal text-blackblack-700 text-xl">
-                          {item.goals}
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-6 py-3 min-w-60">
-                        <div className="flex items-center justify-center gap-2">
-                          {item.players.map((player: string, idx: number) => (
-                            <Badge
-                              key={idx}
-                              className="flex items-center justify-center px-3 w-10 h-10 tex-xs bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg"
-                            >
-                              {player}
-                            </Badge>
-                          ))}
+                          Loading voting data...
                         </div>
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ) : error ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8">
+                        <div className="font-normal text-red-500 text-xl">
+                          Error: {error}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : currentData.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center py-8">
+                        <div className="font-normal text-blackblack-700 text-xl">
+                          No voting data available
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    currentData.map((item, index) => (
+                      <TableRow key={item.id || index}>
+                        <TableCell className="px-6 py-3 min-w-56">
+                          <div className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarImage
+                                className="w-10 h-10 object-cover rounded-full"
+                                alt="User avatar"
+                                src={
+                                  getFullImageUrl(
+                                    item.user.user_profile.profile_picture
+                                  ) || "/ellipse-2-7.png"
+                                }
+                              />
+                            </Avatar>
+                            <span className="font-normal text-blackblack-700 text-xl">
+                              {item.user.user_profile.name}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-6 py-3 min-w-56">
+                          <div className="font-normal text-blackblack-700 text-xl">
+                            {item.user.email}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-6 py-3 min-w-44">
+                          <div className="font-normal text-blackblack-700 text-xl">
+                            {getTeamName(item.who_will_win)}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-6 py-3 text-center min-w-24">
+                          <div className="font-normal text-blackblack-700 text-xl">
+                            {item.goal_difference}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-6 py-3 min-w-60">
+                          <div className="flex items-center justify-center gap-2">
+                            {item.selected_players.length > 0 ? (
+                              item.selected_players.map(
+                                (player: Player, idx: number) => (
+                                  <Badge
+                                    key={player.id || idx}
+                                    className="flex items-center justify-center px-3 w-10 h-10 tex-xs bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg"
+                                    title={player.name}
+                                  >
+                                    {player.jersey_number}
+                                  </Badge>
+                                )
+                              )
+                            ) : (
+                              <span className="font-normal text-gray-500 text-sm">
+                                No players selected
+                              </span>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>
@@ -247,7 +300,7 @@ export default function VotingList({
         </Card>
 
         {/* Pagination */}
-        {paginate && totalPages > 1 && (
+        {paginate && totalPages > 1 && !loading && !error && (
           <div className="flex justify-center w-full mt-4">
             <Pagination>
               <PaginationContent>
