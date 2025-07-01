@@ -12,8 +12,18 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: true, // Set to false to catch build errors
   },
   images: {
-    unoptimized: false, // Set to false to enable image optimization unless explicitly needed
-    domains: [], // Add allowed image domains if using external images
+    unoptimized: false, // Keep image optimization enabled
+    // Allow images from any external domain
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**", // Allows all HTTPS domains
+      },
+      {
+        protocol: "http",
+        hostname: "**", // Allows all HTTP domains
+      },
+    ],
   },
 };
 

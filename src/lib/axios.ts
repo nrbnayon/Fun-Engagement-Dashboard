@@ -82,13 +82,25 @@ const createAxiosInstance = (config?: AxiosRequestConfig): AxiosInstance => {
         config.headers["Authorization"] = `Bearer ${accessToken}`;
       }
 
+      // Handle multipart/form-data content type
+      if (config.data instanceof FormData) {
+        // Remove Content-Type header to let the browser set it with boundary
+        if (
+          config.headers &&
+          config.headers["Content-Type"] === "multipart/form-data"
+        ) {
+          delete config.headers["Content-Type"];
+        }
+      }
+
       // Add request timestamp for debugging
       if (process.env.NODE_ENV === "development") {
         console.log(
           `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
           {
             headers: config.headers,
-            data: config.data,
+            data: config.data instanceof FormData ? "FormData" : config.data,
+            hasFormData: config.data instanceof FormData,
           }
         );
       }

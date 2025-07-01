@@ -1,6 +1,6 @@
 // src/app/(dashboard)/components/PlayerList.tsx
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -20,7 +20,7 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Image from "next/image";
-import { Plus, Upload, X, Edit, Trash2 } from "lucide-react";
+import { Plus, Upload, X, Edit, Trash2, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -46,39 +46,90 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { generatePlayersData, Player } from "@/lib/data/players";
+import {
+  getAllPlayers,
+  createPlayer,
+  updatePlayer,
+  deletePlayer,
+  Player as ApiPlayer,
+  CreatePlayerData,
+  UpdatePlayerData,
+} from "@/lib/services/playlistDataApi";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface PlayersPageProps {
   itemsPerPage?: number;
 }
 
 interface FormData {
-  playerImage: string;
+  playerImage: File | null;
+  playerImagePreview: string;
   playerName: string;
   jerseyNo: string;
   status: "active" | "inactive" | "pending" | "waiting";
 }
+
+// Convert local player to API format
+const convertLocalPlayerToApi = (formData: FormData): CreatePlayerData => ({
+  name: formData.playerName,
+  jersey_number: parseInt(formData.jerseyNo),
+  image: formData.playerImage,
+  status: formData.status,
+});
+
+const convertLocalPlayerToApiUpdate = (
+  formData: FormData
+): UpdatePlayerData => ({
+  name: formData.playerName,
+  jersey_number: parseInt(formData.jerseyNo),
+  image: formData.playerImage,
+  status: formData.status,
+});
 
 export default function PlayerListPage({
   itemsPerPage = 12,
 }: PlayersPageProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [isAddPlayerOpen, setIsAddPlayerOpen] = useState(false);
-  const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
+  const [editingPlayer, setEditingPlayer] = useState<ApiPlayer | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
-  const [players, setPlayers] = useState<Player[]>(() =>
-    generatePlayersData(100)
-  );
+  const [playerToDelete, setPlayerToDelete] = useState<ApiPlayer | null>(null);
+  const [players, setPlayers] = useState<ApiPlayer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
-    playerImage: "",
+    playerImage: null,
+    playerImagePreview: "",
     playerName: "",
     jerseyNo: "",
     status: "active",
   });
+
+  // Load players on component mount
+  useEffect(() => {
+    loadPlayers();
+  }, []);
+
+  const loadPlayers = async () => {
+    setIsLoading(true);
+    try {
+      const response = await getAllPlayers();
+      if (response.success) {
+        setPlayers(response.data);
+      } else {
+        toast.error("Failed to load players: " + response.error);
+      }
+    } catch (error) {
+      toast.error("Failed to load players");
+      console.error("Error loading players:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filteredData = players;
 
@@ -105,21 +156,35 @@ export default function PlayerListPage({
         const result = e.target?.result as string;
         setFormData((prev) => ({
           ...prev,
-          playerImage: result,
+          playerImage: file,
+          playerImagePreview: result,
         }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (playerToDelete) {
-      setPlayers((prev) =>
-        prev.filter((player) => player.id !== playerToDelete.id)
-      );
-      toast.success("Player deleted successfully!");
-      setDeleteConfirmOpen(false);
-      setPlayerToDelete(null);
+      setIsDeleting(true);
+      try {
+        const response = await deletePlayer(playerToDelete.id);
+        if (response.success) {
+          setPlayers((prev) =>
+            prev.filter((player) => player.id !== playerToDelete.id)
+          );
+          toast.success("Player deleted successfully!");
+        } else {
+          toast.error("Failed to delete player: " + response.error);
+        }
+      } catch (error) {
+        toast.error("Failed to delete player");
+        console.error("Error deleting player:", error);
+      } finally {
+        setIsDeleting(false);
+        setDeleteConfirmOpen(false);
+        setPlayerToDelete(null);
+      }
     }
   };
 
@@ -136,7 +201,8 @@ export default function PlayerListPage({
         const result = e.target?.result as string;
         setFormData((prev) => ({
           ...prev,
-          playerImage: result,
+          playerImage: file,
+          playerImagePreview: result,
         }));
       };
       reader.readAsDataURL(file);
@@ -145,7 +211,8 @@ export default function PlayerListPage({
 
   const resetForm = () => {
     setFormData({
-      playerImage: "",
+      playerImage: null,
+      playerImagePreview: "",
       playerName: "",
       jerseyNo: "",
       status: "active",
@@ -153,61 +220,78 @@ export default function PlayerListPage({
     setEditingPlayer(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate form
     if (!formData.playerName || !formData.jerseyNo || !formData.status) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    if (editingPlayer) {
-      // Update existing player
-      const updatedPlayer: Player = {
-        id: editingPlayer.id,
-        playerImage: formData.playerImage || "/ellipse-2-7.png",
-        playerName: formData.playerName,
-        jerseyNo: formData.jerseyNo,
-        status: formData.status,
-      };
-
-      setPlayers((prev) =>
-        prev.map((player) =>
-          player.id === editingPlayer.id ? updatedPlayer : player
-        )
-      );
-      toast.success("Player updated successfully!");
-    } else {
-      // Create new player
-      const newPlayer: Player = {
-        id: `player-${Date.now()}`,
-        playerImage: formData.playerImage || "/ellipse-2-7.png",
-        playerName: formData.playerName,
-        jerseyNo: formData.jerseyNo,
-        status: formData.status,
-      };
-
-      // Add to players list
-      setPlayers((prev) => [newPlayer, ...prev]);
-      toast.success("Player added successfully!");
+    // Validate jersey number is a valid number
+    if (isNaN(parseInt(formData.jerseyNo))) {
+      toast.error("Jersey number must be a valid number");
+      return;
     }
 
-    // Reset form and close modal
-    resetForm();
-    setIsAddPlayerOpen(false);
+    setIsSubmitting(true);
+
+    try {
+      if (editingPlayer) {
+        // Update existing player
+        const updateData = convertLocalPlayerToApiUpdate(formData);
+        const response = await updatePlayer(editingPlayer.id, updateData);
+
+        if (response.success) {
+          // Update local state with the response data
+          setPlayers((prev) =>
+            prev.map((player) =>
+              player.id === editingPlayer.id ? response.data : player
+            )
+          );
+          toast.success("Player updated successfully!");
+        } else {
+          toast.error("Failed to update player: " + response.error);
+          return;
+        }
+      } else {
+        // Create new player
+        const createData = convertLocalPlayerToApi(formData);
+        const response = await createPlayer(createData);
+
+        if (response.success) {
+          // Add new player to local state
+          setPlayers((prev) => [response.data, ...prev]);
+          toast.success("Player added successfully!");
+        } else {
+          toast.error("Failed to add player: " + response.error);
+          return;
+        }
+      }
+
+      // Reset form and close modal
+      resetForm();
+      setIsAddPlayerOpen(false);
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error("Error submitting player:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleEdit = (player: Player) => {
+  const handleEdit = (player: ApiPlayer) => {
     setEditingPlayer(player);
     setFormData({
-      playerImage: player.playerImage,
-      playerName: player.playerName,
-      jerseyNo: player.jerseyNo,
-      status: player.status,
+      playerImage: null,
+      playerImagePreview: getFullImageUrl(player.image ?? "") || "",
+      playerName: player.name,
+      jerseyNo: player.jersey_number.toString(),
+      status: player.status as "active" | "inactive" | "pending" | "waiting",
     });
     setIsAddPlayerOpen(true);
   };
 
-  const handleDelete = (player: Player) => {
+  const handleDelete = (player: ApiPlayer) => {
     setPlayerToDelete(player);
     setDeleteConfirmOpen(true);
   };
@@ -262,6 +346,31 @@ export default function PlayerListPage({
     return pageNumbers;
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col w-full space-y-6">
+        <div className="flex items-center justify-between w-full">
+          <h1 className="text-2xl font-bold text-secondary font-oswald">
+            Players
+          </h1>
+          <Button
+            className="bg-primary hover:bg-primary/90 text-black"
+            disabled
+          >
+            <Plus size={18} />
+            Add Player
+          </Button>
+        </div>
+        <Card className="w-full rounded-xl overflow-hidden border-border p-0">
+          <CardContent className="p-8 text-center">
+            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+            <p>Loading players...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full space-y-6">
       {/* Header with Title and Add Button */}
@@ -303,62 +412,74 @@ export default function PlayerListPage({
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white">
-                {currentData.map((player) => (
-                  <TableRow key={player.id}>
-                    <TableCell className="px-6 py-4 min-w-24">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 flex items-center justify-center">
-                          <Image
-                            className="w-9 h-9 object-cover rounded-full"
-                            alt={`${player.playerName} avatar`}
-                            src={player.playerImage}
-                            width={36}
-                            height={36}
-                          />
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 min-w-44">
-                      <span className="font-normal text-blackblack-700 text-xl">
-                        {player.playerName}
-                      </span>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-center min-w-28">
-                      <div className="font-normal text-blackblack-700 text-xl">
-                        {player.jerseyNo}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-center min-w-24">
-                      <span
-                        className={`px-2 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
-                          player.status
-                        )}`}
-                      >
-                        {player.status}
-                      </span>
-                    </TableCell>
-                    <TableCell className="px-6 py-4 text-center min-w-24">
-                      <div className="flex items-center justify-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 cursor-pointer"
-                          onClick={() => handleEdit(player)}
-                        >
-                          <Edit size={16} />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 cursor-pointer text-red-600 hover:text-red-800 hover:bg-red-50"
-                          onClick={() => handleDelete(player)}
-                        >
-                          <Trash2 size={16} />
-                        </Button>
-                      </div>
+                {currentData.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={5} className="text-center py-8">
+                      No players found
                     </TableCell>
                   </TableRow>
-                ))}
+                ) : (
+                  currentData.map((player) => (
+                    <TableRow key={player.id}>
+                      <TableCell className="px-6 py-4 min-w-24">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 flex items-center justify-center">
+                            <Image
+                              className="w-9 h-9 object-cover rounded-full"
+                              alt={`${player.name} avatar`}
+                              src={getFullImageUrl(player.image ?? "") || "/ellipse-2-7.png"}
+                              width={36}
+                              height={36}
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = "/ellipse-2-7.png";
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 min-w-44">
+                        <span className="font-normal text-blackblack-700 text-xl">
+                          {player.name}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-center min-w-28">
+                        <div className="font-normal text-blackblack-700 text-xl">
+                          {player.jersey_number}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-center min-w-24">
+                        <span
+                          className={`px-2 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
+                            player.status
+                          )}`}
+                        >
+                          {player.status}
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-6 py-4 text-center min-w-24">
+                        <div className="flex items-center justify-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 cursor-pointer"
+                            onClick={() => handleEdit(player)}
+                          >
+                            <Edit size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 cursor-pointer text-red-600 hover:text-red-800 hover:bg-red-50"
+                            onClick={() => handleDelete(player)}
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
               </TableBody>
             </Table>
           </div>
@@ -432,6 +553,7 @@ export default function PlayerListPage({
                 setIsAddPlayerOpen(false);
                 resetForm();
               }}
+              disabled={isSubmitting}
             >
               <X className="h-5 w-5 text-red-500" />
             </Button>
@@ -446,10 +568,10 @@ export default function PlayerListPage({
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                {formData.playerImage ? (
+                {formData.playerImagePreview ? (
                   <div className="relative">
                     <Image
-                      src={formData.playerImage}
+                      src={formData.playerImagePreview}
                       alt="Preview"
                       width={80}
                       height={80}
@@ -461,7 +583,11 @@ export default function PlayerListPage({
                       className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setFormData((prev) => ({ ...prev, playerImage: "" }));
+                        setFormData((prev) => ({
+                          ...prev,
+                          playerImage: null,
+                          playerImagePreview: "",
+                        }));
                       }}
                     >
                       <X size={12} />
@@ -496,6 +622,7 @@ export default function PlayerListPage({
                 onChange={(e) =>
                   handleInputChange("playerName", e.target.value)
                 }
+                disabled={isSubmitting}
               />
             </div>
 
@@ -508,9 +635,12 @@ export default function PlayerListPage({
                   placeholder="e.g., 10"
                   className="mt-1"
                   value={formData.jerseyNo}
-                  onChange={(e) =>
-                    handleInputChange("jerseyNo", e.target.value)
-                  }
+                  onChange={(e) => {
+                    // Only allow numbers
+                    const value = e.target.value.replace(/[^0-9]/g, "");
+                    handleInputChange("jerseyNo", value);
+                  }}
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="space-y-2 w-1/2">
@@ -522,6 +652,7 @@ export default function PlayerListPage({
                   onValueChange={(value) =>
                     handleInputChange("status", value as FormData["status"])
                   }
+                  disabled={isSubmitting}
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Select status" />
@@ -544,14 +675,23 @@ export default function PlayerListPage({
                   resetForm();
                 }}
                 className="hover:bg-blue-100"
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
               <Button
                 className="bg-primary hover:bg-primary/90 text-[#141b34]"
                 onClick={handleSubmit}
+                disabled={isSubmitting}
               >
-                {editingPlayer ? "Update" : "Submit"}
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {editingPlayer ? "Updating..." : "Adding..."}
+                  </>
+                ) : (
+                  <>{editingPlayer ? "Update" : "Submit"}</>
+                )}
               </Button>
             </div>
           </div>
@@ -564,22 +704,31 @@ export default function PlayerListPage({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Player</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete `{playerToDelete?.playerName}`?
-              This action cannot be undone.
+              Are you sure you want to delete `{playerToDelete?.name}`? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setDeleteConfirmOpen(false)}
               className="hover:bg-blue-100"
+              disabled={isDeleting}
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={isDeleting}
             >
-              Delete
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

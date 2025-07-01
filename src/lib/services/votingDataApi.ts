@@ -1,4 +1,4 @@
-// src/lib/services/votingDataApi.ts - FIXED VERSION
+// src/lib/services/votingDataApi.ts
 import apiEndpoint from "@/lib/axios";
 
 const VOTING_ENDPOINTS = {

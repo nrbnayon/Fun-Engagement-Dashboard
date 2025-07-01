@@ -25,7 +25,6 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(1, "Password is required")
-    .min(6, "Password must be at least 6 characters")
     .max(100, "Password must be less than 100 characters"),
   rememberMe: z.boolean(),
 });
@@ -81,7 +80,6 @@ export default function LoginForm() {
         password: data.password,
         rememberMe: data.rememberMe,
       });
-
     } catch (error) {
       console.error("Login submission error:", error);
     }
