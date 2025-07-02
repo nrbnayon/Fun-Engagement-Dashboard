@@ -19,7 +19,15 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { Plus, Upload, X } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { Plus, Upload, X, CalendarIcon, Clock } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import DynamicMatchesTable from "./DynamicMatchesTable";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
@@ -37,7 +45,7 @@ interface FormData {
   teamAName: string;
   teamBName: string;
   time: string;
-  date: string;
+  date: Date | undefined;
   selectedPlayers: string[];
   teamAImage: File | null;
   teamBImage: File | null;
@@ -52,12 +60,12 @@ export default function DynamicMatchPage() {
     teamAName: "",
     teamBName: "",
     time: "",
-    date: "",
+    date: undefined,
     selectedPlayers: [],
     teamAImage: null,
     teamBImage: null,
     status: "upcoming",
-    winner: "",
+    winner: "no_winner",
   });
 
   // Remove mock data and replace with API call
@@ -98,7 +106,7 @@ export default function DynamicMatchPage() {
   // Form handling functions
   const handleInputChange = (
     field: keyof FormData,
-    value: string | string[]
+    value: string | string[] | Date | undefined
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -135,42 +143,27 @@ export default function DynamicMatchPage() {
       teamAName: "",
       teamBName: "",
       time: "",
-      date: "",
+      date: undefined,
       selectedPlayers: [],
       teamAImage: null,
       teamBImage: null,
       status: "upcoming",
-      winner: "",
+      winner: "no_winner",
     });
   };
 
-  const convertTimeFormat = (timeStr: string) => {
-    // Convert from "5:00 PM" format to "17:00:00" format
-    try {
-      const [time, period] = timeStr.split(" ");
-      const [hours, minutes] = time.split(":");
-      let hour24 = Number.parseInt(hours);
-
-      if (period?.toLowerCase() === "pm" && hour24 !== 12) {
-        hour24 += 12;
-      } else if (period?.toLowerCase() === "am" && hour24 === 12) {
-        hour24 = 0;
-      }
-
-      return `${hour24.toString().padStart(2, "0")}:${minutes}:00`;
-    } catch {
-      return timeStr;
+  const convertTimeToAPI = (timeStr: string) => {
+    // Convert from "14:30" format to "14:30:00" format
+    if (timeStr && !timeStr.includes(":00")) {
+      return `${timeStr}:00`;
     }
+    return timeStr;
   };
 
-  const convertDateFormat = (dateStr: string) => {
-    // Convert from "dd/mm/yyyy" format to "yyyy-mm-dd" format
-    try {
-      const [day, month, year] = dateStr.split("/");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-    } catch {
-      return dateStr;
-    }
+  const convertDateToAPI = (date: Date | undefined) => {
+    // Convert Date object to "yyyy-mm-dd" format
+    if (!date) return "";
+    return format(date, "yyyy-MM-dd");
   };
 
   const handleSubmit = async () => {
@@ -190,20 +183,20 @@ export default function DynamicMatchPage() {
       const submitFormData = new FormData();
       submitFormData.append("team_a", formData.teamAName);
       submitFormData.append("team_b", formData.teamBName);
-      submitFormData.append("time", convertTimeFormat(formData.time));
-      submitFormData.append("date", convertDateFormat(formData.date));
-      submitFormData.append(
-        "selected_players_ids",
-        JSON.stringify(
-          formData.selectedPlayers.map((id) => Number.parseInt(id))
-        )
-      );
+      submitFormData.append("time", convertTimeToAPI(formData.time));
+      submitFormData.append("date", convertDateToAPI(formData.date));
+
+      // Send multiple fields with the same name for array handling
+      // This will create: selected_players_ids: [3,4,2,7,8] format
+      formData.selectedPlayers.forEach((playerId) => {
+        submitFormData.append("selected_players_ids", playerId);
+      });
 
       if (formData.status) {
         submitFormData.append("status", formData.status);
       }
 
-      if (formData.winner) {
+      if (formData.winner && formData.winner !== "no_winner") {
         submitFormData.append("winner", formData.winner);
       }
 
@@ -227,11 +220,9 @@ export default function DynamicMatchPage() {
       if (response.data) {
         // Refresh matches data
         setRefreshKey((prev) => prev + 1);
-
         // Close dialog and reset form
         setIsAddMatchOpen(false);
         resetForm();
-
         toast.success("Match created successfully!");
       }
     } catch (error) {
@@ -287,7 +278,6 @@ export default function DynamicMatchPage() {
           >
             Upcoming
           </TabsTrigger>
-
           <TabsTrigger
             value="finished"
             className="rounded-none data-[state=active]:bg-primary text-secondary data-[state=active]:text-[#141b34] data-[state=active]:shadow-none px-6 py-2"
@@ -375,6 +365,7 @@ export default function DynamicMatchPage() {
               <X className="h-5 w-5 text-red-500" />
             </Button>
           </DialogHeader>
+
           <div className="p-4 pt-0">
             <div className="grid grid-cols-2 gap-5 mb-4">
               <div className="space-y-2">
@@ -412,6 +403,7 @@ export default function DynamicMatchPage() {
                   </p>
                 )}
               </div>
+
               <div className="space-y-2">
                 <label className="font-medium text-[#141b34]">Team B *</label>
                 <div className="flex gap-2 mt-1">
@@ -448,26 +440,51 @@ export default function DynamicMatchPage() {
                 )}
               </div>
             </div>
+
             <div className="grid grid-cols-2 gap-5 mb-4">
               <div className="space-y-2">
                 <label className="font-medium text-[#141b34]">Time *</label>
-                <Input
-                  placeholder="hrs:min (e.g., 5:00 PM)"
-                  className="mt-1"
-                  value={formData.time}
-                  onChange={(e) => handleInputChange("time", e.target.value)}
-                />
+                <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                  <Input
+                    type="time"
+                    className="pl-10"
+                    value={formData.time}
+                    onChange={(e) => handleInputChange("time", e.target.value)}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="font-medium text-[#141b34]">Date *</label>
-                <Input
-                  placeholder="dd/mm/yyyy"
-                  className="mt-1"
-                  value={formData.date}
-                  onChange={(e) => handleInputChange("date", e.target.value)}
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !formData.date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {formData.date ? (
+                        format(formData.date, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={formData.date}
+                      onSelect={(date: Date | undefined) => handleInputChange("date", date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
+
             <div className="grid grid-cols-2 gap-5 mb-4">
               <div className="space-y-2">
                 <label className="font-medium text-[#141b34]">Status</label>
@@ -496,13 +513,14 @@ export default function DynamicMatchPage() {
                     <SelectValue placeholder="Select Winner" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Winner</SelectItem>
+                    <SelectItem value="no_winner">No Winner</SelectItem>
                     <SelectItem value="team_a">Team A</SelectItem>
                     <SelectItem value="team_b">Team B</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
+
             <div className="space-y-2 mb-4">
               <label className="font-medium text-[#141b34]">
                 Select Player
@@ -556,6 +574,7 @@ export default function DynamicMatchPage() {
                   </SelectContent>
                 </Select>
               </div>
+
               {/* Selected Players */}
               {formData.selectedPlayers.length > 0 && (
                 <div className="mt-3">
@@ -597,6 +616,7 @@ export default function DynamicMatchPage() {
                 </div>
               )}
             </div>
+
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"

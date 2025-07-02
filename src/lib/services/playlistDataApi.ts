@@ -155,8 +155,7 @@ export const createPlayer = async (playerData: CreatePlayerData) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        // Ensure the request timeout is sufficient for file uploads
-        timeout: 30000, // 30 seconds
+        timeout: 30000, 
       }
     );
 
