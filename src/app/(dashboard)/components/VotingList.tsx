@@ -198,7 +198,7 @@ export default function VotingList({
                       Email
                     </TableHead>
                     <TableHead className="font-normal text-secondary pl-5 py-4 min-w-44">
-                      Who will Win
+                      Who Will Win
                     </TableHead>
                     <TableHead className="font-normal text-center text-secondary py-4 min-w-24">
                       Goals

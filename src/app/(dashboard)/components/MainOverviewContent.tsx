@@ -194,7 +194,7 @@ export const MainOverviewContent = () => {
                     Email
                   </TableHead>
                   <TableHead className='font-normal text-secondary pl-6 py-4'>
-                    Who will Win
+                    Who Will Win
                   </TableHead>
                   <TableHead className='font-normal text-center text-secondary py-4'>
                     Goals

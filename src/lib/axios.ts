@@ -1,12 +1,10 @@
-// lib/axios.ts
 import axios, {
-  AxiosError,
-  AxiosInstance,
-  AxiosRequestConfig,
-  AxiosResponse,
+  type AxiosError,
+  type AxiosInstance,
+  type AxiosRequestConfig,
 } from "axios";
 import Cookies from "js-cookie";
-import {
+import type {
   LoginCredentials,
   LoginResponse,
   OtpRequest,
@@ -22,25 +20,24 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 const ACCESS_TOKEN_COOKIE = "accessToken";
 const REFRESH_TOKEN_COOKIE = "refreshToken";
 
-// Token expiration: 7 days (more secure than 1 year)
-const TOKEN_EXPIRY_DAYS = 7;
 interface AuthTokens {
   accessToken: string;
   refreshToken: string;
-  isVerified?: boolean;
 }
+
 interface ApiError {
   message: string;
   code?: string | number;
   status?: number;
 }
+
 /**
- * Create a configured axios instance with interceptors for authentication
+ * Create a configured axios instance
  */
 const createAxiosInstance = (config?: AxiosRequestConfig): AxiosInstance => {
   const instance = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 60000, // 60 seconds timeout
+    timeout: 60000,
     headers: {
       "Content-Type": "application/json",
       Accept: "application/json",
@@ -48,31 +45,6 @@ const createAxiosInstance = (config?: AxiosRequestConfig): AxiosInstance => {
     withCredentials: true,
     ...config,
   });
-
-  // Variables to track token refresh state
-  let isRefreshing = false;
-  let failedQueue: Array<{
-    resolve: (value: unknown) => void;
-    reject: (reason?: unknown) => void;
-    config: AxiosRequestConfig;
-  }> = [];
-
-  /**
-   * Process the queue of failed requests after token refresh
-   */
-  const processQueue = (error: Error | null, token: string | null = null) => {
-    failedQueue.forEach((request) => {
-      if (error) {
-        request.reject(error);
-      } else if (token) {
-        if (request.config.headers) {
-          request.config.headers["Authorization"] = `Bearer ${token}`;
-        }
-        request.resolve(instance(request.config));
-      }
-    });
-    failedQueue = [];
-  };
 
   // Request interceptor - Add auth token to headers
   instance.interceptors.request.use(
@@ -82,9 +54,8 @@ const createAxiosInstance = (config?: AxiosRequestConfig): AxiosInstance => {
         config.headers["Authorization"] = `Bearer ${accessToken}`;
       }
 
-      // Handle multipart/form-data content type
+      // Handle multipart/form-data
       if (config.data instanceof FormData) {
-        // Remove Content-Type header to let the browser set it with boundary
         if (
           config.headers &&
           config.headers["Content-Type"] === "multipart/form-data"
@@ -93,121 +64,24 @@ const createAxiosInstance = (config?: AxiosRequestConfig): AxiosInstance => {
         }
       }
 
-      // Add request timestamp for debugging
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
-          {
-            headers: config.headers,
-            data: config.data instanceof FormData ? "FormData" : config.data,
-            hasFormData: config.data instanceof FormData,
-          }
-        );
-      }
-
       return config;
     },
-    (error) => {
-      console.error("[API Request Error]", error);
-      return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
   );
 
-  // Response interceptor - Handle token refresh and errors
+  // Response interceptor - Handle errors (simplified)
   instance.interceptors.response.use(
-    (response) => {
-      if (process.env.NODE_ENV === "development") {
-        console.log(
-          `[API Response] ${response.status} ${response.config.url}`,
-          {
-            data: response.data,
-          }
-        );
-      }
-      return response;
-    },
+    (response) => response,
     async (error: AxiosError) => {
-      const originalRequest = error.config as AxiosRequestConfig & {
-        _retry?: boolean;
-      };
-
-      // Log error in development
-      if (process.env.NODE_ENV === "development") {
-        console.error("[API Response Error]", {
-          status: error.response?.status,
-          url: error.config?.url,
-          message: error.message,
-          data: error.response?.data,
-        });
-      }
-
-      // Handle non-401 errors or already retried requests
-      if (
-        !error.response ||
-        error.response.status !== 401 ||
-        originalRequest._retry
-      ) {
-        return Promise.reject(createApiError(error));
-      }
-
-      // Queue request if already refreshing
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject, config: originalRequest });
-        });
-      }
-
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const refreshToken = Cookies.get(REFRESH_TOKEN_COOKIE);
-
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-
-        // Refresh token request
-        const { data }: AxiosResponse<AuthTokens> = await axios.post(
-          `${API_BASE_URL}/auth/refresh/`,
-          { refresh_token: refreshToken },
-          {
-            withCredentials: true,
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-
-        // Save new tokens
-        saveTokens(data);
-
-        // Update original request with new token
-        if (originalRequest.headers) {
-          originalRequest.headers[
-            "Authorization"
-          ] = `Bearer ${data.accessToken}`;
-        }
-
-        // Process queued requests
-        processQueue(null, data.accessToken);
-
-        // Retry original request
-        return instance(originalRequest);
-      } catch (refreshError) {
-        // Handle refresh failure
-        processQueue(refreshError as Error);
-        handleLogout();
-
-        // Redirect to login page
+      // If 401, clear tokens and redirect to login
+      if (error.response?.status === 401) {
+        clearTokens();
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }
-
-        return Promise.reject(createApiError(refreshError as AxiosError));
-      } finally {
-        isRefreshing = false;
       }
+
+      return Promise.reject(createApiError(error));
     }
   );
 
@@ -237,69 +111,42 @@ const createApiError = (error: AxiosError): ApiError => {
 };
 
 /**
- * Save authentication tokens to cookies with proper security settings
+ * Save authentication tokens (simplified - let backend handle expiration)
  */
 export const saveTokens = (tokens: AuthTokens): void => {
-  const isProduction = process.env.NODE_ENV === "production";
-  const cookieOptions = {
-    expires: TOKEN_EXPIRY_DAYS,
-    secure: isProduction, // HTTPS only in production
-    sameSite: "strict" as const, // CSRF protection
-    path: "/", // Available site-wide
-  };
-
   try {
-    Cookies.set(ACCESS_TOKEN_COOKIE, tokens.accessToken, cookieOptions);
-    Cookies.set(REFRESH_TOKEN_COOKIE, tokens.refreshToken, cookieOptions);
+    // Simple cookie storage - backend handles expiration and security
+    Cookies.set(ACCESS_TOKEN_COOKIE, tokens.accessToken, { path: "/" });
+    Cookies.set(REFRESH_TOKEN_COOKIE, tokens.refreshToken, { path: "/" });
 
-    // Dispatch custom event for cross-tab synchronization
+    // Dispatch event for cross-tab sync
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("auth-token-changed"));
     }
-
-    console.log("[Auth] Tokens saved successfully");
   } catch (error) {
-    console.error("[Auth] Failed to save tokens:", error);
+    console.error("Failed to save tokens:", error);
     throw new Error("Failed to save authentication tokens");
   }
 };
 
 /**
- * Remove authentication tokens from cookies
+ * Clear authentication tokens
  */
 export const clearTokens = (): void => {
-  const cookieOptions = {
-    path: "/",
-  };
-
   try {
-    Cookies.remove(ACCESS_TOKEN_COOKIE, cookieOptions);
-    Cookies.remove(REFRESH_TOKEN_COOKIE, cookieOptions);
+    Cookies.remove(ACCESS_TOKEN_COOKIE, { path: "/" });
+    Cookies.remove(REFRESH_TOKEN_COOKIE, { path: "/" });
 
-    // Dispatch custom event for cross-tab synchronization
+    // Clear local storage
     if (typeof window !== "undefined") {
+      localStorage.removeItem("user");
+      localStorage.removeItem("userPreferences");
+      sessionStorage.clear();
       window.dispatchEvent(new CustomEvent("auth-token-changed"));
     }
-
-    console.log("[Auth] Tokens cleared successfully");
   } catch (error) {
-    console.error("[Auth] Failed to clear tokens:", error);
+    console.error("Failed to clear tokens:", error);
   }
-};
-
-/**
- * Handle logout - clear tokens and redirect
- */
-export const handleLogout = (): void => {
-  clearTokens();
-
-  // Clear any cached user data
-  if (typeof window !== "undefined") {
-    localStorage.removeItem("user");
-    localStorage.removeItem("userPreferences");
-    sessionStorage.clear();
-  }
-  console.log("[Auth] User logged out");
 };
 
 /**
@@ -310,19 +157,11 @@ export const getAccessToken = (): string | undefined => {
 };
 
 /**
- * Get the current refresh token
+ * Check if user has valid tokens
  */
-export const getRefreshToken = (): string | undefined => {
-  return Cookies.get(REFRESH_TOKEN_COOKIE);
-};
-
-/**
- * Check if user is authenticated
- */
-export const isAuthenticated = (): boolean => {
+export const hasValidTokens = (): boolean => {
   const accessToken = getAccessToken();
-  const refreshToken = getRefreshToken();
-  // User is authenticated if they have both tokens
+  const refreshToken = Cookies.get(REFRESH_TOKEN_COOKIE);
   return !!(accessToken && refreshToken);
 };
 
@@ -334,13 +173,8 @@ export const isAuthenticated = (): boolean => {
  * Get user profile from API
  */
 export const getUserProfile = async (): Promise<UserProfile> => {
-  try {
-    const response = await apiEndpoint.get<UserProfile>("/auth/profile/");
-    return response.data;
-  } catch (error) {
-    console.error("[Auth] Failed to get user profile:", error);
-    throw error;
-  }
+  const response = await apiEndpoint.get<UserProfile>("/auth/profile/");
+  return response.data;
 };
 
 /**
@@ -351,98 +185,44 @@ export const login = async (
 ): Promise<{
   user: UserProfile;
   tokens: AuthTokens;
-  isValidated?: boolean;
+  requiresAdminApproval?: boolean;
 }> => {
-  try {
-    console.log("[API] Attempting login for:", credentials.email);
+  const response = await apiEndpoint.post<LoginResponse>(
+    "/auth/login/",
+    credentials
+  );
 
-    const response = await apiEndpoint.post<LoginResponse>(
-      "/auth/login/",
-      credentials
-    );
-
-    console.log("[API] Login response received:", {
-      status: response.status,
-      hasProfile: !!response.data?.profile,
-      hasTokens: !!(
-        response.data?.access_token && response.data?.refresh_token
-      ),
-    });
-
-    // Validate response structure
-    if (!response.data) {
-      throw new Error("No data received from server");
-    }
-
-    if (!response.data.access_token || !response.data.refresh_token) {
-      throw new Error("Authentication tokens not received");
-    }
-
-    if (!response.data.profile) {
-      throw new Error("User profile not received");
-    }
-
-    const tokens: AuthTokens = {
-      accessToken: response.data.access_token,
-      refreshToken: response.data.refresh_token,
-      isVerified: response.data.is_verified || false,
-    };
-
-    // Save tokens
-    saveTokens(tokens);
-
-    console.log("[API] Login successful for user:", response.data.profile);
-
-    return {
-      user: response.data.profile, // Use 'profile' from response
-      tokens,
-      isValidated: response.data.is_verified || false,
-    };
-  } catch (error: unknown) {
-    console.error("[API] Login failed:", error);
-
-    // Handle different types of errors
-    if (axios.isAxiosError(error)) {
-      if (error.response) {
-        // Server responded with error status
-        const status = error.response.status;
-        const data = error.response.data;
-
-        if (status === 400) {
-          throw new Error(
-            data?.message || data?.error || "Invalid credentials"
-          );
-        } else if (status === 401) {
-          throw new Error("Invalid email or password");
-        } else if (status === 429) {
-          throw new Error("Too many login attempts. Please try again later.");
-        } else if (status >= 500) {
-          throw new Error("Server error. Please try again later.");
-        } else {
-          throw new Error(data?.message || data?.error || "Login failed");
-        }
-      } else if (error.request) {
-        // Network error
-        throw new Error(
-          "Network error. Please check your connection and try again."
-        );
-      } else if (error.message) {
-        // Our custom error message
-        throw error;
-      } else {
-        // Unknown error
-        throw new Error("An unexpected error occurred. Please try again.");
-      }
-    } else if (error instanceof Error) {
-      throw error;
-    } else {
-      throw new Error("An unexpected error occurred. Please try again.");
-    }
+  if (
+    !response.data?.access_token ||
+    !response.data?.refresh_token ||
+    !response.data?.profile
+  ) {
+    throw new Error("Invalid response from server");
   }
+
+  const tokens: AuthTokens = {
+    accessToken: response.data.access_token,
+    refreshToken: response.data.refresh_token,
+  };
+
+  const userProfile = response.data.profile;
+  const requiresAdminApproval =
+    userProfile.role === "admin" && !userProfile.is_verified;
+
+  // Only save tokens if user doesn't require admin approval
+  if (!requiresAdminApproval) {
+    saveTokens(tokens);
+  }
+
+  return {
+    user: userProfile,
+    tokens,
+    requiresAdminApproval,
+  };
 };
 
 /**
- * Register new user in axios file
+ * Register new user
  */
 export const register = async (
   userData: RegisterData
@@ -450,24 +230,17 @@ export const register = async (
   message: string;
   user: UserProfile;
 }> => {
-  try {
-    const response = await apiEndpoint.post<{
-      message: string;
-      user: UserProfile;
-    }>("/auth/register/", {
-      name: userData.name,
-      email: userData.email,
-      password: userData.password,
-      role: userData.role || "user",
-    });
-    return {
-      message: response.data.message,
-      user: response.data.user,
-    };
-  } catch (error) {
-    console.error("[Auth] Registration failed:", error);
-    throw error;
-  }
+  const response = await apiEndpoint.post<{
+    message: string;
+    user: UserProfile;
+  }>("/auth/register/", {
+    name: userData.name,
+    email: userData.email,
+    password: userData.password,
+    role: userData.role || "user",
+  });
+
+  return response.data;
 };
 
 /**
@@ -475,141 +248,87 @@ export const register = async (
  */
 export const logout = async (): Promise<void> => {
   try {
-    const refreshToken = getRefreshToken();
+    const refreshToken = Cookies.get(REFRESH_TOKEN_COOKIE);
     if (refreshToken) {
       await apiEndpoint.post("/auth/logout/", { refresh_token: refreshToken });
     }
   } catch (error) {
-    console.error("[Auth] Logout API call failed:", error);
+    console.error("Logout API call failed:", error);
   } finally {
-    handleLogout();
+    clearTokens();
   }
 };
 
 /**
- * Update user profile with FormData
+ * Update user profile
  */
 export const updateProfile = async (
   profileData: FormData
 ): Promise<UserProfile> => {
-  try {
-    const response = await apiEndpoint.put<UserProfile>(
-      "/auth/profile/",
-      profileData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("[Auth] Profile update failed:", error);
-    throw error;
-  }
+  const response = await apiEndpoint.put<UserProfile>(
+    "/auth/profile/",
+    profileData,
+    {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
 };
 
 // =============================================================================
 // OTP API FUNCTIONS
 // =============================================================================
 
-/**
- * Send OTP to email
- */
 export const sendOtp = async (
   data: OtpRequest
 ): Promise<{ message: string }> => {
-  try {
-    const response = await apiEndpoint.post<{ message: string }>(
-      "/auth/otp/create/",
-      data
-    );
-    return response.data;
-  } catch (error) {
-    console.error("[Auth] Send OTP failed:", error);
-    throw error;
-  }
+  const response = await apiEndpoint.post<{ message: string }>(
+    "/auth/otp/create/",
+    data
+  );
+  return response.data;
 };
 
-/**
- * Verify OTP
- */
 export const verifyOtp = async (
   data: OtpVerification
 ): Promise<{ message: string }> => {
-  try {
-    const response = await apiEndpoint.post<{ message: string }>(
-      "/auth/otp/verify/",
-      data
-    );
-    return response.data;
-  } catch (error) {
-    console.error("[Auth] Verify OTP failed:", error);
-    throw error;
-  }
+  const response = await apiEndpoint.post<{ message: string }>(
+    "/auth/otp/verify/",
+    data
+  );
+  return response.data;
 };
 
 // =============================================================================
 // PASSWORD RESET API FUNCTIONS
 // =============================================================================
 
-/**
- * Request password reset
- */
 export const requestPasswordReset = async (
   data: PasswordResetRequest
 ): Promise<{ message: string }> => {
-  try {
-    const response = await apiEndpoint.post<{ message: string }>(
-      "/auth/password-reset/request/",
-      data
-    );
-    return response.data;
-  } catch (error) {
-    console.error("[Auth] Password reset request failed:", error);
-    throw error;
-  }
+  const response = await apiEndpoint.post<{ message: string }>(
+    "/auth/password-reset/request/",
+    data
+  );
+  return response.data;
 };
 
-/**
- * Confirm password reset with OTP
- */
 export const confirmPasswordReset = async (
   data: PasswordResetConfirm
 ): Promise<{ message: string }> => {
-  try {
-    const response = await apiEndpoint.post<{ message: string }>(
-      "/auth/password-reset/confirm/",
-      data
-    );
-    return response.data;
-  } catch (error) {
-    console.error("[Auth] Password reset confirmation failed:", error);
-    throw error;
-  }
+  const response = await apiEndpoint.post<{ message: string }>(
+    "/auth/password-reset/confirm/",
+    data
+  );
+  return response.data;
 };
 
 const apiEndpoint = createAxiosInstance();
 export default apiEndpoint;
 
-// Export function to create custom instances
-export const createApi = createAxiosInstance;
-
-// Export types
-export type {
-  AuthTokens,
-  UserProfile,
-  // UserProfileData,
-  ApiError,
-  LoginCredentials,
-  RegisterData,
-  OtpRequest,
-  OtpVerification,
-  PasswordResetRequest,
-  PasswordResetConfirm,
-};
-
-// Helper functions for safe access to nested profile data
+// Helper functions
 export const getProfileName = (profile: UserProfile): string => {
   return profile.user_profile?.name || profile.email?.split("@")[0] || "User";
 };
@@ -618,14 +337,18 @@ export const getProfilePicture = (profile: UserProfile): string => {
   return profile.user_profile?.profile_picture || "/default-avatar.png";
 };
 
-export const getPhoneNumber = (profile: UserProfile): string => {
-  return profile.user_profile?.phone_number || "";
-};
-
-export const getJoinedDate = (profile: UserProfile): string => {
-  return profile.user_profile?.joined_date || "";
-};
-
 export const isProfileVerified = (profile: UserProfile): boolean => {
   return profile.is_verified || false;
+};
+
+export type {
+  AuthTokens,
+  UserProfile,
+  ApiError,
+  LoginCredentials,
+  RegisterData,
+  OtpRequest,
+  OtpVerification,
+  PasswordResetRequest,
+  PasswordResetConfirm,
 };
