@@ -27,7 +27,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Plus, Upload, X, CalendarIcon, Clock } from "lucide-react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, getFullImageUrl } from "@/lib/utils";
 import DynamicMatchesTable from "./DynamicMatchesTable";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
@@ -477,7 +477,9 @@ export default function DynamicMatchPage() {
                     <Calendar
                       mode="single"
                       selected={formData.date}
-                      onSelect={(date: Date | undefined) => handleInputChange("date", date)}
+                      onSelect={(date: Date | undefined) =>
+                        handleInputChange("date", date)
+                      }
                       initialFocus
                     />
                   </PopoverContent>
@@ -514,8 +516,8 @@ export default function DynamicMatchPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="no_winner">No Winner</SelectItem>
-                    <SelectItem value="team_a">Team A</SelectItem>
-                    <SelectItem value="team_b">Team B</SelectItem>
+                    <SelectItem value="team_a">Win Team A</SelectItem>
+                    <SelectItem value="team_b">Win Team B</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -526,9 +528,10 @@ export default function DynamicMatchPage() {
                 Select Player
               </label>
               <div className="flex gap-2 mt-1">
-                <Select onValueChange={handleAddPlayer} defaultValue="default">
+                <Select onValueChange={handleAddPlayer}>
                   <SelectTrigger className="flex-1">
                     <SelectValue
+                      className="text-gray-600"
                       placeholder={
                         loadingPlayers ? "Loading players..." : "Select Player"
                       }
@@ -557,7 +560,9 @@ export default function DynamicMatchPage() {
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               <Avatar className="w-6 h-6 flex-shrink-0">
                                 <AvatarImage
-                                  src={player.image || "/placeholder.svg"}
+                                  src={
+                                    getFullImageUrl(player.image) || "/user.png"
+                                  }
                                   alt={player.name}
                                   className="w-6 h-6 object-cover"
                                 />
@@ -593,7 +598,10 @@ export default function DynamicMatchPage() {
                         >
                           <Avatar className="w-5 h-5">
                             <AvatarImage
-                              src={player?.image || "/placeholder.svg"}
+                              src={
+                                getFullImageUrl(player?.image ?? "") ||
+                                "/user.png"
+                              }
                               alt={player?.name}
                               className="w-5 h-5 object-cover"
                             />

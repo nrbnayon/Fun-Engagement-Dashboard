@@ -52,8 +52,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { getFullImageUrl } from "@/lib/utils";
+import { cn, getFullImageUrl } from "@/lib/utils";
 import { getAllMatch, deleteMatch } from "@/lib/services/matchDataApi";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
@@ -368,12 +367,12 @@ export default function DynamicMatchesTable({
     const baseHeaders = [
       {
         key: "teamA",
-        label: "Team A",
+        label: "Win Team A",
         className: "font-normal text-secondary pl-8 py-4 min-w-40",
       },
       {
         key: "teamB",
-        label: "Team B",
+        label: "Win Team B",
         className: "font-normal text-secondary pl-6 py-4 min-w-40",
       },
       {
@@ -678,7 +677,9 @@ export default function DynamicMatchesTable({
       {(displayTitle || (!paginate && !addMatch) || addMatch) && (
         <div className="flex items-center justify-between w-full font-oswald">
           {displayTitle && (
-            <h2 className="text-2xl text-secondary">{displayTitle}</h2>
+            <h2 className="text-2xl font-bold text-secondary font-oswald">
+              {displayTitle}
+            </h2>
           )}
 
           {!paginate && !addMatch && (
@@ -764,7 +765,7 @@ export default function DynamicMatchesTable({
                                 alt={`${match.team_a} logo`}
                                 src={
                                   getFullImageUrl(match.team_a_pics) ||
-                                  "/placeholder.svg"
+                                  "/logo.png"
                                 }
                                 width={36}
                                 height={36}
@@ -791,7 +792,7 @@ export default function DynamicMatchesTable({
                                 alt={`${match.team_b} logo`}
                                 src={
                                   getFullImageUrl(match.team_b_pics) ||
-                                  "/placeholder.svg"
+                                  "/logo.png"
                                 }
                                 width={36}
                                 height={36}
@@ -857,11 +858,8 @@ export default function DynamicMatchesTable({
                                     className="w-10 h-10 object-cover rounded-full border-2 border-border"
                                     alt={player.name}
                                     src={
-                                      getFullImageUrl(player.image) ||
-                                      "/ellipse-2-7.png" ||
-                                      "/placeholder.svg" ||
-                                      "/placeholder.svg" ||
-                                      "/placeholder.svg"
+                                      getFullImageUrl(player.image ?? "") ||
+                                      "/user.png"
                                     }
                                   />
                                 </Avatar>
@@ -1126,8 +1124,8 @@ export default function DynamicMatchesTable({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="no_winner">No Winner</SelectItem>
-                    <SelectItem value="team_a">Team A</SelectItem>
-                    <SelectItem value="team_b">Team B</SelectItem>
+                    <SelectItem value="team_a">Win Team A</SelectItem>
+                    <SelectItem value="team_b">Win Team B</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1169,7 +1167,10 @@ export default function DynamicMatchesTable({
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               <Avatar className="w-6 h-6 flex-shrink-0">
                                 <AvatarImage
-                                  src={player.image || "/placeholder.svg"}
+                                  src={
+                                    getFullImageUrl(player?.image) ||
+                                    "/user.png"
+                                  }
                                   alt={player.name}
                                   className="w-6 h-6 object-cover"
                                 />
@@ -1205,7 +1206,10 @@ export default function DynamicMatchesTable({
                         >
                           <Avatar className="w-5 h-5">
                             <AvatarImage
-                              src={player?.image || "/placeholder.svg"}
+                              src={
+                                getFullImageUrl(player?.image ?? "") ||
+                                "/user.png"
+                              }
                               alt={player?.name}
                               className="w-5 h-5 object-cover"
                             />
@@ -1422,8 +1426,8 @@ export default function DynamicMatchesTable({
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="no_winner">No Winner</SelectItem>
-                    <SelectItem value="team_a">Team A</SelectItem>
-                    <SelectItem value="team_b">Team B</SelectItem>
+                    <SelectItem value="team_a">Win Team A</SelectItem>
+                    <SelectItem value="team_b">Win Team B</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1465,7 +1469,10 @@ export default function DynamicMatchesTable({
                             <div className="flex items-center gap-2 flex-1 min-w-0">
                               <Avatar className="w-6 h-6 flex-shrink-0">
                                 <AvatarImage
-                                  src={player.image || "/placeholder.svg"}
+                                  src={
+                                    getFullImageUrl(player?.image ?? "") ||
+                                    "/user.png"
+                                  }
                                   alt={player.name}
                                   className="w-6 h-6 object-cover"
                                 />
@@ -1501,7 +1508,10 @@ export default function DynamicMatchesTable({
                         >
                           <Avatar className="w-5 h-5">
                             <AvatarImage
-                              src={player?.image || "/placeholder.svg"}
+                              src={
+                                getFullImageUrl(player?.image ?? "") ||
+                                "/user.png"
+                              }
                               alt={player?.name}
                               className="w-5 h-5 object-cover"
                             />

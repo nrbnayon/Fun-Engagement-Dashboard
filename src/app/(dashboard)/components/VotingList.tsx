@@ -141,6 +141,8 @@ export default function VotingList({
   // Convert display name to API format
   const getApiFormat = (displayName: string) => {
     switch (displayName) {
+      case "Draw / NR":
+        return "no_winner";
       case "Team A":
         return "team_a";
       case "Team B":
@@ -286,7 +288,7 @@ export default function VotingList({
                       Select Player
                     </TableHead>
                     <TableHead className="font-normal text-center text-secondary py-4 min-w-64">
-                      Update Result
+                      Update Match Result
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -327,7 +329,7 @@ export default function VotingList({
                                 src={
                                   getFullImageUrl(
                                     item.user.user_profile.profile_picture
-                                  ) || "/ellipse-2-7.png"
+                                  ) || "/user.png"
                                 }
                               />
                             </Avatar>
@@ -384,8 +386,15 @@ export default function VotingList({
                                 <SelectValue placeholder="Select winner" />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="Team A">Team A</SelectItem>
-                                <SelectItem value="Team B">Team B</SelectItem>
+                                <SelectItem value="Draw / NR">
+                                  Draw / NR
+                                </SelectItem>
+                                <SelectItem value="Team A">
+                                  Win Team A
+                                </SelectItem>
+                                <SelectItem value="Team B">
+                                  Win Team B
+                                </SelectItem>
                               </SelectContent>
                             </Select>
                             <Button
