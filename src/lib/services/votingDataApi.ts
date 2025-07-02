@@ -7,6 +7,7 @@ const VOTING_ENDPOINTS = {
   GET_VOTING_BY_ID: "/votings/",
   UPDATE_VOTING: "/votings/",
   DELETE_VOTING: "/votings/",
+  UPDATE_MATCHED_RESULT: "/matches/update-win-team/",
 };
 
 // Interface definitions
@@ -26,6 +27,10 @@ interface CreateVotingData {
 
 interface UpdateVotingData {
   team_voted?: string;
+}
+
+interface UpdateMatchResultData {
+  winner: string;
 }
 
 //  Get all votings with better error handling
@@ -153,7 +158,6 @@ export const updateVoting = async (
 export const deleteVoting = async (id: number) => {
   try {
     console.log("[Voting API] Deleting voting:", id);
-
     const response = await apiEndpoint.delete(
       `${VOTING_ENDPOINTS.DELETE_VOTING}${id}/`
     );
@@ -174,5 +178,40 @@ export const deleteVoting = async (id: number) => {
   }
 };
 
+// Update match result with winner parameter
+export const matchResult = async (id: number, winner: string) => {
+  try {
+    console.log("[Voting API] update match result:", { id, winner });
+
+    const requestData: UpdateMatchResultData = {
+      winner: winner,
+    };
+
+    const response = await apiEndpoint.put(
+      `${VOTING_ENDPOINTS.UPDATE_MATCHED_RESULT}${id}/`,
+      requestData
+    );
+
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error: unknown) {
+    console.error("[Voting API] Error update match result:", error);
+    return {
+      success: false,
+      error:
+        error && typeof error === "object" && "message" in error
+          ? (error as { message: string }).message
+          : "Failed to update match result",
+    };
+  }
+};
+
 // Export types
-export type { Voting, CreateVotingData, UpdateVotingData };
+export type {
+  Voting,
+  CreateVotingData,
+  UpdateVotingData,
+  UpdateMatchResultData,
+};

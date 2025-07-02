@@ -34,7 +34,6 @@ interface UpdatePlayerData {
 
 /**
  * Helper function to create FormData for multipart/form-data requests
- * Fixed version with proper FormData handling
  */
 const createPlayerFormData = (
   data: CreatePlayerData | UpdatePlayerData

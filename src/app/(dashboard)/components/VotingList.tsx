@@ -19,10 +19,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { getFullImageUrl } from "@/lib/utils";
-import { getAllVotings } from "@/lib/services/votingDataApi";
+import { getAllVotings, matchResult } from "@/lib/services/votingDataApi";
 
 // Types based on your API response
 interface Player {
@@ -77,6 +86,12 @@ export default function VotingList({
   const [votingData, setVotingData] = useState<VotingData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedWinners, setSelectedWinners] = useState<{
+    [key: number]: string;
+  }>({});
+  const [updatingResults, setUpdatingResults] = useState<{
+    [key: number]: boolean;
+  }>({});
 
   // Fetch voting data from API
   useEffect(() => {
@@ -112,6 +127,70 @@ export default function VotingList({
         return "Team B";
       default:
         return whoWillWin;
+    }
+  };
+
+  // Handle winner selection
+  const handleWinnerChange = (matchId: number, winner: string) => {
+    setSelectedWinners((prev) => ({
+      ...prev,
+      [matchId]: winner,
+    }));
+  };
+
+  // Convert display name to API format
+  const getApiFormat = (displayName: string) => {
+    switch (displayName) {
+      case "Team A":
+        return "team_a";
+      case "Team B":
+        return "team_b";
+      default:
+        return displayName.toLowerCase().replace(" ", "_");
+    }
+  };
+
+  // Update match result
+  const updateMatchResult = async (matchId: number) => {
+    const winner = selectedWinners[matchId];
+    if (!winner) {
+      toast.error("Please select a winner first");
+      return;
+    }
+
+    setUpdatingResults((prev) => ({
+      ...prev,
+      [matchId]: true,
+    }));
+
+    try {
+      // Convert display format to API format
+      const apiWinner = getApiFormat(winner);
+      const response = await matchResult(matchId, apiWinner);
+
+      if (response.success) {
+        toast.success("Match result updated successfully!");
+        // Clear the selected winner for this match
+        setSelectedWinners((prev) => ({
+          ...prev,
+          [matchId]: "",
+        }));
+        // Optionally refresh the data
+        const refreshResponse = await getAllVotings();
+        if (refreshResponse.success && Array.isArray(refreshResponse.data)) {
+          setVotingData(refreshResponse.data);
+        }
+      } else {
+        toast.error(`Failed to update match result: ${response.error}`);
+      }
+    } catch (error) {
+      console.error("Error updating match result:", error);
+      toast.error("An error occurred while updating the match result");
+    } finally {
+      setUpdatingResults((prev) => ({
+        ...prev,
+        [matchId]: false,
+      }));
     }
   };
 
@@ -206,12 +285,15 @@ export default function VotingList({
                     <TableHead className="font-normal text-center text-secondary py-4 min-w-60">
                       Select Player
                     </TableHead>
+                    <TableHead className="font-normal text-center text-secondary py-4 min-w-64">
+                      Update Result
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="bg-white">
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
+                      <TableCell colSpan={6} className="text-center py-8">
                         <div className="font-normal text-blackblack-700 text-xl">
                           Loading voting data...
                         </div>
@@ -219,7 +301,7 @@ export default function VotingList({
                     </TableRow>
                   ) : error ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
+                      <TableCell colSpan={6} className="text-center py-8">
                         <div className="font-normal text-red-500 text-xl">
                           Error: {error}
                         </div>
@@ -227,7 +309,7 @@ export default function VotingList({
                     </TableRow>
                   ) : currentData.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8">
+                      <TableCell colSpan={6} className="text-center py-8">
                         <div className="font-normal text-blackblack-700 text-xl">
                           No voting data available
                         </div>
@@ -288,6 +370,36 @@ export default function VotingList({
                                 No players selected
                               </span>
                             )}
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-6 py-3 min-w-64">
+                          <div className="flex items-center gap-2">
+                            <Select
+                              value={selectedWinners[item.match] || ""}
+                              onValueChange={(value) =>
+                                handleWinnerChange(item.match, value)
+                              }
+                            >
+                              <SelectTrigger className="w-32">
+                                <SelectValue placeholder="Select winner" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Team A">Team A</SelectItem>
+                                <SelectItem value="Team B">Team B</SelectItem>
+                              </SelectContent>
+                            </Select>
+                            <Button
+                              onClick={() => updateMatchResult(item.match)}
+                              disabled={
+                                !selectedWinners[item.match] ||
+                                updatingResults[item.match]
+                              }
+                              className="px-3 py-2 text-sm bg-primary hover:bg-primary/90 text-white"
+                            >
+                              {updatingResults[item.match]
+                                ? "Updating..."
+                                : "Update"}
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
