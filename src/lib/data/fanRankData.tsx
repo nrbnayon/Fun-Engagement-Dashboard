@@ -1,5 +1,5 @@
 // src\lib\data\fanRankData.tsx
-
+// Dummy data its not use when api connect
 export interface FanRankingData {
   rank: number;
   name: string;

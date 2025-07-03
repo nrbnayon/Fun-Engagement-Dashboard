@@ -19,8 +19,16 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import Link from "next/link";
-import { useState } from "react";
-import { allFanRankingData } from "@/lib/data/fanRankData";
+import { useState, useEffect } from "react";
+import apiEndpoint from "@/lib/axios";
+
+// Updated interface to match API response structure
+interface FanRankingData {
+  rank: number;
+  name: string;
+  email: string;
+  points: number;
+}
 
 interface FanRankingListProps {
   paginate?: boolean;
@@ -36,6 +44,51 @@ export default function FanRankingPage({
   title = true,
 }: FanRankingListProps) {
   const [currentPage, setCurrentPage] = useState(1);
+  const [fanRankingData, setFanRankingData] = useState<FanRankingData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch data from API
+  useEffect(() => {
+    const fetchFanRankingData = async () => {
+      try {
+        setLoading(true);
+        const response = await apiEndpoint.get("/fans/leaderboard/");
+
+        // Define the expected API response item type
+        type ApiFanRankingItem = {
+          rank: number;
+          points: number;
+          user: {
+            email: string;
+            user_profile: {
+              name: string;
+            };
+          };
+        };
+
+        // Transform API data to match component structure
+        const transformedData: FanRankingData[] = response.data.map(
+          (item: ApiFanRankingItem) => ({
+            rank: item.rank,
+            name: item.user.user_profile.name,
+            email: item.user.email,
+            points: item.points,
+          })
+        );
+
+        setFanRankingData(transformedData);
+        setError(null);
+      } catch (err) {
+        console.error("Error fetching fan ranking data:", err);
+        setError("Failed to load fan ranking data");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFanRankingData();
+  }, []);
 
   // Function to convert rank number to ordinal (1st, 2nd, 3rd, etc.)
   const getOrdinalRank = (rank: number): string => {
@@ -45,18 +98,16 @@ export default function FanRankingPage({
   };
 
   // Determine data to show
-  const dataToShow = paginate
-    ? allFanRankingData
-    : allFanRankingData.slice(0, limit);
+  const dataToShow = paginate ? fanRankingData : fanRankingData.slice(0, limit);
 
   // Calculate pagination
   const totalPages = paginate
-    ? Math.ceil(allFanRankingData.length / itemsPerPage)
+    ? Math.ceil(fanRankingData.length / itemsPerPage)
     : 1;
   const startIndex = paginate ? (currentPage - 1) * itemsPerPage : 0;
   const endIndex = paginate ? startIndex + itemsPerPage : dataToShow.length;
   const currentData = paginate
-    ? allFanRankingData.slice(startIndex, endIndex)
+    ? fanRankingData.slice(startIndex, endIndex)
     : dataToShow;
 
   const handlePageChange = (page: number) => {
@@ -98,12 +149,62 @@ export default function FanRankingPage({
     return pageNumbers;
   };
 
+  // Loading state
+  if (loading) {
+    return (
+      <main className="flex flex-col w-full items-center">
+        <div className="flex flex-col items-start gap-5 w-full">
+          {title && (
+            <h1 className="text-2xl font-bold text-secondary font-oswald">
+              Fan Ranking
+            </h1>
+          )}
+          <Card className="w-full min-h-74 rounded-xl overflow-hidden border-border p-0">
+            <CardContent className="p-6">
+              <div className="flex justify-center items-center h-32">
+                <div className="text-lg text-secondary">
+                  Loading fan rankings...
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <main className="flex flex-col w-full items-center">
+        <div className="flex flex-col items-start gap-5 w-full">
+          {title && (
+            <h1 className="text-2xl font-bold text-secondary font-oswald">
+              Fan Ranking
+            </h1>
+          )}
+          <Card className="w-full min-h-74 rounded-xl overflow-hidden border-border p-0">
+            <CardContent className="p-6">
+              <div className="flex justify-center items-center h-32">
+                <div className="text-lg text-red-500">{error}</div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="flex flex-col w-full items-center">
       {/* Fan Ranking Section */}
       <div className="flex flex-col items-start gap-5 w-full">
         <div className="flex items-center justify-between w-full font-oswald">
-          {title && <h1 className="text-2xl font-bold text-secondary font-oswald">Fan Ranking</h1>}
+          {title && (
+            <h1 className="text-2xl font-bold text-secondary font-oswald">
+              Fan Ranking
+            </h1>
+          )}
           {!paginate && (
             <Link
               href="/fan-ranking"
@@ -134,32 +235,42 @@ export default function FanRankingPage({
                 </TableRow>
               </TableHeader>
               <TableBody className="bg-white">
-                {currentData.map((fanRank, index) => (
-                  <TableRow key={index}>
-                    <TableCell className="px-6 py-3">
-                      <div className="flex items-center gap-3">
-                        <Badge className="flex items-center justify-center px-3 w-10 h-10 bg-white rounded-full border border-solid border-border font-oswald text-md text-secondary">
-                          {getOrdinalRank(fanRank.rank)}
-                        </Badge>
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-3">
-                      <div className="font-normal text-blackblack-700 text-xl">
-                        {fanRank.name}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-3">
-                      <div className="font-normal text-blackblack-700 text-xl">
-                        {fanRank.email}
-                      </div>
-                    </TableCell>
-                    <TableCell className="px-6 py-3 text-center">
-                      <div className="font-normal text-blackblack-700 text-xl">
-                        {fanRank.points} Pts
+                {currentData.length > 0 ? (
+                  currentData.map((fanRank, index) => (
+                    <TableRow key={`${fanRank.rank}-${index}`}>
+                      <TableCell className="px-6 py-3">
+                        <div className="flex items-center gap-3">
+                          <Badge className="flex items-center justify-center px-3 w-10 h-10 bg-white rounded-full border border-solid border-border font-oswald text-md text-secondary">
+                            {getOrdinalRank(fanRank.rank)}
+                          </Badge>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-3">
+                        <div className="font-normal text-blackblack-700 text-xl">
+                          {fanRank.name}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-3">
+                        <div className="font-normal text-blackblack-700 text-xl">
+                          {fanRank.email}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-3 text-center">
+                        <div className="font-normal text-blackblack-700 text-xl">
+                          {fanRank.points} Pts
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={4} className="px-6 py-8 text-center">
+                      <div className="text-lg text-secondary">
+                        No fan ranking data available
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>
