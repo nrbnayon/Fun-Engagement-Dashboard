@@ -70,12 +70,12 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      // clearError();
-      console.log("Login Form Data:", {
-        username: data.email,
-        password: data.password,
-        rememberMe: data.rememberMe,
-      });
+      // // clearError();
+      // console.log("Login Form Data:", {
+      //   username: data.email,
+      //   password: data.password,
+      //   rememberMe: data.rememberMe,
+      // });
       await login({
         email: data.email,
         password: data.password,

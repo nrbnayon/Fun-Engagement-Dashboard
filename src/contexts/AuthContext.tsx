@@ -342,7 +342,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
       const userProfile = await getUserProfile();
 
-      console.log("Get login user profile::", userProfile);
+      // console.log("Get login user profile::", userProfile);
 
       // Check admin approval requirement
       if (userProfile.role === "admin" && !userProfile.is_verified) {

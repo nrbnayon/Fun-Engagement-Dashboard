@@ -134,11 +134,11 @@ export default function VerifyOtp() {
       });
 
       // Log the form data to console
-      console.log("OTP Verification Data:", {
-        email,
-        otp: data.otp,
-        timestamp: new Date().toISOString(),
-      });
+      // console.log("OTP Verification Data:", {
+      //   email,
+      //   otp: data.otp,
+      //   timestamp: new Date().toISOString(),
+      // });
 
       // Store verification status
       localStorage.setItem("otpVerified", "true");

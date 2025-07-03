@@ -125,7 +125,7 @@ const createMatchFormData = (
 
   // Debug: Log FormData contents (only in development)
   if (process.env.NODE_ENV === "development") {
-    console.log("[Match API] FormData contents:");
+    // console.log("[Match API] FormData contents:");
     for (const [key, value] of formData.entries()) {
       if (value instanceof File) {
         console.log(
@@ -144,7 +144,7 @@ const createMatchFormData = (
 export const getAllMatch = async () => {
   try {
     const response = await apiEndpoint.get(MATCH_ENDPOINTS.GET_ALL_MATCH);
-    console.log("All match::", response.data);
+    // console.log("All match::", response.data);
     return {
       success: true,
       data: response.data,
@@ -160,15 +160,15 @@ export const getAllMatch = async () => {
 // Create a new match
 export const createMatch = async (matchData: CreateMatchData) => {
   try {
-    console.log("[Match API] Creating match:", {
-      team_a_name: matchData?.team_a_name,
-      team_b_name: matchData?.team_b_name,
-      time: matchData?.time,
-      date: matchData?.date,
-      selected_players_ids: matchData?.selected_players_ids,
-      has_team_a_pics: !!matchData?.team_a_pics,
-      has_team_b_pics: !!matchData?.team_b_pics,
-    });
+    // console.log("[Match API] Creating match:", {
+    //   team_a_name: matchData?.team_a_name,
+    //   team_b_name: matchData?.team_b_name,
+    //   time: matchData?.time,
+    //   date: matchData?.date,
+    //   selected_players_ids: matchData?.selected_players_ids,
+    //   has_team_a_pics: !!matchData?.team_a_pics,
+    //   has_team_b_pics: !!matchData?.team_b_pics,
+    // });
 
     const formData = createMatchFormData(matchData);
 
@@ -183,7 +183,7 @@ export const createMatch = async (matchData: CreateMatchData) => {
       }
     );
 
-    console.log("Match created::", response.data);
+    // console.log("Match created::", response.data);
     return {
       success: true,
       data: response.data,
@@ -203,7 +203,7 @@ export const getFilteredMatches = async (): Promise<{
 }> => {
   try {
     const response = await apiEndpoint.get(MATCH_ENDPOINTS.FILTER_MATCHES);
-    console.log("Filtered matches::", response.data);
+    // console.log("Filtered matches::", response.data);
     return {
       success: true,
       data: response.data,
@@ -219,18 +219,18 @@ export const getFilteredMatches = async (): Promise<{
 // Update a match by ID
 export const updateMatch = async (id: number, matchData: UpdateMatchData) => {
   try {
-    console.log("[Match API] Updating match:", {
-      id,
-      team_a_name: matchData?.team_a_name,
-      team_b_name: matchData?.team_b_name,
-      time: matchData?.time,
-      date: matchData?.date,
-      selected_players_ids: matchData?.selected_players_ids,
-      status: matchData?.status,
-      winner: matchData?.winner,
-      has_team_a_pics: !!matchData?.team_a_pics,
-      has_team_b_pics: !!matchData?.team_b_pics,
-    });
+    // console.log("[Match API] Updating match:", {
+    //   id,
+    //   team_a_name: matchData?.team_a_name,
+    //   team_b_name: matchData?.team_b_name,
+    //   time: matchData?.time,
+    //   date: matchData?.date,
+    //   selected_players_ids: matchData?.selected_players_ids,
+    //   status: matchData?.status,
+    //   winner: matchData?.winner,
+    //   has_team_a_pics: !!matchData?.team_a_pics,
+    //   has_team_b_pics: !!matchData?.team_b_pics,
+    // });
 
     const formData = createMatchFormData(matchData);
 
@@ -245,7 +245,7 @@ export const updateMatch = async (id: number, matchData: UpdateMatchData) => {
       }
     );
 
-    console.log("Match updated::", response.data);
+    // console.log("Match updated::", response.data);
     return {
       success: true,
       data: response.data,
@@ -264,7 +264,7 @@ export const deleteMatch = async (id: number) => {
     const response = await apiEndpoint.delete(
       `${MATCH_ENDPOINTS.DELETE_MATCH}${id}/`
     );
-    console.log("Match deleted::", response.data);
+    // console.log("Match deleted::", response.data);
     return {
       success: true,
       data: response.data,
@@ -283,7 +283,7 @@ export const getMatchById = async (id: number) => {
     const response = await apiEndpoint.get(
       `${MATCH_ENDPOINTS.GET_ALL_MATCH}${id}/`
     );
-    console.log("Match by ID::", response.data);
+    // console.log("Match by ID::", response.data);
     return {
       success: true,
       data: response.data,

@@ -88,7 +88,7 @@ export const getAllAdvertisements = async (): Promise<{
     const response = await apiEndpoint.get(
       ADVERTISEMENT_ENDPOINTS.GET_ALL_ADVERTISEMENT
     );
-    console.log("All advertisements::", response.data);
+    // console.log("All advertisements::", response.data);
     return {
       success: true,
       data: response.data,
@@ -110,7 +110,7 @@ export const getLatestAdvertisement = async (): Promise<{
     const response = await apiEndpoint.get(
       ADVERTISEMENT_ENDPOINTS.GET_ALL_LATEST_ADVERTISEMENT
     );
-    console.log("Latest advertisement::", response.data);
+    // console.log("Latest advertisement::", response.data);
     return {
       success: true,
       data: response.data,
@@ -128,11 +128,11 @@ export const createAdvertisement = async (
   advertisementData: CreateAdvertisementData
 ) => {
   try {
-    console.log("[Advertisement API] Creating advertisement:", {
-      title: advertisementData?.title,
-      url: advertisementData?.url,
-      has_image: !!advertisementData?.image,
-    });
+    // console.log("[Advertisement API] Creating advertisement:", {
+    //   title: advertisementData?.title,
+    //   url: advertisementData?.url,
+    //   has_image: !!advertisementData?.image,
+    // });
 
     const formData = createAdvertisementFormData(advertisementData);
 
@@ -147,7 +147,7 @@ export const createAdvertisement = async (
       }
     );
 
-    console.log("Advertisement created::", response.data);
+    // console.log("Advertisement created::", response.data);
     return {
       success: true,
       data: response.data,
@@ -166,12 +166,12 @@ export const updateAdvertisement = async (
   advertisementData: UpdateAdvertisementData
 ) => {
   try {
-    console.log("[Advertisement API] Updating advertisement:", {
-      id,
-      title: advertisementData?.title,
-      url: advertisementData?.url,
-      has_image: !!advertisementData?.image,
-    });
+    // console.log("[Advertisement API] Updating advertisement:", {
+    //   id,
+    //   title: advertisementData?.title,
+    //   url: advertisementData?.url,
+    //   has_image: !!advertisementData?.image,
+    // });
 
     const formData = createAdvertisementFormData(advertisementData);
 
@@ -186,7 +186,7 @@ export const updateAdvertisement = async (
       }
     );
 
-    console.log("Advertisement updated::", response.data);
+    // console.log("Advertisement updated::", response.data);
     return {
       success: true,
       data: response.data,
@@ -205,7 +205,7 @@ export const deleteAdvertisement = async (id: number) => {
     const response = await apiEndpoint.delete(
       `${ADVERTISEMENT_ENDPOINTS.DELETE_ADVERTISEMENT}${id}/`
     );
-    console.log("Advertisement deleted::", response.data);
+    // console.log("Advertisement deleted::", response.data);
     return {
       success: true,
       data: response.data,
@@ -229,7 +229,7 @@ export const getAdvertisementById = async (
     const response = await apiEndpoint.get(
       `${ADVERTISEMENT_ENDPOINTS.GET_ALL_ADVERTISEMENT}${id}/`
     );
-    console.log("Advertisement by ID::", response.data);
+    // console.log("Advertisement by ID::", response.data);
     return {
       success: true,
       data: response.data,

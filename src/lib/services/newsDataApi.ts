@@ -85,7 +85,7 @@ export const getAllNews = async (): Promise<{
 }> => {
   try {
     const response = await apiEndpoint.get(NEWS_ENDPOINTS.GET_ALL_NEWS);
-    console.log("All news::", response.data);
+    // console.log("All news::", response.data);
     return {
       success: true,
       data: response.data,
@@ -101,11 +101,11 @@ export const getAllNews = async (): Promise<{
 // Create a new news
 export const createNews = async (newsData: CreateNewsData) => {
   try {
-    console.log("[News API] Creating news:", {
-      title: newsData?.title,
-      description: newsData?.description,
-      has_image: !!newsData?.image,
-    });
+    // console.log("[News API] Creating news:", {
+    //   title: newsData?.title,
+    //   description: newsData?.description,
+    //   has_image: !!newsData?.image,
+    // });
 
     const formData = createNewsFormData(newsData);
 
@@ -120,7 +120,7 @@ export const createNews = async (newsData: CreateNewsData) => {
       }
     );
 
-    console.log("News created::", response.data);
+    // console.log("News created::", response.data);
     return {
       success: true,
       data: response.data,
@@ -136,12 +136,12 @@ export const createNews = async (newsData: CreateNewsData) => {
 // Update a news by ID
 export const updateNews = async (id: number, newsData: UpdateNewsData) => {
   try {
-    console.log("[News API] Updating news:", {
-      id,
-      title: newsData?.title,
-      description: newsData?.description,
-      has_image: !!newsData?.image,
-    });
+    // console.log("[News API] Updating news:", {
+    //   id,
+    //   title: newsData?.title,
+    //   description: newsData?.description,
+    //   has_image: !!newsData?.image,
+    // });
 
     const formData = createNewsFormData(newsData);
 
@@ -156,7 +156,7 @@ export const updateNews = async (id: number, newsData: UpdateNewsData) => {
       }
     );
 
-    console.log("News updated::", response.data);
+    // console.log("News updated::", response.data);
     return {
       success: true,
       data: response.data,
@@ -175,7 +175,7 @@ export const deleteNews = async (id: number) => {
     const response = await apiEndpoint.delete(
       `${NEWS_ENDPOINTS.DELETE_NEWS}${id}/`
     );
-    console.log("News deleted::", response.data);
+    // console.log("News deleted::", response.data);
     return {
       success: true,
       data: response.data,
@@ -199,7 +199,7 @@ export const getNewsById = async (
     const response = await apiEndpoint.get(
       `${NEWS_ENDPOINTS.GET_ALL_NEWS}${id}/`
     );
-    console.log("News by ID::", response.data);
+    // console.log("News by ID::", response.data);
     return {
       success: true,
       data: response.data,

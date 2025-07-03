@@ -147,8 +147,8 @@ export default function StatsCards() {
           console.error("Invalid voting response format:", voting);
         }
 
-        console.log("Get Upcoming match::::::::::::::", upcoming);
-        console.log("Get Voting match::::::::::::::", voting);
+        // console.log("Get Upcoming match::::::::::::::", upcoming);
+        // console.log("Get Voting match::::::::::::::", voting);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {

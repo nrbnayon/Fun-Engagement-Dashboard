@@ -36,16 +36,16 @@ interface UpdateMatchResultData {
 //  Get all votings with better error handling
 export const getAllVotings = async () => {
   try {
-    console.log("[Voting API] Fetching all votings...");
+    // console.log("[Voting API] Fetching all votings...");
 
     const response = await apiEndpoint.get(VOTING_ENDPOINTS.GET_ALL_VOTINGS);
 
-    console.log("[Voting API] Success:", {
-      status: response.status,
-      dataLength: Array.isArray(response.data)
-        ? response.data.length
-        : "not array",
-    });
+    // console.log("[Voting API] Success:", {
+    //   status: response.status,
+    //   dataLength: Array.isArray(response.data)
+    //     ? response.data.length
+    //     : "not array",
+    // });
 
     return {
       success: true,
@@ -75,14 +75,14 @@ export const getAllVotings = async () => {
 // Create a new voting
 export const createVoting = async (votingData: CreateVotingData) => {
   try {
-    console.log("[Voting API] Creating voting:", votingData);
+    // console.log("[Voting API] Creating voting:", votingData);
 
     const response = await apiEndpoint.post(
       VOTING_ENDPOINTS.CREATE_VOTING,
       votingData
     );
 
-    console.log("[Voting API] Voting created successfully");
+    // console.log("[Voting API] Voting created successfully");
 
     return {
       success: true,
@@ -103,7 +103,7 @@ export const createVoting = async (votingData: CreateVotingData) => {
 // Get voting by ID
 export const getVotingById = async (id: number) => {
   try {
-    console.log("[Voting API] Fetching voting by ID:", id);
+    // console.log("[Voting API] Fetching voting by ID:", id);
 
     const response = await apiEndpoint.get(
       `${VOTING_ENDPOINTS.GET_VOTING_BY_ID}${id}/`
@@ -131,7 +131,7 @@ export const updateVoting = async (
   votingData: UpdateVotingData
 ) => {
   try {
-    console.log("[Voting API] Updating voting:", { id, data: votingData });
+    // console.log("[Voting API] Updating voting:", { id, data: votingData });
 
     const response = await apiEndpoint.put(
       `${VOTING_ENDPOINTS.UPDATE_VOTING}${id}/`,
@@ -157,7 +157,7 @@ export const updateVoting = async (
 // Delete voting by ID
 export const deleteVoting = async (id: number) => {
   try {
-    console.log("[Voting API] Deleting voting:", id);
+    // console.log("[Voting API] Deleting voting:", id);
     const response = await apiEndpoint.delete(
       `${VOTING_ENDPOINTS.DELETE_VOTING}${id}/`
     );
@@ -181,7 +181,7 @@ export const deleteVoting = async (id: number) => {
 // Update match result with winner parameter
 export const matchResult = async (id: number, winner: string) => {
   try {
-    console.log("[Voting API] update match result:", { id, winner });
+    // console.log("[Voting API] update match result:", { id, winner });
 
     const requestData: UpdateMatchResultData = {
       winner: winner,

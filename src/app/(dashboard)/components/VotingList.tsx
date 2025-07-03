@@ -19,14 +19,14 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
+// import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -287,9 +287,9 @@ export default function VotingList({
                     <TableHead className="font-normal text-center text-secondary py-4 min-w-60">
                       Select Player
                     </TableHead>
-                    <TableHead className="font-normal text-center text-secondary py-4 min-w-64">
+                    {/* <TableHead className="font-normal text-center text-secondary py-4 min-w-64">
                       Update Match Result
-                    </TableHead>
+                    </TableHead> */}
                   </TableRow>
                 </TableHeader>
                 <TableBody className="bg-white">
@@ -374,7 +374,7 @@ export default function VotingList({
                             )}
                           </div>
                         </TableCell>
-                        <TableCell className="px-6 py-3 min-w-64">
+                        {/* <TableCell className="px-6 py-3 min-w-64">
                           <div className="flex items-center gap-2">
                             <Select
                               value={selectedWinners[item.match] || ""}
@@ -410,7 +410,7 @@ export default function VotingList({
                                 : "Update"}
                             </Button>
                           </div>
-                        </TableCell>
+                        </TableCell> */}
                       </TableRow>
                     ))
                   )}

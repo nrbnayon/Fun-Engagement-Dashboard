@@ -95,16 +95,16 @@ const createPlayerFormData = (
  */
 export const getAllPlayers = async () => {
   try {
-    console.log("[Player API] Fetching all players...");
+    // console.log("[Player API] Fetching all players...");
 
     const response = await apiEndpoint.get(PLAYER_ENDPOINTS.GET_ALL_PLAYERS);
 
-    console.log("[Player API] Success:", {
-      status: response.status,
-      dataLength: Array.isArray(response.data)
-        ? response.data.length
-        : "not array",
-    });
+    // console.log("[Player API] Success:", {
+    //   status: response.status,
+    //   dataLength: Array.isArray(response.data)
+    //     ? response.data.length
+    //     : "not array",
+    // });
 
     return {
       success: true,
@@ -136,14 +136,14 @@ export const getAllPlayers = async () => {
  */
 export const createPlayer = async (playerData: CreatePlayerData) => {
   try {
-    console.log("[Player API] Creating player:", {
-      name: playerData.name,
-      jersey_number: playerData.jersey_number,
-      status: playerData.status,
-      hasImage: !!playerData.image,
-      imageType: playerData.image?.type,
-      imageSize: playerData.image?.size,
-    });
+    // console.log("[Player API] Creating player:", {
+    //   name: playerData.name,
+    //   jersey_number: playerData.jersey_number,
+    //   status: playerData.status,
+    //   hasImage: !!playerData.image,
+    //   imageType: playerData.image?.type,
+    //   imageSize: playerData.image?.size,
+    // });
 
     const formData = createPlayerFormData(playerData);
 
@@ -159,7 +159,7 @@ export const createPlayer = async (playerData: CreatePlayerData) => {
       }
     );
 
-    console.log("[Player API] Player created successfully:", response.data);
+    // console.log("[Player API] Player created successfully:", response.data);
     return {
       success: true,
       data: response.data,
@@ -217,7 +217,7 @@ export const createPlayer = async (playerData: CreatePlayerData) => {
  */
 export const getPlayerById = async (id: number) => {
   try {
-    console.log("[Player API] Fetching player by ID:", id);
+    // console.log("[Player API] Fetching player by ID:", id);
 
     const response = await apiEndpoint.get(
       `${PLAYER_ENDPOINTS.GET_PLAYER_BY_ID}${id}/`
@@ -247,14 +247,14 @@ export const updatePlayer = async (
   playerData: UpdatePlayerData
 ) => {
   try {
-    console.log("[Player API] Updating player:", {
-      id,
-      data: {
-        ...playerData,
-        hasImage: !!playerData.image,
-        imageType: playerData.image?.type,
-      },
-    });
+    // console.log("[Player API] Updating player:", {
+    //   id,
+    //   data: {
+    //     ...playerData,
+    //     hasImage: !!playerData.image,
+    //     imageType: playerData.image?.type,
+    //   },
+    // });
 
     const formData = createPlayerFormData(playerData);
 
@@ -270,7 +270,7 @@ export const updatePlayer = async (
       }
     );
 
-    console.log("[Player API] Player updated successfully:", response.data);
+    // console.log("[Player API] Player updated successfully:", response.data);
 
     return {
       success: true,
@@ -315,13 +315,13 @@ export const updatePlayer = async (
  */
 export const deletePlayer = async (id: number) => {
   try {
-    console.log("[Player API] Deleting player:", id);
+    // console.log("[Player API] Deleting player:", id);
 
     const response = await apiEndpoint.delete(
       `${PLAYER_ENDPOINTS.DELETE_PLAYER}${id}/`
     );
 
-    console.log("[Player API] Player deleted successfully");
+    // console.log("[Player API] Player deleted successfully");
 
     return {
       success: true,

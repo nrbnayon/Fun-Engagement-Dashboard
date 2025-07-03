@@ -162,11 +162,11 @@ export default function ResetPassword() {
       });
 
       // Log the form data to console (excluding password for security)
-      console.log("Reset Password Data:", {
-        email: data.email,
-        passwordLength: data.newPassword.length,
-        timestamp: new Date().toISOString(),
-      });
+      // console.log("Reset Password Data:", {
+      //   email: data.email,
+      //   passwordLength: data.newPassword.length,
+      //   timestamp: new Date().toISOString(),
+      // });
 
       toast.success("Password reset successful!", {
         description: "Your password has been updated successfully.",
