@@ -1,6 +1,6 @@
 // src\app\(dashboard)\components\AdvertisementSection.tsx
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -31,12 +31,20 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import {
+  getAllAdvertisements,
+  createAdvertisement,
+  updateAdvertisement,
+  deleteAdvertisement,
+} from "@/lib/services/advertisementDataApi";
+import { getFullImageUrl } from "@/lib/utils";
 
 interface Advertisement {
-  id: string;
-  image: string;
-  url?: string;
-  createTime: string;
+  id: number;
+  title: string;
+  url: string | null;
+  image: string | null;
+  created_at: string;
 }
 
 interface AdvertisementSectionProps {
@@ -44,25 +52,10 @@ interface AdvertisementSectionProps {
 }
 
 interface FormData {
-  image: string;
+  title: string;
+  image: File | null;
   url: string;
 }
-
-// Generate sample advertisement data
-const generateAdvertisementData = (count: number): Advertisement[] => {
-  return Array.from({ length: count }, (_, index) => ({
-    id: `ad-${index + 1}`,
-    image: `/ad-placeholder.png`,
-    url: index % 3 === 0 ? `https://example.com/ad-${index + 1}` : undefined,
-    createTime: new Date(
-      Date.now() - Math.random() * 10000000000
-    ).toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    }),
-  }));
-};
 
 export default function AdvertisementSection({
   itemsPerPage = 12,
@@ -72,16 +65,40 @@ export default function AdvertisementSection({
   const [editingAd, setEditingAd] = useState<Advertisement | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [adToDelete, setAdToDelete] = useState<Advertisement | null>(null);
-  const [advertisements, setAdvertisements] = useState<Advertisement[]>(() =>
-    generateAdvertisementData(20)
-  );
+  const [advertisements, setAdvertisements] = useState<Advertisement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [imagePreview, setImagePreview] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
-    image: "",
+    title: "",
+    image: null,
     url: "",
   });
+
+  // Fetch advertisements on component mount
+  useEffect(() => {
+    fetchAdvertisements();
+  }, []);
+
+  const fetchAdvertisements = async () => {
+    try {
+      setLoading(true);
+      const response = await getAllAdvertisements();
+      if (response.success && response.data) {
+        setAdvertisements(response.data);
+      } else {
+        toast.error("Failed to fetch advertisements");
+      }
+    } catch (error) {
+      console.error("Error fetching advertisements:", error);
+      toast.error("Error fetching advertisements");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredData = advertisements;
 
@@ -103,26 +120,42 @@ export default function AdvertisementSection({
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+
+      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        setFormData((prev) => ({
-          ...prev,
-          image: result,
-        }));
+        setImagePreview(result);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (adToDelete) {
-      setAdvertisements((prev) =>
-        prev.filter((item) => item.id !== adToDelete.id)
-      );
-      toast.success("Advertisement deleted successfully!");
-      setDeleteConfirmOpen(false);
-      setAdToDelete(null);
+      try {
+        setSubmitting(true);
+        const response = await deleteAdvertisement(adToDelete.id);
+        if (response.success) {
+          setAdvertisements((prev) =>
+            prev.filter((item) => item.id !== adToDelete.id)
+          );
+          toast.success("Advertisement deleted successfully!");
+        } else {
+          toast.error("Failed to delete advertisement");
+        }
+      } catch (error) {
+        console.error("Error deleting advertisement:", error);
+        toast.error("Error deleting advertisement");
+      } finally {
+        setSubmitting(false);
+        setDeleteConfirmOpen(false);
+        setAdToDelete(null);
+      }
     }
   };
 
@@ -134,13 +167,16 @@ export default function AdvertisementSection({
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+
+      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        setFormData((prev) => ({
-          ...prev,
-          image: result,
-        }));
+        setImagePreview(result);
       };
       reader.readAsDataURL(file);
     }
@@ -148,15 +184,22 @@ export default function AdvertisementSection({
 
   const resetForm = () => {
     setFormData({
-      image: "",
+      title: "",
+      image: null,
       url: "",
     });
+    setImagePreview("");
     setEditingAd(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate form
-    if (!formData.image) {
+    if (!formData.title.trim()) {
+      toast.error("Please enter a title");
+      return;
+    }
+
+    if (!editingAd && !formData.image) {
       toast.error("Please upload an image");
       return;
     }
@@ -167,48 +210,84 @@ export default function AdvertisementSection({
       return;
     }
 
-    if (editingAd) {
-      // Update existing advertisement
-      const updatedAd: Advertisement = {
-        id: editingAd.id,
-        image: formData.image,
-        url: formData.url || undefined,
-        createTime: editingAd.createTime, // Keep original create time
-      };
+    try {
+      setSubmitting(true);
 
-      setAdvertisements((prev) =>
-        prev.map((item) => (item.id === editingAd.id ? updatedAd : item))
-      );
-      toast.success("Advertisement updated successfully!");
-    } else {
-      // Create new advertisement
-      const newAd: Advertisement = {
-        id: `ad-${Date.now()}`,
-        image: formData.image,
-        url: formData.url || undefined,
-        createTime: new Date().toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }),
-      };
+      if (editingAd) {
+        // Update existing advertisement
+        // Ensure image is File or undefined, never null
+        const updateData: {
+          title: string;
+          url?: string;
+          image?: File;
+        } = {
+          title: formData.title,
+        };
 
-      // Add to advertisements list
-      setAdvertisements((prev) => [newAd, ...prev]);
-      toast.success("Advertisement added successfully!");
+        if (formData.url) {
+          updateData.url = formData.url;
+        }
+
+        if (formData.image !== null && formData.image !== undefined) {
+          updateData.image = formData.image;
+        }
+
+        const response = await updateAdvertisement(editingAd.id, updateData);
+
+        if (response.success) {
+          // Refresh the data
+          await fetchAdvertisements();
+          toast.success("Advertisement updated successfully!");
+        } else {
+          toast.error("Failed to update advertisement");
+        }
+      } else {
+        // Create new advertisement
+        const createData = {
+          title: formData.title,
+          image: formData.image === null ? undefined : formData.image,
+          url: formData.url,
+        };
+
+        if (formData.url) {
+          createData.url = formData.url;
+        }
+
+        const response = await createAdvertisement(createData);
+
+        if (response.success) {
+          // Refresh the data
+          await fetchAdvertisements();
+          toast.success("Advertisement added successfully!");
+        } else {
+          toast.error("Failed to create advertisement");
+        }
+      }
+
+      // Reset form and close modal
+      resetForm();
+      setIsAddAdOpen(false);
+    } catch (error) {
+      console.error("Error submitting advertisement:", error);
+      toast.error("Error submitting advertisement");
+    } finally {
+      setSubmitting(false);
     }
-
-    // Reset form and close modal
-    resetForm();
-    setIsAddAdOpen(false);
   };
 
   const handleEdit = (ad: Advertisement) => {
     setEditingAd(ad);
     setFormData({
-      image: ad.image,
+      title: ad.title,
+      image: null,
       url: ad.url || "",
     });
+
+    // Set image preview if exists
+    if (ad.image) {
+      setImagePreview(ad.image);
+    }
+
     setIsAddAdOpen(true);
   };
 
@@ -219,7 +298,7 @@ export default function AdvertisementSection({
 
   const handleAdClick = (ad: Advertisement) => {
     if (ad.url) {
-      window.open(ad.url, "_blank", "noopener,noreferrer");
+      window.open(ad.url!, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -258,6 +337,46 @@ export default function AdvertisementSection({
     return pageNumbers;
   };
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col w-full space-y-6">
+        <div className="flex items-center justify-between w-full">
+          <h1 className="text-2xl font-bold text-secondary font-oswald">
+            Advertisements
+          </h1>
+          <Button
+            className="bg-primary hover:bg-primary/90 text-black rounded-xl px-6 py-2"
+            disabled
+          >
+            <Plus size={18} />
+            Add Advertisement
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <Card
+              key={index}
+              className="overflow-hidden border p-4 border-border bg-[#FBFDFF] dark:bg-gray-800 rounded-2xl shadow-sm animate-pulse"
+            >
+              <div className="w-full h-48 bg-gray-300 dark:bg-gray-600 rounded-xl mb-3"></div>
+              <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded mb-2"></div>
+              <div className="h-3 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full space-y-6">
       {/* Header with Title and Add Button */}
@@ -274,94 +393,127 @@ export default function AdvertisementSection({
         </Button>
       </div>
 
+      {/* No data message */}
+      {advertisements.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="text-center">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+              No advertisements found
+            </h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-4">
+              Get started by adding your first advertisement.
+            </p>
+            <Button
+              className="bg-primary hover:bg-primary/90 text-black"
+              onClick={() => setIsAddAdOpen(true)}
+            >
+              <Plus size={18} />
+              Add Advertisement
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Advertisement Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {currentData.map((ad) => (
-          <Card
-            key={ad.id}
-            className="overflow-hidden border p-4 border-border bg-[#FBFDFF] dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="relative rounded-xl">
-              <div
-                className={`relative ${ad.url ? "cursor-pointer" : ""}`}
-                onClick={() => handleAdClick(ad)}
-              >
-                <Image
-                  src={ad.image}
-                  alt="Advertisement"
-                  width={300}
-                  height={200}
-                  className="w-full h-48 object-cover rounded-xl"
-                />
-                {ad.url && (
-                  <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors rounded-xl flex items-center justify-center">
-                    <ExternalLink
-                      className="text-white opacity-0 hover:opacity-100 transition-opacity"
-                      size={24}
-                    />
-                  </div>
-                )}
-              </div>
-              {/* Action buttons overlay */}
-              <div className="absolute top-0.5 right-0.5 flex gap-1">
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="h-8 w-8 bg-white/90 hover:bg-white text-blue-600 hover:text-blue-800 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit(ad);
-                  }}
+      {advertisements.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {currentData.map((ad) => (
+            <Card
+              key={ad.id}
+              className="overflow-hidden border p-4 border-border bg-[#FBFDFF] dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+            >
+              <div className="relative rounded-xl">
+                <div
+                  className={`relative ${ad.url ? "cursor-pointer" : ""}`}
+                  onClick={() => handleAdClick(ad)}
                 >
-                  <Edit size={14} />
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="h-8 w-8 bg-white/90 hover:bg-white text-red-600 hover:text-red-800 cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete(ad);
-                  }}
-                >
-                  <Trash2 size={14} />
-                </Button>
-              </div>
-            </div>
-            <CardContent className="px-0 pt-3">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-500 dark:text-gray-400">
-                  {ad.createTime}
-                </span>
-                {ad.url && (
-                  <div
-                    className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 cursor-pointer hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                  <Image
+                    src={getFullImageUrl(ad.image) ?? ""}
+                    alt={ad.title}
+                    width={300}
+                    height={200}
+                    className="w-full h-48 object-cover rounded-xl"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = "/ad-placeholder.png";
+                    }}
+                  />
+                  {ad.url && (
+                    <div className="absolute inset-0 bg-black/0 hover:bg-black/10 transition-colors rounded-xl flex items-center justify-center">
+                      <ExternalLink
+                        className="text-white opacity-0 hover:opacity-100 transition-opacity"
+                        size={24}
+                      />
+                    </div>
+                  )}
+                </div>
+                {/* Action buttons overlay */}
+                <div className="absolute top-0.5 right-0.5 flex gap-1">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 bg-white/90 hover:bg-white text-blue-600 hover:text-blue-800 cursor-pointer"
                     onClick={(e) => {
                       e.stopPropagation();
-                      window.open(ad.url, "_blank", "noopener,noreferrer");
+                      handleEdit(ad);
                     }}
                   >
-                    <ExternalLink size={12} />
-                    <span>Linked</span>
-                  </div>
-                )}
+                    <Edit size={14} />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="h-8 w-8 bg-white/90 hover:bg-white text-red-600 hover:text-red-800 cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(ad);
+                    }}
+                  >
+                    <Trash2 size={14} />
+                  </Button>
+                </div>
               </div>
-              {ad.url && (
-                <p
-                  className="text-xs text-gray-600 dark:text-gray-300 mt-1 truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    window.open(ad.url, "_blank", "noopener,noreferrer");
-                  }}
-                  title={ad.url}
-                >
-                  {ad.url}
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+              <CardContent className="px-0 pt-3">
+                <div className="mb-2">
+                  <h3 className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                    {ad.title}
+                  </h3>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-500 dark:text-gray-400">
+                    {formatDate(ad.created_at)}
+                  </span>
+                  {ad.url && (
+                    <div
+                      className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 cursor-pointer hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (ad.url)
+                          window.open(ad.url, "_blank", "noopener,noreferrer");
+                      }}
+                    >
+                      <ExternalLink size={12} />
+                      <span>Linked</span>
+                    </div>
+                  )}
+                </div>
+                {ad.url && (
+                  <p
+                    className="text-xs text-gray-600 dark:text-gray-300 mt-1 truncate cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      window.open(ad.url!, "_blank", "noopener,noreferrer");
+                    }}
+                    title={ad.url}
+                  >
+                    {ad.url}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -435,10 +587,24 @@ export default function AdvertisementSection({
             </Button>
           </DialogHeader>
           <div className="p-6 space-y-4 pt-0">
+            {/* Title */}
+            <div className="space-y-2">
+              <label className="font-medium text-[#141b34] dark:text-white">
+                Title <span className="text-red-500">*</span>
+              </label>
+              <Input
+                placeholder="Enter advertisement title"
+                value={formData.title}
+                onChange={(e) => handleInputChange("title", e.target.value)}
+                className="text-base"
+              />
+            </div>
+
             {/* Image Upload */}
             <div className="space-y-2">
               <label className="font-medium text-[#141b34] dark:text-white">
-                Advertisement Image <span className="text-red-500">*</span>
+                Advertisement Image{" "}
+                {!editingAd && <span className="text-red-500">*</span>}
               </label>
               <div
                 className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
@@ -446,10 +612,14 @@ export default function AdvertisementSection({
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                {formData.image ? (
+                {imagePreview ? (
                   <div className="relative">
                     <Image
-                      src={formData.image}
+                      src={
+                        imagePreview.startsWith("data:")
+                          ? imagePreview
+                          : getFullImageUrl(imagePreview ?? "")
+                      }
                       alt="Preview"
                       width={200}
                       height={120}
@@ -461,7 +631,8 @@ export default function AdvertisementSection({
                       className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setFormData((prev) => ({ ...prev, image: "" }));
+                        setFormData((prev) => ({ ...prev, image: null }));
+                        setImagePreview("");
                       }}
                     >
                       <X size={12} />
@@ -516,6 +687,7 @@ export default function AdvertisementSection({
                   setIsAddAdOpen(false);
                   resetForm();
                 }}
+                disabled={submitting}
                 className="hover:bg-gray-300 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white"
               >
                 Cancel
@@ -523,8 +695,9 @@ export default function AdvertisementSection({
               <Button
                 className="bg-primary hover:bg-primary/90 text-[#141b34]"
                 onClick={handleSubmit}
+                disabled={submitting}
               >
-                {editingAd ? "Update" : "Submit"}
+                {submitting ? "Processing..." : editingAd ? "Update" : "Submit"}
               </Button>
             </div>
           </div>
@@ -544,15 +717,17 @@ export default function AdvertisementSection({
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setDeleteConfirmOpen(false)}
+              disabled={submitting}
               className="hover:bg-gray-300 hover:text-black dark:hover:bg-gray-600 dark:hover:text-white"
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
+              disabled={submitting}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              Delete
+              {submitting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
