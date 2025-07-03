@@ -2,9 +2,9 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import { ChevronDownIcon } from "lucide-react";
-import { IoNotifications } from "react-icons/io5";
+// import { IoNotifications } from "react-icons/io5";
 import { ProfileDialog } from "@/components/ui/profile-dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { getProfileName } from "@/lib/axios";
@@ -25,7 +25,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
   avatarFallback: defaultAvatarFallback = "U",
 }) => {
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
-  const { user, isLoading, refreshUser } = useAuth();
+  const { user, isLoading, refreshUser, logout } = useAuth();
   // Refresh user data when component mounts
   useEffect(() => {
     if (!user && !isLoading) {
@@ -63,8 +63,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     }
   };
 
-  const handleLogout = () => {
-    console.log("Logout clicked from header");
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const handleProfileClick = () => {
@@ -105,14 +109,14 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
         {/* User Actions Section */}
         <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
           {/* Notifications Button */}
-          <Button
+          {/* <Button
             variant="outline"
             size="icon"
             className="relative h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-transparent hover:bg-gray-300 dark:bg-transparent border-border dark:border-border transition-all duration-200 shadow-sm hover:shadow-md"
           >
             <IoNotifications className="h-4 w-4 sm:h-5 sm:w-5 text-text-secondary dark:text-text-secondary dark:hover:text-black" />
             <span className="sr-only">Notifications</span>
-          </Button>
+          </Button> */}
 
           {/* User Profile Section */}
           <div

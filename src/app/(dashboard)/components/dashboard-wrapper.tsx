@@ -10,12 +10,21 @@ import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { LogOut, Megaphone, Newspaper, ScrollText, Trophy, Vote } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardWrapperProps {
   children: React.ReactNode;
 }
 
 export default function DashboardWrapper({ children }: DashboardWrapperProps) {
+  const { logout } = useAuth();
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
   const links = [
     {
       label: "Overview",
@@ -91,15 +100,22 @@ export default function DashboardWrapper({ children }: DashboardWrapperProps) {
             </div>
           </div>
           <div>
-            <SidebarLink
-              link={{
-                label: "Logout",
-                href: "#",
-                icon: (
-                  <LogOut className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-                ),
-              }}
-            />
+            <div
+              onClick={handleLogout}
+              role="button"
+              tabIndex={0}
+              className="cursor-pointer"
+            >
+              <SidebarLink
+                link={{
+                  label: "Logout",
+                  href: "#",
+                  icon: (
+                    <LogOut className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+                  ),
+                }}
+              />
+            </div>
           </div>
         </SidebarBody>
       </Sidebar>

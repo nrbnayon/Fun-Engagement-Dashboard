@@ -28,7 +28,9 @@ const signupSchema = z
       .string()
       .min(1, "Email is required")
       .email("Please enter a valid email address")
-      .max(100, "Email must be less than 100 characters"),
+      .max(100, "Email must be less than 100 characters")
+      .transform((val) => val.trim().toLowerCase().replace(/\s+/g, "")),
+
     password: z
       .string()
       .min(1, "Password is required")

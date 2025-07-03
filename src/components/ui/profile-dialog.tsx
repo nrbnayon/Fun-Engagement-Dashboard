@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { LogOut, User, Mail, Shield, Calendar, X } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProfileDialogProps {
   open: boolean;
@@ -34,13 +35,17 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({
   avatarSrc,
   avatarFallback = "JR",
   joinedDate = "January 2024",
-  onLogout,
+  // onLogout,
 }) => {
-  const handleLogout = () => {
-    onOpenChange(false);
-    onLogout?.();
+  const { logout } = useAuth();
+  const handleLogout = async () => {
+    try {
+      await logout();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
-
   // Generate fallback from full name if not provided
   const generateFallback = (name: string) => {
     return name

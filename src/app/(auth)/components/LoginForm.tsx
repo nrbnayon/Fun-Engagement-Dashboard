@@ -19,6 +19,7 @@ const loginSchema = z.object({
     .min(1, "Email is required")
     .max(50, "Email must be less than 50 characters")
     .email("Invalid email format")
+    .transform((val) => val.trim().toLowerCase().replace(/\s+/g, ""))
     .refine((val) => !/\s/.test(val), {
       message: "Email must not contain spaces",
     }),
