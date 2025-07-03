@@ -1,6 +1,6 @@
 // src/app/(dashboard)/components/NewsListPage.tsx
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -31,21 +31,38 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { generateNewsData, News } from "@/lib/data/news";
 import Link from "next/link";
+
+// Import the news API functions
+import {
+  getAllNews,
+  createNews,
+  updateNews,
+  deleteNews,
+} from "@/lib/services/newsDataApi";
 
 import dynamic from "next/dynamic";
 import "@uiw/react-md-editor/markdown-editor.css";
 import "@uiw/react-markdown-preview/markdown.css";
+import { getFullImageUrl } from "@/lib/utils";
 
 const MDEditor = dynamic(() => import("@uiw/react-md-editor"), { ssr: false });
+
+// Updated interface to match API response
+interface News {
+  id: number;
+  image: string;
+  title: string;
+  description: string;
+  upload_date: string;
+}
 
 interface NewsPageProps {
   itemsPerPage?: number;
 }
 
 interface FormData {
-  image: string;
+  image: File | null;
   title: string;
   description: string;
 }
@@ -56,15 +73,40 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
   const [editingNews, setEditingNews] = useState<News | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [newsToDelete, setNewsToDelete] = useState<News | null>(null);
-  const [news, setNews] = useState<News[]>(() => generateNewsData(50));
+  const [news, setNews] = useState<News[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
 
   // Form state
   const [formData, setFormData] = useState<FormData>({
-    image: "",
+    image: null,
     title: "",
     description: "",
   });
+
+  // Fetch news data on component mount
+  useEffect(() => {
+    fetchNews();
+  }, []);
+
+  const fetchNews = async () => {
+    setLoading(true);
+    try {
+      const response = await getAllNews();
+      if (response.success && response.data) {
+        setNews(response.data);
+      } else {
+        toast.error("Failed to fetch news");
+      }
+    } catch (error) {
+      console.error("Error fetching news:", error);
+      toast.error("Failed to fetch news");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredData = news;
 
@@ -86,24 +128,39 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+
+      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setFormData((prev) => ({
-          ...prev,
-          image: result,
-        }));
+        setImagePreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const confirmDelete = () => {
-    if (newsToDelete) {
-      setNews((prev) => prev.filter((item) => item.id !== newsToDelete.id));
-      toast.success("News deleted successfully!");
-      setDeleteConfirmOpen(false);
-      setNewsToDelete(null);
+  const confirmDelete = async () => {
+    if (newsToDelete && !submitting) {
+      setSubmitting(true);
+      try {
+        const response = await deleteNews(newsToDelete.id);
+        if (response.success) {
+          setNews((prev) => prev.filter((item) => item.id !== newsToDelete.id));
+          toast.success("News deleted successfully!");
+        } else {
+          toast.error("Failed to delete news");
+        }
+      } catch (error) {
+        console.error("Error deleting news:", error);
+        toast.error("Failed to delete news");
+      } finally {
+        setSubmitting(false);
+        setDeleteConfirmOpen(false);
+        setNewsToDelete(null);
+      }
     }
   };
 
@@ -115,13 +172,15 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith("image/")) {
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+
+      // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setFormData((prev) => ({
-          ...prev,
-          image: result,
-        }));
+        setImagePreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -129,71 +188,108 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
 
   const resetForm = () => {
     setFormData({
-      image: "",
+      image: null,
       title: "",
       description: "",
     });
+    setImagePreview("");
     setEditingNews(null);
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate form
     if (!formData.title || !formData.description) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    if (editingNews) {
-      // Update existing news
-      const updatedNews: News = {
-        id: editingNews.id,
-        image: formData.image || "/news-placeholder.jpg",
-        title: formData.title,
-        description: formData.description,
-        createTime: editingNews.createTime, // Keep original create time
-      };
-
-      setNews((prev) =>
-        prev.map((item) => (item.id === editingNews.id ? updatedNews : item))
-      );
-      toast.success("News updated successfully!");
-    } else {
-      // Create new news
-      const newNews: News = {
-        id: `news-${Date.now()}`,
-        image: formData.image || "/news-placeholder.jpg",
-        title: formData.title,
-        description: formData.description,
-        createTime: new Date().toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-        }),
-      };
-
-      // Add to news list
-      setNews((prev) => [newNews, ...prev]);
-      toast.success("News added successfully!");
+    if (!editingNews && !formData.image) {
+      toast.error("Please select an image");
+      return;
     }
 
-    // Reset form and close modal
-    resetForm();
-    setIsAddNewsOpen(false);
+    setSubmitting(true);
+
+    try {
+      if (editingNews) {
+        // Update existing news
+        // Ensure image is File or undefined, never null
+        const updateData: {
+          title: string;
+          description: string;
+          image?: File;
+        } = {
+          title: formData.title,
+          description: formData.description,
+        };
+
+        if (formData.image) {
+          updateData.image = formData.image;
+        }
+
+        const response = await updateNews(editingNews.id, updateData);
+        if (response.success) {
+          toast.success("News updated successfully!");
+          fetchNews(); // Refresh the list
+        } else {
+          toast.error("Failed to update news");
+        }
+      } else {
+        // Create new news
+        if (!formData.image) {
+          toast.error("Please select an image");
+          return;
+        }
+
+        const createData = {
+          image: formData.image,
+          title: formData.title,
+          description: formData.description,
+        };
+
+        const response = await createNews(createData);
+        if (response.success) {
+          toast.success("News added successfully!");
+          fetchNews(); // Refresh the list
+        } else {
+          toast.error("Failed to create news");
+        }
+      }
+
+      // Reset form and close modal
+      resetForm();
+      setIsAddNewsOpen(false);
+    } catch (error) {
+      console.error("Error submitting news:", error);
+      toast.error("Failed to save news");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleEdit = (newsItem: News) => {
     setEditingNews(newsItem);
     setFormData({
-      image: newsItem.image,
+      image: null, // We'll handle existing image separately
       title: newsItem.title,
       description: newsItem.description,
     });
+    setImagePreview(newsItem.image); // Use API image URL for preview
     setIsAddNewsOpen(true);
   };
 
   const handleDelete = (newsItem: News) => {
     setNewsToDelete(newsItem);
     setDeleteConfirmOpen(true);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   const generatePageNumbers = () => {
@@ -231,13 +327,41 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
     return pageNumbers;
   };
 
+  if (loading) {
+    return (
+      <div className="flex flex-col w-full space-y-6">
+        <div className="flex items-center justify-between w-full">
+          <h1 className="text-2xl font-bold text-secondary font-oswald">
+            News
+          </h1>
+          <div className="h-10 w-24 bg-gray-200 rounded-xl animate-pulse"></div>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card
+              key={i}
+              className="overflow-hidden border p-4 border-border bg-[#FBFDFF] rounded-2xl"
+            >
+              <div className="h-48 bg-gray-200 rounded-xl animate-pulse mb-4"></div>
+              <div className="space-y-2">
+                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className='flex flex-col w-full space-y-6'>
+    <div className="flex flex-col w-full space-y-6">
       {/* Header with Title and Add Button */}
-      <div className='flex items-center justify-between w-full'>
-        <h1 className='text-2xl font-bold text-secondary font-oswald'>News</h1>
+      <div className="flex items-center justify-between w-full">
+        <h1 className="text-2xl font-bold text-secondary font-oswald">News</h1>
         <Button
-          className='bg-primary hover:bg-primary/90 text-black rounded-xl px-6 py-2'
+          className="bg-primary hover:bg-primary/90 text-black rounded-xl px-6 py-2"
           onClick={() => setIsAddNewsOpen(true)}
         >
           <Plus size={18} />
@@ -246,54 +370,54 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
       </div>
 
       {/* News Cards Grid */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {currentData.map((newsItem) => (
           <Card
             key={newsItem.id}
-            className='overflow-hidden border p-4 border-border bg-[#FBFDFF] rounded-2xl shadow-sm hover:shadow-md transition-shadow'
+            className="overflow-hidden border p-4 border-border bg-[#FBFDFF] rounded-2xl shadow-sm hover:shadow-md transition-shadow"
           >
-            <div className='relative rounded-xl'>
+            <div className="relative rounded-xl">
               <Image
-                src={newsItem?.image}
+                src={getFullImageUrl(newsItem.image) || ""}
                 alt={newsItem.title}
                 width={300}
                 height={200}
-                className='w-full h-48 object-cover rounded-xl'
+                className="w-full h-48 object-cover rounded-xl"
               />
               {/* Action buttons overlay */}
-              <div className='absolute top-0.5 right-0.5 flex gap-1'>
+              <div className="absolute top-0.5 right-0.5 flex gap-1">
                 <Button
-                  variant='secondary'
-                  size='icon'
-                  className='h-8 w-8 bg-white/90 hover:bg-white text-blue-600 hover:text-blue-800'
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 bg-white/90 hover:bg-white text-blue-600 hover:text-blue-800"
                   onClick={() => handleEdit(newsItem)}
                 >
                   <Edit size={14} />
                 </Button>
                 <Button
-                  variant='secondary'
-                  size='icon'
-                  className='h-8 w-8 bg-white/90 hover:bg-white text-red-600 hover:text-red-800'
+                  variant="secondary"
+                  size="icon"
+                  className="h-8 w-8 bg-white/90 hover:bg-white text-red-600 hover:text-red-800"
                   onClick={() => handleDelete(newsItem)}
                 >
                   <Trash2 size={14} />
                 </Button>
               </div>
             </div>
-            <CardContent className='px-0 -mt-2'>
-              <div className='flex items-center gap-2 mb-1'>
-                <Calendar size={14} className='text-gray-500' />
-                <span className='text-sm text-gray-500'>
-                  {newsItem.createTime}
+            <CardContent className="px-0 -mt-2">
+              <div className="flex items-center gap-2 mb-1">
+                <Calendar size={14} className="text-gray-500" />
+                <span className="text-sm text-gray-500">
+                  {formatDate(newsItem.upload_date)}
                 </span>
               </div>
               <Link href={`/news/${newsItem.id}`}>
-                <h3 className='font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 cursor-pointer font-oswald'>
+                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600 cursor-pointer font-oswald">
                   {newsItem.title}
                 </h3>
               </Link>
               <div
-                className='text-sm text-gray-600 line-clamp-3 prose prose-sm max-w-none'
+                className="text-sm text-gray-600 line-clamp-3 prose prose-sm max-w-none"
                 dangerouslySetInnerHTML={{
                   __html:
                     newsItem.description.length > 150
@@ -306,9 +430,28 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
         ))}
       </div>
 
+      {/* Empty state */}
+      {!loading && news.length === 0 && (
+        <div className="text-center py-12">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            No news found
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Get started by adding your first news article.
+          </p>
+          <Button
+            className="bg-primary hover:bg-primary/90 text-black"
+            onClick={() => setIsAddNewsOpen(true)}
+          >
+            <Plus size={18} className="mr-2" />
+            Add News
+          </Button>
+        </div>
+      )}
+
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className='flex justify-center w-full mt-8'>
+        <div className="flex justify-center w-full mt-8">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -325,12 +468,12 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
               {generatePageNumbers().map((pageNum, index) => (
                 <PaginationItem key={index}>
                   {pageNum === "..." ? (
-                    <span className='px-3 py-2'>...</span>
+                    <span className="px-3 py-2">...</span>
                   ) : (
                     <PaginationLink
                       onClick={() => handlePageChange(pageNum as number)}
                       isActive={currentPage === pageNum}
-                      className='cursor-pointer'
+                      className="cursor-pointer"
                     >
                       {pageNum}
                     </PaginationLink>
@@ -358,64 +501,69 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
       {/* Add/Edit News Dialog */}
       <Dialog open={isAddNewsOpen} onOpenChange={setIsAddNewsOpen}>
         <DialogContent
-          className='sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0'
+          className="sm:max-w-2xl max-h-[90vh] overflow-y-auto p-0"
           showCloseButton={false}
         >
-          <DialogHeader className='bg-primary p-4  flex flex-row items-center justify-between'>
-            <DialogTitle className='text-[#141b34] text-xl'>
+          <DialogHeader className="bg-primary p-4  flex flex-row items-center justify-between">
+            <DialogTitle className="text-[#141b34] text-xl">
               {editingNews ? "Edit News" : "Add News"}
             </DialogTitle>
             <Button
-              variant='ghost'
-              size='icon'
-              className='h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500'
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500"
               onClick={() => {
                 setIsAddNewsOpen(false);
                 resetForm();
               }}
             >
-              <X className='h-5 w-5 text-red-500' />
+              <X className="h-5 w-5 text-red-500" />
             </Button>
           </DialogHeader>
-          <div className='p-6 space-y-4 pt-0'>
+          <div className="p-6 space-y-4 pt-0">
             {/* Image Upload */}
-            <div className='space-y-2'>
-              <label className='font-medium text-[#141b34]'>News Image</label>
+            <div className="space-y-2">
+              <label className="font-medium text-[#141b34]">News Image</label>
               <div
-                className='border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors'
+                className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-primary transition-colors"
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
-                {formData.image ? (
-                  <div className='relative'>
+                {imagePreview ? (
+                  <div className="relative">
                     <Image
-                      src={formData.image}
-                      alt='Preview'
+                      src={
+                        imagePreview.startsWith("data:")
+                          ? imagePreview
+                          : getFullImageUrl(imagePreview ?? "")
+                      }
+                      alt="Preview"
                       width={200}
                       height={120}
-                      className='mx-auto rounded-lg object-cover'
+                      className="mx-auto rounded-lg object-cover"
                     />
                     <Button
-                      variant='ghost'
-                      size='icon'
-                      className='absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white'
+                      variant="ghost"
+                      size="icon"
+                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white"
                       onClick={(e) => {
                         e.stopPropagation();
-                        setFormData((prev) => ({ ...prev, image: "" }));
+                        setFormData((prev) => ({ ...prev, image: null }));
+                        setImagePreview("");
                       }}
                     >
                       <X size={12} />
                     </Button>
                   </div>
                 ) : (
-                  <div className='space-y-3'>
-                    <Upload className='mx-auto h-12 w-12 text-gray-400' />
+                  <div className="space-y-3">
+                    <Upload className="mx-auto h-12 w-12 text-gray-400" />
                     <div>
-                      <p className='text-lg font-medium text-gray-700'>
+                      <p className="text-lg font-medium text-gray-700">
                         Upload
                       </p>
-                      <p className='text-sm text-gray-500'>
+                      <p className="text-sm text-gray-500">
                         Drag and drop an image or click to browse
                       </p>
                     </div>
@@ -423,42 +571,42 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
                 )}
                 <input
                   ref={fileInputRef}
-                  type='file'
-                  accept='image/*'
+                  type="file"
+                  accept="image/*"
                   onChange={handleImageUpload}
-                  className='hidden'
+                  className="hidden"
                 />
               </div>
             </div>
 
             {/* Title */}
-            <div className='space-y-2'>
-              <label className='font-medium text-[#141b34]'>
-                Title <span className='text-red-500'>*</span>
+            <div className="space-y-2">
+              <label className="font-medium text-[#141b34]">
+                Title <span className="text-red-500">*</span>
               </label>
               <Input
-                placeholder='Enter news title'
+                placeholder="Enter news title"
                 value={formData.title}
                 onChange={(e) => handleInputChange("title", e.target.value)}
-                className='text-base'
+                className="text-base"
               />
             </div>
 
             {/* Description */}
-            <div className='space-y-2'>
-              <label className='font-medium text-[#141b34]'>
-                Description <span className='text-red-500'>*</span>
+            <div className="space-y-2">
+              <label className="font-medium text-[#141b34]">
+                Description <span className="text-red-500">*</span>
               </label>
-              <div className='border border-gray-300 rounded-lg overflow-hidden'>
+              <div className="border border-gray-300 rounded-lg overflow-hidden">
                 <MDEditor
                   value={formData.description}
                   onChange={(value) =>
                     handleInputChange("description", value || "")
                   }
-                  preview='edit'
+                  preview="edit"
                   hideToolbar={false}
                   visibleDragbar={false}
-                  data-color-mode='light'
+                  data-color-mode="light"
                   textareaProps={{
                     placeholder:
                       "Enter news description with markdown support...",
@@ -472,34 +620,36 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
                   height={200}
                 />
               </div>
-              <div className='flex justify-between items-center'>
-                <p className='text-sm text-gray-500'>
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-gray-500">
                   Supports markdown formatting (bold, italic, lists, links,
                   etc.)
                 </p>
-                <span className='text-sm text-gray-400'>
+                <span className="text-sm text-gray-400">
                   {formData.description.length} characters
                 </span>
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div className='flex justify-end gap-3 pt-4'>
+            <div className="flex justify-end gap-3 pt-4">
               <Button
-                variant='outline'
+                variant="outline"
                 onClick={() => {
                   setIsAddNewsOpen(false);
                   resetForm();
                 }}
-                className='hover:bg-gray-300 hover:text-black'
+                className="hover:bg-gray-300 hover:text-black"
+                disabled={submitting}
               >
                 Cancel
               </Button>
               <Button
-                className='bg-primary hover:bg-primary/90 text-[#141b34]'
+                className="bg-primary hover:bg-primary/90 text-[#141b34]"
                 onClick={handleSubmit}
+                disabled={submitting}
               >
-                {editingNews ? "Update" : "Submit"}
+                {submitting ? "Saving..." : editingNews ? "Update" : "Submit"}
               </Button>
             </div>
           </div>
@@ -519,15 +669,17 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setDeleteConfirmOpen(false)}
-              className='hover:bg-gray-300 hover:text-black'
+              className="hover:bg-gray-300 hover:text-black"
+              disabled={submitting}
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className='bg-red-600 hover:bg-red-700 text-white'
+              className="bg-red-600 hover:bg-red-700 text-white"
+              disabled={submitting}
             >
-              Delete
+              {submitting ? "Deleting..." : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

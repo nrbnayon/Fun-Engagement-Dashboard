@@ -1,4 +1,4 @@
-// src/lib/data/news.ts
+// src/lib/data/news.ts dummy data used only before connect api 
 export interface News {
   id: string;
   image: string;
