@@ -384,13 +384,15 @@ export default function AdvertisementSection({
         <h1 className="text-2xl font-bold text-secondary font-oswald">
           Advertisements
         </h1>
-        <Button
-          className="bg-primary hover:bg-primary/90 text-black rounded-xl px-6 py-2"
-          onClick={() => setIsAddAdOpen(true)}
-        >
-          <Plus size={18} />
-          Add Advertisement
-        </Button>
+        {advertisements.length < 1 && (
+          <Button
+            className="bg-primary hover:bg-primary/90 text-black rounded-xl px-6 py-2"
+            onClick={() => setIsAddAdOpen(true)}
+          >
+            <Plus size={18} />
+            Add Advertisement
+          </Button>
+        )}
       </div>
 
       {/* No data message */}
