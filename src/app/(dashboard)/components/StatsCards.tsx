@@ -175,15 +175,15 @@ export default function StatsCards() {
   // Show loading state
   if (loading) {
     return (
-      <main className="flex flex-col w-full items-center">
-        <div className="flex flex-col lg:flex-row items-stretch gap-5 w-full">
-          <div className="flex flex-row sm:flex-row gap-5 w-full lg:w-auto">
+      <main className='flex flex-col w-full items-center'>
+        <div className='flex flex-col lg:flex-row items-stretch gap-5 w-full'>
+          <div className='flex flex-row sm:flex-row gap-5 w-full lg:w-auto'>
             {[1, 2].map((i) => (
               <Card
                 key={i}
-                className="flex flex-col flex-1 sm:w-44 h-40 items-center justify-center p-3 bg-surface border-border dark:bg-surface"
+                className='flex flex-col flex-1 sm:w-44 h-40 items-center justify-center p-3 bg-surface border-border dark:bg-surface'
               >
-                <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-6 w-16 rounded"></div>
+                <div className='animate-pulse bg-gray-300 dark:bg-gray-600 h-6 w-16 rounded'></div>
               </Card>
             ))}
           </div>
@@ -195,7 +195,7 @@ export default function StatsCards() {
   // Create stats data based on API response
   const statsData = [
     {
-      icon: <FaUsers className="h-6 w-6 text-foreground" />,
+      icon: <FaUsers className='h-6 w-6 text-foreground' />,
       title: "Total User",
       value: statsResponse.success
         ? statsResponse.data?.total_users?.toString() || "0"
@@ -204,9 +204,9 @@ export default function StatsCards() {
     {
       icon: (
         <Image
-          className="h-6 w-6"
-          alt="Voting"
-          src="/voting.svg"
+          className='h-6 w-6'
+          alt='Voting'
+          src='/voting.svg'
           width={24}
           height={24}
         />
@@ -219,30 +219,25 @@ export default function StatsCards() {
   ];
 
   // Filter matches by status
-  const liveMatches = upcomingMatchResponse.success
-    ? upcomingMatchResponse.data.filter((match) => match.status === "live")
-    : [];
-
   const upcomingMatches = upcomingMatchResponse.success
     ? upcomingMatchResponse.data.filter((match) => match.status === "upcoming")
     : [];
 
-  // Get voting match from voting API
+  // Get voting match from voting API - find a live match that has voting data
   let votingMatch: Match | null = null;
   if (votingResponse.success && votingResponse.data.length > 0) {
-    const firstVoting = votingResponse.data[0];
-    const matchId = firstVoting.match;
-
-    // Find the corresponding match from all matches
     const allMatches = upcomingMatchResponse.success
       ? upcomingMatchResponse.data
       : [];
-    votingMatch = allMatches.find((match) => match.id === matchId) || null;
-  }
 
-  // If no voting match found from voting API, use first live match
-  if (!votingMatch && liveMatches.length > 0) {
-    votingMatch = liveMatches[0];
+    // Get all match IDs that have voting data
+    const votingMatchIds = votingResponse.data.map((voting) => voting.match);
+
+    // Find a live match that has voting data
+    votingMatch =
+      allMatches.find(
+        (match) => match.status === "live" && votingMatchIds.includes(match.id)
+      ) || null;
   }
 
   // Get upcoming match data (first upcoming match that's not the voting match)
@@ -279,7 +274,7 @@ export default function StatsCards() {
   // Create match cards array only if matches exist
   const matchCards = [];
 
-  // Add voting match card if voting match exists
+  // Add voting match card only if voting match exists and is live
   if (votingMatch) {
     matchCards.push({
       title: "Voting Match",
@@ -297,7 +292,7 @@ export default function StatsCards() {
           : null,
         initials: getTeamInitials(votingMatch.team_b),
       },
-      status: votingMatch.status === "live" ? "Live" : "Upcoming",
+      status: "Live",
       time: formatDateTime(votingMatch.date, votingMatch.time),
     });
   }
@@ -326,24 +321,24 @@ export default function StatsCards() {
   }
 
   return (
-    <main className="flex flex-col w-full items-center">
-      <div className="flex flex-col lg:flex-row items-stretch gap-5 w-full">
+    <main className='flex flex-col w-full items-center'>
+      <div className='flex flex-col lg:flex-row items-stretch gap-5 w-full'>
         {/* Stats Cards Container */}
-        <div className="flex flex-row sm:flex-row gap-5 w-full lg:w-auto">
+        <div className='flex flex-row sm:flex-row gap-5 w-full lg:w-auto'>
           {statsData.map((card, index) => (
             <Card
               key={index}
-              className="flex flex-col flex-1 sm:w-44 h-40 items-center justify-between gap-3 p-3 bg-surface border-border dark:bg-surface"
+              className='flex flex-col flex-1 sm:w-44 h-40 items-center justify-between gap-3 p-3 bg-surface border-border dark:bg-surface'
             >
-              <CardContent className="p-0 flex flex-col items-center justify-between gap-3 w-full h-full">
-                <div className="inline-flex items-center gap-2 p-3 bg-secondary-light dark:bg-surface-elevated rounded-full">
+              <CardContent className='p-0 flex flex-col items-center justify-between gap-3 w-full h-full'>
+                <div className='inline-flex items-center gap-2 p-3 bg-secondary-light dark:bg-surface-elevated rounded-full'>
                   {card.icon}
                 </div>
-                <div className="flex flex-col items-start gap-1 w-full">
-                  <div className="w-full font-regular-lg-regular text-foreground text-center">
+                <div className='flex flex-col items-start gap-1 w-full'>
+                  <div className='w-full font-regular-lg-regular text-foreground text-center'>
                     {card.title}
                   </div>
-                  <div className="font-oswald font-medium text-foreground text-3xl w-full text-center">
+                  <div className='font-oswald font-medium text-foreground text-3xl w-full text-center'>
                     {card.value}
                   </div>
                 </div>
@@ -354,62 +349,62 @@ export default function StatsCards() {
 
         {/* Match Cards Container - Only render if there are match cards */}
         {matchCards.length > 0 && (
-          <div className="flex flex-col lg:flex-row gap-5 w-full lg:w-auto">
+          <div className='flex flex-col lg:flex-row gap-5 w-full lg:w-auto'>
             {matchCards.map((match, index) => (
               <Card
                 key={index}
-                className="flex flex-col w-full lg:w-auto h-40 items-start justify-between gap-6 px-4 sm:px-6 py-4 border-border bg-card dark:bg-surface"
+                className='flex flex-col w-full lg:w-auto h-40 items-start justify-between gap-6 px-4 sm:px-6 py-4 border-border bg-card dark:bg-surface'
               >
-                <CardContent className="p-0 w-full h-full flex flex-col justify-between">
-                  <div className="font-regular-lg-regular text-foreground">
+                <CardContent className='p-0 w-full h-full flex flex-col justify-between'>
+                  <div className='font-regular-lg-regular text-foreground'>
                     {match.title}
                   </div>
-                  <div className="inline-flex items-center justify-between sm:gap-[38px] w-full">
-                    <div className="flex flex-col w-12 sm:w-14 items-center gap-2 sm:gap-3">
+                  <div className='inline-flex items-center justify-between sm:gap-[38px] w-full'>
+                    <div className='flex flex-col w-12 sm:w-14 items-center gap-2 sm:gap-3'>
                       <Avatar>
                         {match.teamA.logo ? (
                           <AvatarImage
-                            className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded"
+                            className='w-8 h-8 sm:w-10 sm:h-10 object-cover rounded'
                             alt={`${match.teamA.name} logo`}
                             src={match.teamA.logo}
                             width={40}
                             height={40}
                           />
                         ) : (
-                          <AvatarFallback className="w-8 h-8 sm:w-10 sm:h-10 text-xs font-semibold">
+                          <AvatarFallback className='w-8 h-8 sm:w-10 sm:h-10 text-xs font-semibold'>
                             {match.teamA.initials}
                           </AvatarFallback>
                         )}
                       </Avatar>
-                      <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
+                      <div className='w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm'>
                         {match.teamA.name}
                       </div>
                     </div>
-                    <div className="flex flex-col w-20 sm:w-24 items-center gap-2 sm:gap-3">
-                      <div className="w-full font-regular-lg-regular text-red-500 text-center text-xs sm:text-sm">
+                    <div className='flex flex-col w-20 sm:w-24 items-center gap-2 sm:gap-3'>
+                      <div className='w-full font-regular-lg-regular text-red-500 text-center text-xs sm:text-sm'>
                         {match.status}
                       </div>
-                      <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
+                      <div className='w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm'>
                         {match.time}
                       </div>
                     </div>
-                    <div className="flex flex-col w-12 sm:w-14 items-center gap-2 sm:gap-3">
+                    <div className='flex flex-col w-12 sm:w-14 items-center gap-2 sm:gap-3'>
                       <Avatar>
                         {match.teamB.logo ? (
                           <AvatarImage
-                            className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded"
+                            className='w-8 h-8 sm:w-10 sm:h-10 object-cover rounded'
                             alt={`${match.teamB.name} logo`}
                             src={match.teamB.logo}
                             width={40}
                             height={40}
                           />
                         ) : (
-                          <AvatarFallback className="w-8 h-8 sm:w-10 sm:h-10 text-xs font-semibold">
+                          <AvatarFallback className='w-8 h-8 sm:w-10 sm:h-10 text-xs font-semibold'>
                             {match.teamB.initials}
                           </AvatarFallback>
                         )}
                       </Avatar>
-                      <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
+                      <div className='w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm'>
                         {match.teamB.name}
                       </div>
                     </div>

@@ -242,7 +242,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       updateState({ user: userProfile, error: null });
     } catch (error: unknown) {
       if (error instanceof Error && "status" in error && error.status === 401) {
-        // clearTokens();
+        clearTokens();
         updateState({
           user: null,
           isAuthenticated: false,

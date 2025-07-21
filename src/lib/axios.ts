@@ -75,7 +75,7 @@ const createAxiosInstance = (config?: AxiosRequestConfig): AxiosInstance => {
     async (error: AxiosError) => {
       // If 401, clear tokens and redirect to login
       if (error.response?.status === 401) {
-        // clearTokens();
+        clearTokens();
         if (typeof window !== "undefined") {
           window.location.href = "/login";
         }

@@ -348,22 +348,22 @@ export default function PlayerListPage({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col w-full space-y-6">
-        <div className="flex items-center justify-between w-full">
-          <h1 className="text-2xl font-bold text-secondary font-oswald">
+      <div className='flex flex-col w-full space-y-6'>
+        <div className='flex items-center justify-between w-full'>
+          <h1 className='text-2xl font-bold text-secondary font-oswald'>
             Players
           </h1>
           <Button
-            className="bg-primary hover:bg-primary/90 text-black"
+            className='bg-primary hover:bg-primary/90 text-black'
             disabled
           >
             <Plus size={18} />
             Add Player
           </Button>
         </div>
-        <Card className="w-full rounded-xl overflow-hidden border-border p-0">
-          <CardContent className="p-8 text-center">
-            <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+        <Card className='w-full rounded-xl overflow-hidden border-border p-0'>
+          <CardContent className='p-8 text-center'>
+            <Loader2 className='h-8 w-8 animate-spin mx-auto mb-4' />
             <p>Loading players...</p>
           </CardContent>
         </Card>
@@ -372,14 +372,14 @@ export default function PlayerListPage({
   }
 
   return (
-    <div className="flex flex-col w-full space-y-6">
+    <div className='flex flex-col w-full space-y-6'>
       {/* Header with Title and Add Button */}
-      <div className="flex items-center justify-between w-full">
-        <h1 className="text-2xl font-bold text-secondary font-oswald">
+      <div className='flex items-center justify-between w-full'>
+        <h1 className='text-2xl font-bold text-secondary font-oswald'>
           Players
         </h1>
         <Button
-          className="bg-primary hover:bg-primary/90 text-black"
+          className='bg-primary hover:bg-primary/90 text-black'
           onClick={() => setIsAddPlayerOpen(true)}
         >
           <Plus size={18} />
@@ -388,46 +388,49 @@ export default function PlayerListPage({
       </div>
 
       {/* Players Table */}
-      <Card className="w-full rounded-xl overflow-hidden border-border p-0">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table className="border-collapse min-w-5xl">
-              <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300">
+      <Card className='w-full rounded-xl overflow-hidden border-border p-0'>
+        <CardContent className='p-0'>
+          <div className='overflow-x-auto'>
+            <Table className='border-collapse min-w-3xl'>
+              <TableHeader className='border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300'>
                 <TableRow>
-                  <TableHead className="font-normal text-secondary pl-6 py-4 min-w-24">
+                  <TableHead className='font-normal text-secondary pl-6 py-4 min-w-24'>
                     Player
                   </TableHead>
-                  <TableHead className="font-normal text-secondary pl-5 py-4 min-w-44">
+                  <TableHead className='font-normal text-secondary pl-5 py-4 min-w-44'>
                     Player Name
                   </TableHead>
-                  <TableHead className="font-normal text-center text-secondary py-4 min-w-28">
+                  <TableHead className='font-normal text-center text-secondary py-4 min-w-28'>
                     Jersey Number
                   </TableHead>
-                  <TableHead className="font-normal text-center text-secondary py-4 min-w-24">
+                  <TableHead className='font-normal text-center text-secondary py-4 min-w-24'>
                     Status
                   </TableHead>
-                  <TableHead className="font-normal text-center text-secondary py-4 min-w-24">
+                  <TableHead className='font-normal text-center text-secondary py-4 min-w-24'>
                     Action
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className="bg-white">
+              <TableBody className='bg-white'>
                 {currentData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8">
+                    <TableCell colSpan={5} className='text-center py-8'>
                       No players found
                     </TableCell>
                   </TableRow>
                 ) : (
                   currentData.map((player) => (
                     <TableRow key={player.id}>
-                      <TableCell className="px-6 py-4 min-w-24">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 flex items-center justify-center">
+                      <TableCell className='px-6 py-4 min-w-24'>
+                        <div className='flex items-center gap-3'>
+                          <div className='w-10 h-10 flex items-center justify-center'>
                             <Image
-                              className="w-9 h-9 object-cover rounded-full"
+                              className='w-9 h-9 object-cover rounded-full'
                               alt={`${player.name} avatar`}
-                              src={getFullImageUrl(player.image ?? "") || "/ellipse-2-7.png"}
+                              src={
+                                getFullImageUrl(player.image ?? "") ||
+                                "/ellipse-2-7.png"
+                              }
                               width={36}
                               height={36}
                               onError={(e) => {
@@ -438,17 +441,17 @@ export default function PlayerListPage({
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 min-w-44">
-                        <span className="font-normal text-blackblack-700 text-xl">
+                      <TableCell className='px-6 py-4 min-w-44'>
+                        <span className='font-normal text-blackblack-700 text-xl'>
                           {player.name}
                         </span>
                       </TableCell>
-                      <TableCell className="px-6 py-4 text-center min-w-28">
-                        <div className="font-normal text-blackblack-700 text-xl">
+                      <TableCell className='px-6 py-4 text-center min-w-28'>
+                        <div className='font-normal text-blackblack-700 text-xl'>
                           {player.jersey_number}
                         </div>
                       </TableCell>
-                      <TableCell className="px-6 py-4 text-center min-w-24">
+                      <TableCell className='px-6 py-4 text-center min-w-24'>
                         <span
                           className={`px-2 py-1 rounded-full text-sm font-medium capitalize ${getStatusColor(
                             player.status
@@ -457,20 +460,20 @@ export default function PlayerListPage({
                           {player.status}
                         </span>
                       </TableCell>
-                      <TableCell className="px-6 py-4 text-center min-w-24">
-                        <div className="flex items-center justify-center gap-2">
+                      <TableCell className='px-6 py-4 text-center min-w-24'>
+                        <div className='flex items-center justify-center gap-2'>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 cursor-pointer"
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8 text-blue-600 hover:text-blue-800 hover:bg-blue-50 cursor-pointer'
                             onClick={() => handleEdit(player)}
                           >
                             <Edit size={16} />
                           </Button>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 cursor-pointer text-red-600 hover:text-red-800 hover:bg-red-50"
+                            variant='ghost'
+                            size='icon'
+                            className='h-8 w-8 cursor-pointer text-red-600 hover:text-red-800 hover:bg-red-50'
                             onClick={() => handleDelete(player)}
                           >
                             <Trash2 size={16} />
@@ -488,7 +491,7 @@ export default function PlayerListPage({
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex justify-center w-full mt-5">
+        <div className='flex justify-center w-full mt-5'>
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -505,12 +508,12 @@ export default function PlayerListPage({
               {generatePageNumbers().map((pageNum, index) => (
                 <PaginationItem key={index}>
                   {pageNum === "..." ? (
-                    <span className="px-3 py-2">...</span>
+                    <span className='px-3 py-2'>...</span>
                   ) : (
                     <PaginationLink
                       onClick={() => handlePageChange(pageNum as number)}
                       isActive={currentPage === pageNum}
-                      className="cursor-pointer"
+                      className='cursor-pointer'
                     >
                       {pageNum}
                     </PaginationLink>
@@ -538,49 +541,49 @@ export default function PlayerListPage({
       {/* Add/Edit Player Dialog */}
       <Dialog open={isAddPlayerOpen} onOpenChange={setIsAddPlayerOpen}>
         <DialogContent
-          className="sm:max-w-md p-0 overflow-hidden"
+          className='sm:max-w-md p-0 overflow-hidden'
           showCloseButton={false}
         >
-          <DialogHeader className="bg-primary p-4 flex flex-row items-center justify-between">
-            <DialogTitle className="text-[#141b34] text-xl">
+          <DialogHeader className='bg-primary p-4 flex flex-row items-center justify-between'>
+            <DialogTitle className='text-[#141b34] text-xl'>
               {editingPlayer ? "Edit Player" : "Add Player"}
             </DialogTitle>
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500"
+              variant='ghost'
+              size='icon'
+              className='h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500'
               onClick={() => {
                 setIsAddPlayerOpen(false);
                 resetForm();
               }}
               disabled={isSubmitting}
             >
-              <X className="h-5 w-5 text-red-500" />
+              <X className='h-5 w-5 text-red-500' />
             </Button>
           </DialogHeader>
-          <div className="p-4 pt-0">
+          <div className='p-4 pt-0'>
             {/* Player Image Upload */}
-            <div className="space-y-2 mb-4">
-              <label className="font-medium text-[#141b34]">Player Image</label>
+            <div className='space-y-2 mb-4'>
+              <label className='font-medium text-[#141b34]'>Player Image</label>
               <div
-                className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
+                className='border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors'
                 onDragOver={handleDragOver}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
               >
                 {formData.playerImagePreview ? (
-                  <div className="relative">
+                  <div className='relative'>
                     <Image
                       src={formData.playerImagePreview}
-                      alt="Preview"
+                      alt='Preview'
                       width={80}
                       height={80}
-                      className="mx-auto rounded-full object-cover"
+                      className='mx-auto rounded-full object-cover'
                     />
                     <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white"
+                      variant='ghost'
+                      size='icon'
+                      className='absolute -top-2 -right-2 h-6 w-6 rounded-full bg-red-500 hover:bg-red-600 text-white'
                       onClick={(e) => {
                         e.stopPropagation();
                         setFormData((prev) => ({
@@ -594,30 +597,30 @@ export default function PlayerListPage({
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                    <p className="text-sm text-gray-600">
+                  <div className='space-y-2'>
+                    <Upload className='mx-auto h-8 w-8 text-gray-400' />
+                    <p className='text-sm text-gray-600'>
                       Drag and drop an image or click to browse
                     </p>
                   </div>
                 )}
                 <input
                   ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
+                  type='file'
+                  accept='image/*'
                   onChange={handleImageUpload}
-                  className="hidden"
+                  className='hidden'
                 />
               </div>
             </div>
 
-            <div className="space-y-2 mb-2">
-              <label className="font-medium text-[#141b34]">
-                Player Name <span className="text-red-500">*</span>
+            <div className='space-y-2 mb-2'>
+              <label className='font-medium text-[#141b34]'>
+                Player Name <span className='text-red-500'>*</span>
               </label>
               <Input
-                placeholder="Enter player name"
-                className="mt-1"
+                placeholder='Enter player name'
+                className='mt-1'
                 value={formData.playerName}
                 onChange={(e) =>
                   handleInputChange("playerName", e.target.value)
@@ -626,14 +629,14 @@ export default function PlayerListPage({
               />
             </div>
 
-            <div className="flex justify-between items-start gap-5 mb-4">
-              <div className="space-y-2 w-1/2">
-                <label className="font-medium text-[#141b34]">
-                  Jersey Number <span className="text-red-500">*</span>
+            <div className='flex justify-between items-start gap-5 mb-4'>
+              <div className='space-y-2 w-1/2'>
+                <label className='font-medium text-[#141b34]'>
+                  Jersey Number <span className='text-red-500'>*</span>
                 </label>
                 <Input
-                  placeholder="e.g., 10"
-                  className="mt-1"
+                  placeholder='e.g., 10'
+                  className='mt-1'
                   value={formData.jerseyNo}
                   onChange={(e) => {
                     // Only allow numbers
@@ -643,9 +646,9 @@ export default function PlayerListPage({
                   disabled={isSubmitting}
                 />
               </div>
-              <div className="space-y-2 w-1/2">
-                <label className="font-medium text-[#141b34]">
-                  Status <span className="text-red-500">*</span>
+              <div className='space-y-2 w-1/2'>
+                <label className='font-medium text-[#141b34]'>
+                  Status <span className='text-red-500'>*</span>
                 </label>
                 <Select
                   value={formData.status}
@@ -654,39 +657,39 @@ export default function PlayerListPage({
                   }
                   disabled={isSubmitting}
                 >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Select status" />
+                  <SelectTrigger className='mt-1'>
+                    <SelectValue placeholder='Select status' />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="waiting">Waiting</SelectItem>
+                    <SelectItem value='active'>Active</SelectItem>
+                    <SelectItem value='inactive'>Inactive</SelectItem>
+                    <SelectItem value='pending'>Pending</SelectItem>
+                    <SelectItem value='waiting'>Waiting</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            <div className="flex justify-end gap-2">
+            <div className='flex justify-end gap-2'>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => {
                   setIsAddPlayerOpen(false);
                   resetForm();
                 }}
-                className="hover:bg-blue-100"
+                className='hover:bg-blue-100'
                 disabled={isSubmitting}
               >
                 Cancel
               </Button>
               <Button
-                className="bg-primary hover:bg-primary/90 text-[#141b34]"
+                className='bg-primary hover:bg-primary/90 text-[#141b34]'
                 onClick={handleSubmit}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                     {editingPlayer ? "Updating..." : "Adding..."}
                   </>
                 ) : (
@@ -711,19 +714,19 @@ export default function PlayerListPage({
           <AlertDialogFooter>
             <AlertDialogCancel
               onClick={() => setDeleteConfirmOpen(false)}
-              className="hover:bg-blue-100"
+              className='hover:bg-blue-100'
               disabled={isDeleting}
             >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className='bg-red-600 hover:bg-red-700 text-white'
               disabled={isDeleting}
             >
               {isDeleting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                   Deleting...
                 </>
               ) : (
