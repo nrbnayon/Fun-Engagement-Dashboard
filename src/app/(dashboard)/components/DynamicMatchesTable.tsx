@@ -1460,6 +1460,7 @@ export default function DynamicMatchesTable({
                     <SelectItem value="no_winner">No Winner</SelectItem>
                     <SelectItem value="team_a">Win Team A</SelectItem>
                     <SelectItem value="team_b">Win Team B</SelectItem>
+                    <SelectItem value="draw">Match Draw</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
