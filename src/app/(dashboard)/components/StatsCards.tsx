@@ -3,7 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { FaUsers } from "react-icons/fa";
 import Image from "next/image";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { getOverViewStats } from "@/lib/services/overviewApi";
 import { getAllMatch } from "@/lib/services/matchDataApi";
 import { getAllVotings } from "@/lib/services/votingDataApi";
@@ -26,6 +26,8 @@ interface Match {
   status: string;
   team_a: string;
   team_b: string;
+  team_a_pics?: string;
+  team_b_pics?: string;
   time: string;
   win_name?: string;
   winner?: string;
@@ -106,6 +108,17 @@ const isVotingResponse = (response: unknown): response is VotingResponse => {
   );
 };
 
+// Helper function to get team name initials
+const getTeamInitials = (teamName: string): string => {
+  const words = teamName.trim().split(/\s+/);
+  if (words.length >= 2) {
+    return words[0].charAt(0).toUpperCase() + words[1].charAt(0).toUpperCase();
+  }
+  return (
+    teamName.charAt(0).toUpperCase() + (teamName.charAt(1) || "").toUpperCase()
+  );
+};
+
 export default function StatsCards() {
   const [statsResponse, setStatsResponse] = useState<StatsResponse>({
     success: false,
@@ -174,16 +187,6 @@ export default function StatsCards() {
               </Card>
             ))}
           </div>
-          <div className="flex flex-col lg:flex-row gap-5 w-full lg:w-auto">
-            {[1, 2].map((i) => (
-              <Card
-                key={i}
-                className="flex flex-col w-full lg:w-96 h-40 items-center justify-center px-4 sm:px-6 py-4 border-border bg-card dark:bg-surface"
-              >
-                <div className="animate-pulse bg-gray-300 dark:bg-gray-600 h-6 w-24 rounded"></div>
-              </Card>
-            ))}
-          </div>
         </div>
       </main>
     );
@@ -215,7 +218,7 @@ export default function StatsCards() {
     },
   ];
 
-  // Filter matches by status - exclude finished matches
+  // Filter matches by status
   const liveMatches = upcomingMatchResponse.success
     ? upcomingMatchResponse.data.filter((match) => match.status === "live")
     : [];
@@ -225,7 +228,6 @@ export default function StatsCards() {
     : [];
 
   // Get voting match from voting API
-  // Find the match that corresponds to the first voting entry
   let votingMatch: Match | null = null;
   if (votingResponse.success && votingResponse.data.length > 0) {
     const firstVoting = votingResponse.data[0];
@@ -238,14 +240,9 @@ export default function StatsCards() {
     votingMatch = allMatches.find((match) => match.id === matchId) || null;
   }
 
-  // If no voting match found, use first live or upcoming match
-  if (!votingMatch) {
-    votingMatch =
-      liveMatches.length > 0
-        ? liveMatches[0]
-        : upcomingMatches.length > 0
-        ? upcomingMatches[0]
-        : null;
+  // If no voting match found from voting API, use first live match
+  if (!votingMatch && liveMatches.length > 0) {
+    votingMatch = liveMatches[0];
   }
 
   // Get upcoming match data (first upcoming match that's not the voting match)
@@ -254,11 +251,19 @@ export default function StatsCards() {
       votingMatch ? match.id !== votingMatch.id : true
     ) || (upcomingMatches.length > 0 ? upcomingMatches[0] : null);
 
-  // Format date and time for display
+  // Format date and time for display with AM/PM
   const formatDateTime = (date: string, time: string) => {
     try {
       const dateObj = new Date(date);
-      const timeStr = time.substring(0, 5); // Get HH:MM from HH:MM:SS
+      const [hours, minutes] = time.split(":").map(Number);
+
+      // Convert 24-hour to 12-hour format
+      const period = hours >= 12 ? "PM" : "AM";
+      const displayHours = hours % 12 || 12; // Convert 0 to 12 for midnight
+      const timeStr = `${displayHours.toString().padStart(2, "0")}:${minutes
+        .toString()
+        .padStart(2, "0")} ${period}`;
+
       const options: Intl.DateTimeFormatOptions = {
         weekday: "short",
         day: "numeric",
@@ -271,48 +276,54 @@ export default function StatsCards() {
     }
   };
 
-  // Create match cards with actual API data
-  const matchCards = [
-    {
+  // Create match cards array only if matches exist
+  const matchCards = [];
+
+  // Add voting match card if voting match exists
+  if (votingMatch) {
+    matchCards.push({
       title: "Voting Match",
       teamA: {
-        name: votingMatch?.team_a || "Team A",
-        logo: votingMatch?.selected_players?.[0]?.image
-          ? getFullImageUrl(votingMatch.selected_players[0].image)
-          : "/clubcrest--2--1-1.png",
+        name: votingMatch.team_a,
+        logo: votingMatch.team_a_pics
+          ? getFullImageUrl(votingMatch.team_a_pics)
+          : null,
+        initials: getTeamInitials(votingMatch.team_a),
       },
       teamB: {
-        name: votingMatch?.team_b || "Team B",
-        logo: "/stowhy8qeoz7mplxkp2kc-1-1.png", // Default logo for team B
+        name: votingMatch.team_b,
+        logo: votingMatch.team_b_pics
+          ? getFullImageUrl(votingMatch.team_b_pics)
+          : null,
+        initials: getTeamInitials(votingMatch.team_b),
       },
-      status:
-        votingMatch?.status === "live"
-          ? "Live"
-          : votingMatch?.status === "upcoming"
-          ? "Upcoming"
-          : "TBD",
-      time: votingMatch
-        ? formatDateTime(votingMatch.date, votingMatch.time)
-        : "TBD",
-    },
-    {
+      status: votingMatch.status === "live" ? "Live" : "Upcoming",
+      time: formatDateTime(votingMatch.date, votingMatch.time),
+    });
+  }
+
+  // Add upcoming match card if upcoming match exists and it's different from voting match
+  if (upcomingMatch) {
+    matchCards.push({
       title: "Upcoming Match",
       teamA: {
-        name: upcomingMatch?.team_a || "Team A",
-        logo: upcomingMatch?.selected_players?.[0]?.image
-          ? getFullImageUrl(upcomingMatch.selected_players[0].image)
-          : "/ellipse-2-7.png",
+        name: upcomingMatch.team_a,
+        logo: upcomingMatch.team_a_pics
+          ? getFullImageUrl(upcomingMatch.team_a_pics)
+          : null,
+        initials: getTeamInitials(upcomingMatch.team_a),
       },
       teamB: {
-        name: upcomingMatch?.team_b || "Team B",
-        logo: "/stowhy8qeoz7mplxkp2kc-1-1.png", // Default logo for team B
+        name: upcomingMatch.team_b,
+        logo: upcomingMatch.team_b_pics
+          ? getFullImageUrl(upcomingMatch.team_b_pics)
+          : null,
+        initials: getTeamInitials(upcomingMatch.team_b),
       },
       status: "Upcoming",
-      time: upcomingMatch
-        ? formatDateTime(upcomingMatch.date, upcomingMatch.time)
-        : "TBD",
-    },
-  ];
+      time: formatDateTime(upcomingMatch.date, upcomingMatch.time),
+    });
+  }
 
   return (
     <main className="flex flex-col w-full items-center">
@@ -341,59 +352,73 @@ export default function StatsCards() {
           ))}
         </div>
 
-        {/* Match Cards Container */}
-        <div className="flex flex-col lg:flex-row gap-5 w-full lg:w-auto">
-          {matchCards.map((match, index) => (
-            <Card
-              key={index}
-              className="flex flex-col w-full lg:w-96 h-40 items-start justify-between gap-6 px-4 sm:px-6 py-4 border-border bg-card dark:bg-surface"
-            >
-              <CardContent className="p-0 w-full h-full flex flex-col justify-between">
-                <div className="font-regular-lg-regular text-foreground">
-                  {match.title}
-                </div>
-                <div className="inline-flex items-center justify-between sm:gap-[38px] w-full">
-                  <div className="flex flex-col w-12 sm:w-14 items-center gap-2 sm:gap-3">
-                    <Avatar>
-                      <AvatarImage
-                        className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded"
-                        alt="Team A logo"
-                        src={match.teamA.logo || "/default-team-a-logo.png"}
-                        width={40}
-                        height={40}
-                      />
-                    </Avatar>
-                    <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
-                      {match.teamA.name}
+        {/* Match Cards Container - Only render if there are match cards */}
+        {matchCards.length > 0 && (
+          <div className="flex flex-col lg:flex-row gap-5 w-full lg:w-auto">
+            {matchCards.map((match, index) => (
+              <Card
+                key={index}
+                className="flex flex-col w-full lg:w-auto h-40 items-start justify-between gap-6 px-4 sm:px-6 py-4 border-border bg-card dark:bg-surface"
+              >
+                <CardContent className="p-0 w-full h-full flex flex-col justify-between">
+                  <div className="font-regular-lg-regular text-foreground">
+                    {match.title}
+                  </div>
+                  <div className="inline-flex items-center justify-between sm:gap-[38px] w-full">
+                    <div className="flex flex-col w-12 sm:w-14 items-center gap-2 sm:gap-3">
+                      <Avatar>
+                        {match.teamA.logo ? (
+                          <AvatarImage
+                            className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded"
+                            alt={`${match.teamA.name} logo`}
+                            src={match.teamA.logo}
+                            width={40}
+                            height={40}
+                          />
+                        ) : (
+                          <AvatarFallback className="w-8 h-8 sm:w-10 sm:h-10 text-xs font-semibold">
+                            {match.teamA.initials}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
+                        {match.teamA.name}
+                      </div>
+                    </div>
+                    <div className="flex flex-col w-20 sm:w-24 items-center gap-2 sm:gap-3">
+                      <div className="w-full font-regular-lg-regular text-red-500 text-center text-xs sm:text-sm">
+                        {match.status}
+                      </div>
+                      <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
+                        {match.time}
+                      </div>
+                    </div>
+                    <div className="flex flex-col w-12 sm:w-14 items-center gap-2 sm:gap-3">
+                      <Avatar>
+                        {match.teamB.logo ? (
+                          <AvatarImage
+                            className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded"
+                            alt={`${match.teamB.name} logo`}
+                            src={match.teamB.logo}
+                            width={40}
+                            height={40}
+                          />
+                        ) : (
+                          <AvatarFallback className="w-8 h-8 sm:w-10 sm:h-10 text-xs font-semibold">
+                            {match.teamB.initials}
+                          </AvatarFallback>
+                        )}
+                      </Avatar>
+                      <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
+                        {match.teamB.name}
+                      </div>
                     </div>
                   </div>
-                  <div className="flex flex-col w-20 sm:w-24 items-center gap-2 sm:gap-3">
-                    <div className="w-full font-regular-lg-regular text-red-500 text-center text-xs sm:text-sm">
-                      {match.status}
-                    </div>
-                    <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
-                      {match.time}
-                    </div>
-                  </div>
-                  <div className="flex flex-col w-12 sm:w-14 items-center gap-2 sm:gap-3">
-                    <Avatar>
-                      <AvatarImage
-                        className="w-8 h-8 sm:w-10 sm:h-10 object-cover rounded"
-                        alt="Team B logo"
-                        src={match.teamB.logo}
-                        width={40}
-                        height={40}
-                      />
-                    </Avatar>
-                    <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
-                      {match.teamB.name}
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );
