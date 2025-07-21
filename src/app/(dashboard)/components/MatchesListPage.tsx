@@ -53,6 +53,8 @@ interface FormData {
   time: string;
   date: string;
   selectedPlayers: string[];
+  winner?: string;
+  goal_difference?: number;
 }
 
 const availablePlayers = [
@@ -134,7 +136,10 @@ export default function MatchesListPage({
     setCurrentPage(page);
   };
 
-  const handleInputChange = (field: keyof FormData, value: string) => {
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | number | undefined
+  ) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -570,6 +575,33 @@ export default function MatchesListPage({
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Goal Difference Section - Only show if winner is selected */}
+              {formData.winner && formData.winner !== "no_winner" && (
+                <div className="space-y-2 mb-4">
+                  <label className="font-medium text-[#141b34]">
+                    Goal Difference
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="Enter goal difference"
+                    value={formData.goal_difference?.toString() || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "") {
+                        handleInputChange("goal_difference", undefined);
+                      } else {
+                        const numValue = parseInt(value, 10);
+                        if (!isNaN(numValue) && numValue >= 0) {
+                          handleInputChange("goal_difference", numValue);
+                        }
+                      }
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Selected Players */}
               {formData.selectedPlayers.length > 0 && (

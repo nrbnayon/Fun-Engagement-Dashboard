@@ -51,6 +51,7 @@ interface FormData {
   teamBImage: File | null;
   status?: string;
   winner?: string;
+  goal_difference?: number;
 }
 
 export default function DynamicMatchPage() {
@@ -106,7 +107,7 @@ export default function DynamicMatchPage() {
   // Form handling functions
   const handleInputChange = (
     field: keyof FormData,
-    value: string | string[] | Date | undefined
+    value: string | string[] | Date | number | undefined
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -522,6 +523,32 @@ export default function DynamicMatchPage() {
                 </Select>
               </div>
             </div>
+
+            {formData.winner && formData.winner !== "no_winner" && (
+              <div className="space-y-2 mb-4">
+                <label className="font-medium text-[#141b34]">
+                  Goal Difference
+                </label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="Enter goal difference"
+                  value={formData.goal_difference?.toString() || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      handleInputChange("goal_difference", undefined);
+                    } else {
+                      const numValue = parseInt(value, 10);
+                      if (!isNaN(numValue) && numValue >= 0) {
+                        handleInputChange("goal_difference", numValue);
+                      }
+                    }
+                  }}
+                />
+              </div>
+            )}
 
             <div className="space-y-2 mb-4">
               <label className="font-medium text-[#141b34]">

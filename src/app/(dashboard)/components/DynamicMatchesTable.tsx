@@ -77,8 +77,9 @@ interface MatchData {
   date: string;
   status: string;
   selected_players: Player[];
-  win_name: string | null;
-  winner: string | null;
+  win_name?: string | null;
+  winner?: string | null;
+  goal_difference?: number;
 }
 
 interface AvailablePlayer {
@@ -109,6 +110,7 @@ interface FormData {
   teamBImage: File | null;
   status?: string;
   winner?: string;
+  goal_difference?: number;
 }
 
 export default function DynamicMatchesTable({
@@ -358,6 +360,11 @@ export default function DynamicMatchesTable({
     return (
       <div className="font-semibold text-green-600 text-lg">
         🏆 {match.win_name}
+        {match.goal_difference !== undefined && (
+          <span className="ml-2 text-sm text-gray-600">
+            (GD: {match.goal_difference})
+          </span>
+        )}
       </div>
     );
   };
@@ -459,7 +466,7 @@ export default function DynamicMatchesTable({
   // Add/Edit Match Dialog Functions
   const handleInputChange = (
     field: keyof FormData,
-    value: string | string[] | Date | undefined
+    value: string | string[] | Date | number | undefined
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -502,6 +509,7 @@ export default function DynamicMatchesTable({
       teamBImage: null,
       status: "upcoming",
       winner: "no_winner",
+      goal_difference: undefined,
     });
     setEditingMatch(null);
   };
@@ -559,8 +567,6 @@ export default function DynamicMatchesTable({
       submitFormData.append("time", convertTimeToAPI(formData.time));
       submitFormData.append("date", convertDateToAPI(formData.date));
 
-      // Send multiple fields with the same name for array handling
-      // This will create: selected_players_ids: [3,4,2,7,8] format
       formData.selectedPlayers.forEach((playerId) => {
         submitFormData.append("selected_players_ids", playerId);
       });
@@ -573,45 +579,42 @@ export default function DynamicMatchesTable({
         submitFormData.append("winner", formData.winner);
       }
 
-      // Add images if selected
+      if (formData.goal_difference !== undefined) {
+        submitFormData.append(
+          "goal_difference",
+          formData.goal_difference.toString()
+        );
+      }
+
       if (formData.teamAImage) {
         submitFormData.append("team_a_pics", formData.teamAImage);
       }
-
       if (formData.teamBImage) {
         submitFormData.append("team_b_pics", formData.teamBImage);
       }
 
       let response;
       if (editingMatch) {
-        // Update existing match
         response = await apiEndpoint.put(
           `/matches/${editingMatch.id}/`,
           submitFormData,
           {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
+            headers: { "Content-Type": "multipart/form-data" },
             timeout: 30000,
           }
         );
       } else {
-        // Create new match
         response = await apiEndpoint.post("/matches/", submitFormData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
           timeout: 30000,
         });
       }
 
       if (response.data) {
-        // Refresh matches data
         await fetchMatchesData();
         if (onMatchUpdate) {
           onMatchUpdate();
         }
-        // Close dialog and reset form
         setIsAddMatchOpen(false);
         setIsEditMatchOpen(false);
         resetForm();
@@ -639,6 +642,7 @@ export default function DynamicMatchesTable({
       teamBImage: null,
       status: match.status,
       winner: match.winner || "no_winner",
+      goal_difference: match.goal_difference,
     });
     setIsEditMatchOpen(true);
   };
@@ -954,6 +958,7 @@ export default function DynamicMatchesTable({
       )}
 
       {/* Add Match Dialog */}
+      {/* Add Match Dialog */}
       <Dialog open={isAddMatchOpen} onOpenChange={setIsAddMatchOpen}>
         <DialogContent
           className="sm:max-w-md p-0 overflow-hidden"
@@ -1130,6 +1135,33 @@ export default function DynamicMatchesTable({
                 </Select>
               </div>
             </div>
+
+            {/* Goal Difference Field - Now with conditional rendering */}
+            {formData.winner && formData.winner !== "no_winner" && (
+              <div className="space-y-2 mb-4">
+                <label className="font-medium text-[#141b34]">
+                  Goal Difference
+                </label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="Enter goal difference"
+                  value={formData.goal_difference?.toString() || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      handleInputChange("goal_difference", undefined);
+                    } else {
+                      const numValue = parseInt(value, 10);
+                      if (!isNaN(numValue) && numValue >= 0) {
+                        handleInputChange("goal_difference", numValue);
+                      }
+                    }
+                  }}
+                />
+              </div>
+            )}
 
             <div className="space-y-2 mb-4">
               <label className="font-medium text-[#141b34]">
@@ -1432,6 +1464,32 @@ export default function DynamicMatchesTable({
                 </Select>
               </div>
             </div>
+
+            {formData.winner && formData.winner !== "no_winner" && (
+              <div className="space-y-2 mb-4">
+                <label className="font-medium text-[#141b34]">
+                  Goal Difference
+                </label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="Enter goal difference"
+                  value={formData.goal_difference?.toString() || ""}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === "") {
+                      handleInputChange("goal_difference", undefined);
+                    } else {
+                      const numValue = parseInt(value, 10);
+                      if (!isNaN(numValue) && numValue >= 0) {
+                        handleInputChange("goal_difference", numValue);
+                      }
+                    }
+                  }}
+                />
+              </div>
+            )}
 
             <div className="space-y-2 mb-4">
               <label className="font-medium text-[#141b34]">
