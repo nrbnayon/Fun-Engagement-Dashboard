@@ -1,6 +1,6 @@
 // hooks/useUserData.ts
 import { useAuth } from "@/contexts/AuthContext";
-import { getProfileName, getProfilePicture, getPhoneNumber } from "@/lib/axios";
+import { getProfileName, getProfilePicture } from "@/lib/axios";
 
 /**
  * Hook to get formatted user data with fallbacks
@@ -33,7 +33,7 @@ export const useUserData = () => {
     userEmail: user.email,
     userRole: user.role || "User",
     avatarSrc: getProfilePicture(user),
-    phoneNumber: getPhoneNumber(user),
+    // phoneNumber: getPhoneNumber(user),
     joinedDate: user.user_profile?.joined_date,
     isVerified: user.is_verified || false,
   };
