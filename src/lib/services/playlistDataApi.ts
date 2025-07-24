@@ -40,13 +40,20 @@ const createPlayerFormData = (
 ): FormData => {
   const formData = new FormData();
 
+  // ✅ ADD: Enhanced logging
+  console.log("[Player API] Input data for FormData:", data);
+
   // Add all non-file fields with proper validation
   Object.entries(data).forEach(([key, value]) => {
     if (key !== "image" && value !== undefined && value !== null) {
       // Convert numbers to strings for FormData
       if (typeof value === "number") {
+        console.log(`[Player API] Adding number field: ${key} = ${value}`);
         formData.append(key, value.toString());
       } else {
+        console.log(
+          `[Player API] Adding string field: ${key} = ${String(value)}`
+        );
         formData.append(key, String(value));
       }
     }
@@ -63,6 +70,9 @@ const createPlayerFormData = (
       "image/webp",
     ];
     if (allowedTypes.includes(data.image.type)) {
+      console.log(
+        `[Player API] Adding image file: ${data.image.name} (${data.image.size} bytes, ${data.image.type})`
+      );
       formData.append("image", data.image, data.image.name);
     } else {
       throw new Error(
@@ -71,19 +81,19 @@ const createPlayerFormData = (
         }. Allowed types: ${allowedTypes.join(", ")}`
       );
     }
+  } else if (data.image === null) {
+    console.log("[Player API] No image provided (null)");
   }
 
-  // Debug: Log FormData contents (only in development)
-  if (process.env.NODE_ENV === "development") {
-    console.log("[Player API] FormData contents:");
-    for (const [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(
-          `${key}: File(${value.name}, ${value.size} bytes, ${value.type})`
-        );
-      } else {
-        console.log(`${key}: ${value}`);
-      }
+  // Debug: Log FormData contents (always log for debugging this issue)
+  console.log("[Player API] Final FormData contents:");
+  for (const [key, value] of formData.entries()) {
+    if (value instanceof File) {
+      console.log(
+        `${key}: File(${value.name}, ${value.size} bytes, ${value.type})`
+      );
+    } else {
+      console.log(`${key}: "${value}"`);
     }
   }
 
@@ -136,14 +146,14 @@ export const getAllPlayers = async () => {
  */
 export const createPlayer = async (playerData: CreatePlayerData) => {
   try {
-    // console.log("[Player API] Creating player:", {
-    //   name: playerData.name,
-    //   jersey_number: playerData.jersey_number,
-    //   status: playerData.status,
-    //   hasImage: !!playerData.image,
-    //   imageType: playerData.image?.type,
-    //   imageSize: playerData.image?.size,
-    // });
+    console.log("[Player API] Creating player:", {
+      name: playerData.name,
+      jersey_number: playerData.jersey_number,
+      status: playerData.status,
+      hasImage: !!playerData.image,
+      imageType: playerData.image?.type,
+      imageSize: playerData.image?.size,
+    });
 
     const formData = createPlayerFormData(playerData);
 
@@ -155,11 +165,11 @@ export const createPlayer = async (playerData: CreatePlayerData) => {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-        timeout: 30000, 
+        timeout: 30000,
       }
     );
 
-    // console.log("[Player API] Player created successfully:", response.data);
+    console.log("[Player API] Player created successfully:", response.data);
     return {
       success: true,
       data: response.data,
@@ -172,17 +182,59 @@ export const createPlayer = async (playerData: CreatePlayerData) => {
       if ("response" in error) {
         const axiosError = error as AxiosError;
 
+        // ✅ ADD: Log the full error response for debugging
+        console.error("[Player API] Full error response:", {
+          status: axiosError.response?.status,
+          statusText: axiosError.response?.statusText,
+          data: axiosError.response?.data,
+          headers: axiosError.response?.headers,
+        });
+
         if (axiosError.response?.status === 400) {
           const errorData = axiosError.response.data as any;
+
+          // ✅ ADD: More detailed 400 error handling
+          console.log("[Player API] 400 Error Details:", errorData);
+
+          // Handle specific field errors
+          if (
+            errorData?.jersey_number &&
+            Array.isArray(errorData.jersey_number)
+          ) {
+            return {
+              success: false,
+              error:
+                "Jersey number error: " + errorData.jersey_number.join(", "),
+            };
+          }
+
+          if (errorData?.status && Array.isArray(errorData.status)) {
+            return {
+              success: false,
+              error: "Status error: " + errorData.status.join(", "),
+            };
+          }
+
+          if (errorData?.name && Array.isArray(errorData.name)) {
+            return {
+              success: false,
+              error: "Name error: " + errorData.name.join(", "),
+            };
+          }
+
           if (errorData?.image && Array.isArray(errorData.image)) {
             return {
               success: false,
               error: "Image upload failed: " + errorData.image.join(", "),
             };
           }
+
+          // Generic 400 error
           return {
             success: false,
-            error: "Bad request: Please check all required fields",
+            error: `Bad request: ${
+              JSON.stringify(errorData) || "Please check all required fields"
+            }`,
           };
         }
 
@@ -199,6 +251,14 @@ export const createPlayer = async (playerData: CreatePlayerData) => {
             error: "Unsupported file type. Please upload a valid image.",
           };
         }
+
+        // ✅ ADD: Handle other status codes
+        return {
+          success: false,
+          error: `Server error (${axiosError.response?.status}): ${
+            axiosError.response?.statusText || "Unknown error"
+          }`,
+        };
       }
     }
 
