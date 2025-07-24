@@ -52,6 +52,7 @@ interface FormData {
   status?: string;
   winner?: string;
   goal_difference?: number;
+  match_timezone?: string | null;
 }
 
 export default function DynamicMatchPage() {
@@ -67,8 +68,11 @@ export default function DynamicMatchPage() {
     teamBImage: null,
     status: "upcoming",
     winner: "no_winner",
+    match_timezone: null,
   });
 
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  // console.log("Time zone:::", userTimezone);
   // Remove mock data and replace with API call
   const [availablePlayers, setAvailablePlayers] = useState<AvailablePlayer[]>(
     []
@@ -186,6 +190,7 @@ export default function DynamicMatchPage() {
       submitFormData.append("team_b", formData.teamBName);
       submitFormData.append("time", convertTimeToAPI(formData.time));
       submitFormData.append("date", convertDateToAPI(formData.date));
+      submitFormData.append("match_timezone", userTimezone);
 
       // Send multiple fields with the same name for array handling
       // This will create: selected_players_ids: [3,4,2,7,8] format

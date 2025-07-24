@@ -85,6 +85,7 @@ const createMatchFormData = (
   });
 
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  console.log("Time zone:::", userTimezone);
   formData.append("match_timezone", userTimezone);
 
   // Handle team A image file
