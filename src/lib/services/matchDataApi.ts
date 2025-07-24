@@ -28,6 +28,7 @@ interface Match {
   winner: string | null;
   status: string;
   win_name: string | null;
+  match_timezone: string | null;
 }
 
 interface CreateMatchData {
@@ -82,6 +83,9 @@ const createMatchFormData = (
       }
     }
   });
+
+  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  formData.append("match_timezone", userTimezone);
 
   // Handle team A image file
   if (data.team_a_pics && data.team_a_pics instanceof File) {
