@@ -23,3 +23,5 @@ export const getFullImageUrl = (imagePath: string) => {
   // For other paths, ensure they start with /
   return imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
 };
+
+export const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;

@@ -27,7 +27,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Plus, Upload, X, CalendarIcon, Clock } from "lucide-react";
 import { format } from "date-fns";
-import { cn, getFullImageUrl } from "@/lib/utils";
+import { cn, getFullImageUrl, userTimezone } from "@/lib/utils";
 import DynamicMatchesTable from "./DynamicMatchesTable";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
@@ -68,12 +68,10 @@ export default function DynamicMatchPage() {
     teamBImage: null,
     status: "upcoming",
     winner: "no_winner",
-    match_timezone: null,
+    match_timezone: "",
   });
 
-  const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  // console.log("Time zone:::", userTimezone);
-  // Remove mock data and replace with API call
+
   const [availablePlayers, setAvailablePlayers] = useState<AvailablePlayer[]>(
     []
   );

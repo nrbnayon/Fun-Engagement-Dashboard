@@ -52,7 +52,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { cn, getFullImageUrl } from "@/lib/utils";
+import { cn, getFullImageUrl, userTimezone } from "@/lib/utils";
 import { getAllMatch, deleteMatch } from "@/lib/services/matchDataApi";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
@@ -80,6 +80,7 @@ interface MatchData {
   win_name?: string | null;
   winner?: string | null;
   goal_difference?: number;
+  match_timezone?: string | null;
 }
 
 interface AvailablePlayer {
@@ -111,6 +112,7 @@ interface FormData {
   status?: string;
   winner?: string;
   goal_difference?: number;
+  match_timezone: string | null;
 }
 
 export default function DynamicMatchesTable({
@@ -142,6 +144,7 @@ export default function DynamicMatchesTable({
     teamBImage: null,
     status: "upcoming",
     winner: "no_winner",
+    match_timezone: "",
   });
 
   // Delete confirmation modal state
@@ -312,31 +315,31 @@ export default function DynamicMatchesTable({
     switch (match.status.toLowerCase()) {
       case "live":
         return (
-          <div className='font-normal text-red-500 text-xl capitalize'>
+          <div className="font-normal text-red-500 text-xl capitalize">
             🔴 Live
           </div>
         );
       case "upcoming":
         return (
-          <div className='font-normal text-blue-500 text-xl capitalize'>
+          <div className="font-normal text-blue-500 text-xl capitalize">
             📅 Upcoming
           </div>
         );
       case "finished":
         return (
-          <div className='font-normal text-green-500 text-xl capitalize'>
+          <div className="font-normal text-green-500 text-xl capitalize">
             ✅ Finished
           </div>
         );
       case "voting":
         return (
-          <div className='font-normal text-purple-500 text-xl capitalize'>
+          <div className="font-normal text-purple-500 text-xl capitalize">
             🗳️ Voting
           </div>
         );
       default:
         return (
-          <div className='font-normal text-gray-500 text-xl capitalize'>
+          <div className="font-normal text-gray-500 text-xl capitalize">
             {match.status}
           </div>
         );
@@ -351,17 +354,17 @@ export default function DynamicMatchesTable({
 
     if (!match.winner || !match.win_name) {
       return (
-        <div className='font-normal text-gray-500 text-lg'>
+        <div className="font-normal text-gray-500 text-lg">
           Draw / No Result
         </div>
       );
     }
 
     return (
-      <div className='font-semibold text-green-600 text-lg'>
+      <div className="font-semibold text-green-600 text-lg">
         🏆 {match.win_name}
         {match.goal_difference !== undefined && (
-          <span className='ml-2 text-sm text-gray-600'>
+          <span className="ml-2 text-sm text-gray-600">
             (GD: {match.goal_difference})
           </span>
         )}
@@ -510,6 +513,7 @@ export default function DynamicMatchesTable({
       status: "upcoming",
       winner: "no_winner",
       goal_difference: undefined,
+      match_timezone: "",
     });
     setEditingMatch(null);
   };
@@ -586,6 +590,8 @@ export default function DynamicMatchesTable({
         );
       }
 
+      submitFormData.append("match_timezone", userTimezone);
+
       if (formData.teamAImage) {
         submitFormData.append("team_a_pics", formData.teamAImage);
       }
@@ -643,6 +649,7 @@ export default function DynamicMatchesTable({
       status: match.status,
       winner: match.winner || "no_winner",
       goal_difference: match.goal_difference,
+      match_timezone: userTimezone,
     });
     setIsEditMatchOpen(true);
   };
@@ -676,20 +683,20 @@ export default function DynamicMatchesTable({
   };
 
   return (
-    <div className='space-y-6'>
+    <div className="space-y-6">
       {/* Title and See All/Add Match Link */}
       {(displayTitle || (!paginate && !addMatch) || addMatch) && (
-        <div className='flex items-center justify-between w-full font-oswald'>
+        <div className="flex items-center justify-between w-full font-oswald">
           {displayTitle && (
-            <h2 className='text-2xl font-bold text-secondary font-oswald'>
+            <h2 className="text-2xl font-bold text-secondary font-oswald">
               {displayTitle}
             </h2>
           )}
 
           {!paginate && !addMatch && (
             <Link
-              href='/matches'
-              className='text-secondary text-base tracking-[0] leading-[normal] hover:underline'
+              href="/matches"
+              className="text-secondary text-base tracking-[0] leading-[normal] hover:underline"
             >
               See All
             </Link>
@@ -697,7 +704,7 @@ export default function DynamicMatchesTable({
 
           {addMatch && (
             <Button
-              className='bg-primary hover:bg-primary/90 text-black'
+              className="bg-primary hover:bg-primary/90 text-black"
               onClick={() => setIsAddMatchOpen(true)}
             >
               <Plus size={18} />
@@ -708,11 +715,11 @@ export default function DynamicMatchesTable({
       )}
 
       {/* Matches Table */}
-      <Card className='w-full rounded-xl overflow-hidden border-border p-0'>
-        <CardContent className='p-0'>
-          <div className='overflow-x-auto'>
-            <Table className='border-collapse min-w-3xl'>
-              <TableHeader className='border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300'>
+      <Card className="w-full rounded-xl overflow-hidden border-border p-0">
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table className="border-collapse min-w-3xl">
+              <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300">
                 <TableRow>
                   {tableHeaders.map((header) => (
                     <TableHead key={header.key} className={header.className}>
@@ -722,14 +729,14 @@ export default function DynamicMatchesTable({
                 </TableRow>
               </TableHeader>
 
-              <TableBody className='bg-white'>
+              <TableBody className="bg-white">
                 {loading ? (
                   <TableRow>
                     <TableCell
                       colSpan={tableHeaders.length}
-                      className='text-center py-8'
+                      className="text-center py-8"
                     >
-                      <div className='font-normal text-blackblack-700 text-xl'>
+                      <div className="font-normal text-blackblack-700 text-xl">
                         Loading matches...
                       </div>
                     </TableCell>
@@ -738,9 +745,9 @@ export default function DynamicMatchesTable({
                   <TableRow>
                     <TableCell
                       colSpan={tableHeaders.length}
-                      className='text-center py-8'
+                      className="text-center py-8"
                     >
-                      <div className='font-normal text-red-500 text-xl'>
+                      <div className="font-normal text-red-500 text-xl">
                         Error: {error}
                       </div>
                     </TableCell>
@@ -749,9 +756,9 @@ export default function DynamicMatchesTable({
                   <TableRow>
                     <TableCell
                       colSpan={tableHeaders.length}
-                      className='text-center py-8'
+                      className="text-center py-8"
                     >
-                      <div className='font-normal text-blackblack-700 text-xl'>
+                      <div className="font-normal text-blackblack-700 text-xl">
                         No {status === "all" ? "" : status} matches available
                       </div>
                     </TableCell>
@@ -760,12 +767,12 @@ export default function DynamicMatchesTable({
                   currentData.map((match, index) => (
                     <TableRow key={`${status}-${match.id || index}`}>
                       {/* Team A */}
-                      <TableCell className='px-6 py-4 min-w-32'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-10 h-10 flex items-center justify-center'>
+                      <TableCell className="px-6 py-4 min-w-32">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 flex items-center justify-center">
                             {match.team_a_pics ? (
                               <Image
-                                className='w-9 h-9 object-contain'
+                                className="w-9 h-9 object-contain"
                                 alt={`${match.team_a} logo`}
                                 src={
                                   getFullImageUrl(match.team_a_pics) ||
@@ -775,24 +782,24 @@ export default function DynamicMatchesTable({
                                 height={36}
                               />
                             ) : (
-                              <div className='w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-sm'>
+                              <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-sm">
                                 {getTeamInitials(match.team_a)}
                               </div>
                             )}
                           </div>
-                          <span className='font-normal text-blackblack-700 text-xl'>
+                          <span className="font-normal text-blackblack-700 text-xl">
                             {match.team_a}
                           </span>
                         </div>
                       </TableCell>
 
                       {/* Team B */}
-                      <TableCell className='px-6 py-4 min-w-32'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-10 h-10 flex items-center justify-center'>
+                      <TableCell className="px-6 py-4 min-w-32">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 flex items-center justify-center">
                             {match.team_b_pics ? (
                               <Image
-                                className='w-9 h-9 object-contain'
+                                className="w-9 h-9 object-contain"
                                 alt={`${match.team_b} logo`}
                                 src={
                                   getFullImageUrl(match.team_b_pics) ||
@@ -802,27 +809,27 @@ export default function DynamicMatchesTable({
                                 height={36}
                               />
                             ) : (
-                              <div className='w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-sm'>
+                              <div className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-sm">
                                 {getTeamInitials(match.team_b)}
                               </div>
                             )}
                           </div>
-                          <span className='font-normal text-blackblack-700 text-xl'>
+                          <span className="font-normal text-blackblack-700 text-xl">
                             {match.team_b}
                           </span>
                         </div>
                       </TableCell>
 
                       {/* Time */}
-                      <TableCell className='px-6 py-4 text-center min-w-24'>
-                        <div className='font-normal text-blackblack-700 text-xl'>
+                      <TableCell className="px-6 py-4 text-center min-w-24">
+                        <div className="font-normal text-blackblack-700 text-xl">
                           {formatTime(match.time)}
                         </div>
                       </TableCell>
 
                       {/* Date */}
-                      <TableCell className='px-6 py-4 text-center min-w-28'>
-                        <div className='font-normal text-blackblack-700 text-xl'>
+                      <TableCell className="px-6 py-4 text-center min-w-28">
+                        <div className="font-normal text-blackblack-700 text-xl">
                           {formatDate(match.date)}
                         </div>
                       </TableCell>
@@ -830,7 +837,7 @@ export default function DynamicMatchesTable({
                       {/* Status (conditional) */}
                       {(status === "all" ||
                         status.toLowerCase() !== "finished") && (
-                        <TableCell className='px-6 py-4 text-center min-w-32'>
+                        <TableCell className="px-6 py-4 text-center min-w-32">
                           {getStatusDisplay(match)}
                         </TableCell>
                       )}
@@ -838,14 +845,14 @@ export default function DynamicMatchesTable({
                       {/* Result/Winner (conditional) */}
                       {(status === "all" ||
                         status.toLowerCase() === "finished") && (
-                        <TableCell className='px-6 py-4 text-center min-w-32'>
+                        <TableCell className="px-6 py-4 text-center min-w-32">
                           {getWinnerDisplay(match)}
                         </TableCell>
                       )}
 
                       {/* Players */}
-                      <TableCell className='px-6 py-4 min-w-48'>
-                        <div className='flex items-center justify-center'>
+                      <TableCell className="px-6 py-4 min-w-48">
+                        <div className="flex items-center justify-center">
                           {match.selected_players &&
                           match.selected_players.length > 0 ? (
                             match.selected_players
@@ -859,7 +866,7 @@ export default function DynamicMatchesTable({
                                   title={player.name}
                                 >
                                   <AvatarImage
-                                    className='w-10 h-10 object-cover rounded-full border-2 border-border'
+                                    className="w-10 h-10 object-cover rounded-full border-2 border-border"
                                     alt={player.name}
                                     src={
                                       getFullImageUrl(player.image ?? "") ||
@@ -869,7 +876,7 @@ export default function DynamicMatchesTable({
                                 </Avatar>
                               ))
                           ) : (
-                            <span className='font-normal text-gray-500 text-sm'>
+                            <span className="font-normal text-gray-500 text-sm">
                               No players selected
                             </span>
                           )}
@@ -878,23 +885,23 @@ export default function DynamicMatchesTable({
 
                       {/* Actions */}
                       {showActions && (
-                        <TableCell className='px-6 py-4 text-center min-w-32'>
-                          <div className='flex items-center justify-center gap-2'>
+                        <TableCell className="px-6 py-4 text-center min-w-32">
+                          <div className="flex items-center justify-center gap-2">
                             <Button
-                              variant='outline'
-                              size='sm'
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleEdit(match)}
-                              className='h-8 px-2 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300'
+                              className="h-8 px-2 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-300"
                             >
-                              <Edit className='h-4 w-4' />
+                              <Edit className="h-4 w-4" />
                             </Button>
                             <Button
-                              variant='outline'
-                              size='sm'
+                              variant="outline"
+                              size="sm"
                               onClick={() => handleDeleteClick(match)}
-                              className='h-8 px-2 hover:bg-red-50 hover:text-red-600 hover:border-red-300'
+                              className="h-8 px-2 hover:bg-red-50 hover:text-red-600 hover:border-red-300"
                             >
-                              <Trash2 className='h-4 w-4' />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
                         </TableCell>
@@ -910,7 +917,7 @@ export default function DynamicMatchesTable({
 
       {/* Pagination - only show when paginate is true and there are multiple pages */}
       {paginate && totalPages > 1 && !loading && !error && (
-        <div className='flex justify-center w-full mt-5'>
+        <div className="flex justify-center w-full mt-5">
           <Pagination>
             <PaginationContent>
               <PaginationItem>
@@ -927,12 +934,12 @@ export default function DynamicMatchesTable({
               {generatePageNumbers().map((pageNum, index) => (
                 <PaginationItem key={index}>
                   {pageNum === "..." ? (
-                    <span className='px-3 py-2'>...</span>
+                    <span className="px-3 py-2">...</span>
                   ) : (
                     <PaginationLink
                       onClick={() => handlePageChange(pageNum as number)}
                       isActive={currentPage === pageNum}
-                      className='cursor-pointer'
+                      className="cursor-pointer"
                     >
                       {pageNum}
                     </PaginationLink>
@@ -961,43 +968,43 @@ export default function DynamicMatchesTable({
       {/* Add Match Dialog */}
       <Dialog open={isAddMatchOpen} onOpenChange={setIsAddMatchOpen}>
         <DialogContent
-          className='sm:max-w-md p-0 overflow-hidden'
+          className="sm:max-w-md p-0 overflow-hidden"
           showCloseButton={false}
         >
-          <DialogHeader className='bg-primary p-4 flex flex-row items-center justify-between'>
-            <DialogTitle className='text-[#141b34] text-xl'>
+          <DialogHeader className="bg-primary p-4 flex flex-row items-center justify-between">
+            <DialogTitle className="text-[#141b34] text-xl">
               Add Match
             </DialogTitle>
             <Button
-              variant='ghost'
-              size='icon'
-              className='h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500'
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500"
               onClick={() => {
                 setIsAddMatchOpen(false);
                 resetForm();
               }}
             >
-              <X className='h-5 w-5 text-red-500' />
+              <X className="h-5 w-5 text-red-500" />
             </Button>
           </DialogHeader>
 
-          <div className='p-4 pt-0'>
-            <div className='grid grid-cols-2 gap-5 mb-4'>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Team A *</label>
-                <div className='flex gap-2 mt-1'>
+          <div className="p-4 pt-0">
+            <div className="grid grid-cols-2 gap-5 mb-4">
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Team A *</label>
+                <div className="flex gap-2 mt-1">
                   <Input
-                    placeholder='Name'
-                    className='flex-1'
+                    placeholder="Name"
+                    className="flex-1"
                     value={formData.teamAName}
                     onChange={(e) =>
                       handleInputChange("teamAName", e.target.value)
                     }
                   />
                   <Button
-                    variant='outline'
-                    size='icon'
-                    className='h-9 w-9 bg-transparent'
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 bg-transparent"
                     onClick={() => {
                       const input = document.createElement("input");
                       input.type = "file";
@@ -1013,27 +1020,27 @@ export default function DynamicMatchesTable({
                   </Button>
                 </div>
                 {formData.teamAImage && (
-                  <p className='text-sm text-green-600'>
+                  <p className="text-sm text-green-600">
                     Image selected: {formData.teamAImage.name}
                   </p>
                 )}
               </div>
 
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Team B *</label>
-                <div className='flex gap-2 mt-1'>
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Team B *</label>
+                <div className="flex gap-2 mt-1">
                   <Input
-                    placeholder='Name'
-                    className='flex-1'
+                    placeholder="Name"
+                    className="flex-1"
                     value={formData.teamBName}
                     onChange={(e) =>
                       handleInputChange("teamBName", e.target.value)
                     }
                   />
                   <Button
-                    variant='outline'
-                    size='icon'
-                    className='h-9 w-9 bg-transparent'
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 bg-transparent"
                     onClick={() => {
                       const input = document.createElement("input");
                       input.type = "file";
@@ -1049,38 +1056,38 @@ export default function DynamicMatchesTable({
                   </Button>
                 </div>
                 {formData.teamBImage && (
-                  <p className='text-sm text-green-600'>
+                  <p className="text-sm text-green-600">
                     Image selected: {formData.teamBImage.name}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className='grid grid-cols-2 gap-5 mb-4'>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Time *</label>
-                <div className='relative'>
-                  <Clock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+            <div className="grid grid-cols-2 gap-5 mb-4">
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Time *</label>
+                <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
-                    type='time'
-                    className='pl-10'
+                    type="time"
+                    className="pl-10"
                     value={formData.time}
                     onChange={(e) => handleInputChange("time", e.target.value)}
                   />
                 </div>
               </div>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Date *</label>
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Date *</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      variant='outline'
+                      variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal",
                         !formData.date && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className='mr-2 h-4 w-4' />
+                      <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.date ? (
                         format(formData.date, "PPP")
                       ) : (
@@ -1088,9 +1095,9 @@ export default function DynamicMatchesTable({
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className='w-auto p-0'>
+                  <PopoverContent className="w-auto p-0">
                     <Calendar
-                      mode='single'
+                      mode="single"
                       selected={formData.date}
                       onSelect={(date) => handleInputChange("date", date)}
                       initialFocus
@@ -1100,37 +1107,37 @@ export default function DynamicMatchesTable({
               </div>
             </div>
 
-            <div className='grid grid-cols-2 gap-5 mb-4'>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Status</label>
+            <div className="grid grid-cols-2 gap-5 mb-4">
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Status</label>
                 <Select
                   value={formData.status || "upcoming"}
                   onValueChange={(value) => handleInputChange("status", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder='Select Status' />
+                    <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='upcoming'>Upcoming</SelectItem>
-                    <SelectItem value='live'>Live</SelectItem>
-                    <SelectItem value='finished'>Finished</SelectItem>
-                    <SelectItem value='voting'>Voting</SelectItem>
+                    <SelectItem value="upcoming">Upcoming</SelectItem>
+                    <SelectItem value="live">Live</SelectItem>
+                    <SelectItem value="finished">Finished</SelectItem>
+                    <SelectItem value="voting">Voting</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Winner</label>
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Winner</label>
                 <Select
                   value={formData.winner || "no_winner"}
                   onValueChange={(value) => handleInputChange("winner", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder='Select Winner' />
+                    <SelectValue placeholder="Select Winner" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='no_winner'>No Winner</SelectItem>
-                    <SelectItem value='team_a'>Win Team A</SelectItem>
-                    <SelectItem value='team_b'>Win Team B</SelectItem>
+                    <SelectItem value="no_winner">No Winner</SelectItem>
+                    <SelectItem value="team_a">Win Team A</SelectItem>
+                    <SelectItem value="team_b">Win Team B</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1138,15 +1145,15 @@ export default function DynamicMatchesTable({
 
             {/* Goal Difference Field - Now with conditional rendering */}
             {formData.winner && formData.winner !== "no_winner" && (
-              <div className='space-y-2 mb-4'>
-                <label className='font-medium text-[#141b34]'>
+              <div className="space-y-2 mb-4">
+                <label className="font-medium text-[#141b34]">
                   Goal Difference
                 </label>
                 <Input
-                  type='number'
-                  min='0'
-                  step='1'
-                  placeholder='Enter goal difference'
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="Enter goal difference"
                   value={formData.goal_difference?.toString() || ""}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -1163,13 +1170,13 @@ export default function DynamicMatchesTable({
               </div>
             )}
 
-            <div className='space-y-2 mb-4'>
-              <label className='font-medium text-[#141b34]'>
+            <div className="space-y-2 mb-4">
+              <label className="font-medium text-[#141b34]">
                 Select Player
               </label>
-              <div className='flex gap-2 mt-1'>
+              <div className="flex gap-2 mt-1">
                 <Select onValueChange={handleAddPlayer}>
-                  <SelectTrigger className='flex-1'>
+                  <SelectTrigger className="flex-1">
                     <SelectValue
                       placeholder={
                         loadingPlayers ? "Loading players..." : "Select Player"
@@ -1178,11 +1185,11 @@ export default function DynamicMatchesTable({
                   </SelectTrigger>
                   <SelectContent>
                     {loadingPlayers ? (
-                      <SelectItem value='loading' disabled>
+                      <SelectItem value="loading" disabled>
                         Loading players...
                       </SelectItem>
                     ) : availablePlayers.length === 0 ? (
-                      <SelectItem value='no-players' disabled>
+                      <SelectItem value="no-players" disabled>
                         No players available
                       </SelectItem>
                     ) : (
@@ -1193,23 +1200,23 @@ export default function DynamicMatchesTable({
                           disabled={formData.selectedPlayers.includes(
                             player.id
                           )}
-                          className='cursor-pointer'
+                          className="cursor-pointer"
                         >
-                          <div className='flex items-center justify-between w-full min-w-0'>
-                            <div className='flex items-center gap-2 flex-1 min-w-0'>
-                              <Avatar className='w-6 h-6 flex-shrink-0'>
+                          <div className="flex items-center justify-between w-full min-w-0">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <Avatar className="w-6 h-6 flex-shrink-0">
                                 <AvatarImage
                                   src={
                                     getFullImageUrl(player?.image) ||
                                     "/user.png"
                                   }
                                   alt={player.name}
-                                  className='w-6 h-6 object-cover'
+                                  className="w-6 h-6 object-cover"
                                 />
                               </Avatar>
-                              <span className='truncate'>{player.name}</span>
+                              <span className="truncate">{player.name}</span>
                             </div>
-                            <span className='text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded flex-shrink-0 ml-2'>
+                            <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded flex-shrink-0 ml-2">
                               {player.jersey}
                             </span>
                           </div>
@@ -1222,11 +1229,11 @@ export default function DynamicMatchesTable({
 
               {/* Selected Players */}
               {formData.selectedPlayers.length > 0 && (
-                <div className='mt-3'>
-                  <label className='text-sm font-medium text-[#141b34] mb-2 block'>
+                <div className="mt-3">
+                  <label className="text-sm font-medium text-[#141b34] mb-2 block">
                     Selected Players ({formData.selectedPlayers.length})
                   </label>
-                  <div className='flex flex-wrap gap-2'>
+                  <div className="flex flex-wrap gap-2">
                     {formData.selectedPlayers.map((playerId) => {
                       const player = availablePlayers.find(
                         (p) => p.id === playerId
@@ -1234,26 +1241,26 @@ export default function DynamicMatchesTable({
                       return (
                         <div
                           key={playerId}
-                          className='bg-primary/20 text-[#141b34] px-3 py-1 rounded-full text-sm flex items-center gap-2'
+                          className="bg-primary/20 text-[#141b34] px-3 py-1 rounded-full text-sm flex items-center gap-2"
                         >
-                          <Avatar className='w-5 h-5'>
+                          <Avatar className="w-5 h-5">
                             <AvatarImage
                               src={
                                 getFullImageUrl(player?.image ?? "") ||
                                 "/user.png"
                               }
                               alt={player?.name}
-                              className='w-5 h-5 object-cover'
+                              className="w-5 h-5 object-cover"
                             />
                           </Avatar>
                           {player?.name}
-                          <span className='text-xs bg-white px-1 rounded'>
+                          <span className="text-xs bg-white px-1 rounded">
                             #{player?.jersey}
                           </span>
                           <button
-                            type='button'
+                            type="button"
                             onClick={() => handleRemovePlayer(playerId)}
-                            className='text-red-500 hover:text-red-700'
+                            className="text-red-500 hover:text-red-700"
                           >
                             <X size={14} />
                           </button>
@@ -1265,19 +1272,19 @@ export default function DynamicMatchesTable({
               )}
             </div>
 
-            <div className='flex justify-end gap-2'>
+            <div className="flex justify-end gap-2">
               <Button
-                variant='outline'
+                variant="outline"
                 onClick={() => {
                   setIsAddMatchOpen(false);
                   resetForm();
                 }}
-                className='hover:bg-gray-200 hover:text-black'
+                className="hover:bg-gray-200 hover:text-black"
               >
                 Cancel
               </Button>
               <Button
-                className='bg-primary hover:bg-primary/90 text-[#141b34]'
+                className="bg-primary hover:bg-primary/90 text-[#141b34]"
                 onClick={handleSubmit}
               >
                 Submit
@@ -1290,43 +1297,43 @@ export default function DynamicMatchesTable({
       {/* Edit Match Dialog */}
       <Dialog open={isEditMatchOpen} onOpenChange={setIsEditMatchOpen}>
         <DialogContent
-          className='sm:max-w-md p-0 overflow-hidden'
+          className="sm:max-w-md p-0 overflow-hidden"
           showCloseButton={false}
         >
-          <DialogHeader className='bg-primary p-4 flex flex-row items-center justify-between'>
-            <DialogTitle className='text-[#141b34] text-xl'>
+          <DialogHeader className="bg-primary p-4 flex flex-row items-center justify-between">
+            <DialogTitle className="text-[#141b34] text-xl">
               Edit Match
             </DialogTitle>
             <Button
-              variant='ghost'
-              size='icon'
-              className='h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500'
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 hover:bg-primary-light rounded-full border-2 border-red-500"
               onClick={() => {
                 setIsEditMatchOpen(false);
                 resetForm();
               }}
             >
-              <X className='h-5 w-5 text-red-500' />
+              <X className="h-5 w-5 text-red-500" />
             </Button>
           </DialogHeader>
 
-          <div className='p-4 pt-0'>
-            <div className='grid grid-cols-2 gap-5 mb-4'>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Team A *</label>
-                <div className='flex gap-2 mt-1'>
+          <div className="p-4 pt-0">
+            <div className="grid grid-cols-2 gap-5 mb-4">
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Team A *</label>
+                <div className="flex gap-2 mt-1">
                   <Input
-                    placeholder='Name'
-                    className='flex-1'
+                    placeholder="Name"
+                    className="flex-1"
                     value={formData.teamAName}
                     onChange={(e) =>
                       handleInputChange("teamAName", e.target.value)
                     }
                   />
                   <Button
-                    variant='outline'
-                    size='icon'
-                    className='h-9 w-9 bg-transparent'
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 bg-transparent"
                     onClick={() => {
                       const input = document.createElement("input");
                       input.type = "file";
@@ -1342,27 +1349,27 @@ export default function DynamicMatchesTable({
                   </Button>
                 </div>
                 {formData.teamAImage && (
-                  <p className='text-sm text-green-600'>
+                  <p className="text-sm text-green-600">
                     New image selected: {formData.teamAImage.name}
                   </p>
                 )}
               </div>
 
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Team B *</label>
-                <div className='flex gap-2 mt-1'>
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Team B *</label>
+                <div className="flex gap-2 mt-1">
                   <Input
-                    placeholder='Name'
-                    className='flex-1'
+                    placeholder="Name"
+                    className="flex-1"
                     value={formData.teamBName}
                     onChange={(e) =>
                       handleInputChange("teamBName", e.target.value)
                     }
                   />
                   <Button
-                    variant='outline'
-                    size='icon'
-                    className='h-9 w-9 bg-transparent'
+                    variant="outline"
+                    size="icon"
+                    className="h-9 w-9 bg-transparent"
                     onClick={() => {
                       const input = document.createElement("input");
                       input.type = "file";
@@ -1378,38 +1385,38 @@ export default function DynamicMatchesTable({
                   </Button>
                 </div>
                 {formData.teamBImage && (
-                  <p className='text-sm text-green-600'>
+                  <p className="text-sm text-green-600">
                     New image selected: {formData.teamBImage.name}
                   </p>
                 )}
               </div>
             </div>
 
-            <div className='grid grid-cols-2 gap-5 mb-4'>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Time *</label>
-                <div className='relative'>
-                  <Clock className='absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4' />
+            <div className="grid grid-cols-2 gap-5 mb-4">
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Time *</label>
+                <div className="relative">
+                  <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
-                    type='time'
-                    className='pl-10'
+                    type="time"
+                    className="pl-10"
                     value={formData.time}
                     onChange={(e) => handleInputChange("time", e.target.value)}
                   />
                 </div>
               </div>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Date *</label>
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Date *</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
-                      variant='outline'
+                      variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal",
                         !formData.date && "text-muted-foreground"
                       )}
                     >
-                      <CalendarIcon className='mr-2 h-4 w-4' />
+                      <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.date ? (
                         format(formData.date, "PPP")
                       ) : (
@@ -1417,9 +1424,9 @@ export default function DynamicMatchesTable({
                       )}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className='w-auto p-0'>
+                  <PopoverContent className="w-auto p-0">
                     <Calendar
-                      mode='single'
+                      mode="single"
                       selected={formData.date}
                       onSelect={(date) => handleInputChange("date", date)}
                       initialFocus
@@ -1429,53 +1436,53 @@ export default function DynamicMatchesTable({
               </div>
             </div>
 
-            <div className='grid grid-cols-2 gap-5 mb-4'>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Status</label>
+            <div className="grid grid-cols-2 gap-5 mb-4">
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Status</label>
                 <Select
                   value={formData.status || "upcoming"}
                   onValueChange={(value) => handleInputChange("status", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder='Select Status' />
+                    <SelectValue placeholder="Select Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='upcoming'>Upcoming</SelectItem>
-                    <SelectItem value='live'>Live</SelectItem>
-                    <SelectItem value='finished'>Finished</SelectItem>
-                    <SelectItem value='voting'>Voting</SelectItem>
+                    <SelectItem value="upcoming">Upcoming</SelectItem>
+                    <SelectItem value="live">Live</SelectItem>
+                    <SelectItem value="finished">Finished</SelectItem>
+                    <SelectItem value="voting">Voting</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className='space-y-2'>
-                <label className='font-medium text-[#141b34]'>Winner</label>
+              <div className="space-y-2">
+                <label className="font-medium text-[#141b34]">Winner</label>
                 <Select
                   value={formData.winner || "no_winner"}
                   onValueChange={(value) => handleInputChange("winner", value)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder='Select Winner' />
+                    <SelectValue placeholder="Select Winner" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='no_winner'>No Winner</SelectItem>
-                    <SelectItem value='team_a'>Win Team A</SelectItem>
-                    <SelectItem value='team_b'>Win Team B</SelectItem>
-                    <SelectItem value='draw'>Match Draw</SelectItem>
+                    <SelectItem value="no_winner">No Winner</SelectItem>
+                    <SelectItem value="team_a">Win Team A</SelectItem>
+                    <SelectItem value="team_b">Win Team B</SelectItem>
+                    <SelectItem value="draw">Match Draw</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
             {formData.winner && formData.winner !== "no_winner" && (
-              <div className='space-y-2 mb-4'>
-                <label className='font-medium text-[#141b34]'>
+              <div className="space-y-2 mb-4">
+                <label className="font-medium text-[#141b34]">
                   Goal Difference
                 </label>
                 <Input
-                  type='number'
-                  min='0'
-                  step='1'
-                  placeholder='Enter goal difference'
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="Enter goal difference"
                   value={formData.goal_difference?.toString() || ""}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -1492,13 +1499,13 @@ export default function DynamicMatchesTable({
               </div>
             )}
 
-            <div className='space-y-2 mb-4'>
-              <label className='font-medium text-[#141b34]'>
+            <div className="space-y-2 mb-4">
+              <label className="font-medium text-[#141b34]">
                 Select Player
               </label>
-              <div className='flex gap-2 mt-1'>
+              <div className="flex gap-2 mt-1">
                 <Select onValueChange={handleAddPlayer}>
-                  <SelectTrigger className='flex-1'>
+                  <SelectTrigger className="flex-1">
                     <SelectValue
                       placeholder={
                         loadingPlayers ? "Loading players..." : "Select Player"
@@ -1507,11 +1514,11 @@ export default function DynamicMatchesTable({
                   </SelectTrigger>
                   <SelectContent>
                     {loadingPlayers ? (
-                      <SelectItem value='loading' disabled>
+                      <SelectItem value="loading" disabled>
                         Loading players...
                       </SelectItem>
                     ) : availablePlayers.length === 0 ? (
-                      <SelectItem value='no-players' disabled>
+                      <SelectItem value="no-players" disabled>
                         No players available
                       </SelectItem>
                     ) : (
@@ -1522,23 +1529,23 @@ export default function DynamicMatchesTable({
                           disabled={formData.selectedPlayers.includes(
                             player.id
                           )}
-                          className='cursor-pointer'
+                          className="cursor-pointer"
                         >
-                          <div className='flex items-center justify-between w-full min-w-0'>
-                            <div className='flex items-center gap-2 flex-1 min-w-0'>
-                              <Avatar className='w-6 h-6 flex-shrink-0'>
+                          <div className="flex items-center justify-between w-full min-w-0">
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <Avatar className="w-6 h-6 flex-shrink-0">
                                 <AvatarImage
                                   src={
                                     getFullImageUrl(player?.image ?? "") ||
                                     "/user.png"
                                   }
                                   alt={player.name}
-                                  className='w-6 h-6 object-cover'
+                                  className="w-6 h-6 object-cover"
                                 />
                               </Avatar>
-                              <span className='truncate'>{player.name}</span>
+                              <span className="truncate">{player.name}</span>
                             </div>
-                            <span className='text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded flex-shrink-0 ml-2'>
+                            <span className="text-sm font-semibold text-gray-600 bg-gray-100 px-2 py-1 rounded flex-shrink-0 ml-2">
                               {player.jersey}
                             </span>
                           </div>
@@ -1551,11 +1558,11 @@ export default function DynamicMatchesTable({
 
               {/* Selected Players */}
               {formData.selectedPlayers.length > 0 && (
-                <div className='mt-3'>
-                  <label className='text-sm font-medium text-[#141b34] mb-2 block'>
+                <div className="mt-3">
+                  <label className="text-sm font-medium text-[#141b34] mb-2 block">
                     Selected Players ({formData.selectedPlayers.length})
                   </label>
-                  <div className='flex flex-wrap gap-2'>
+                  <div className="flex flex-wrap gap-2">
                     {formData.selectedPlayers.map((playerId) => {
                       const player = availablePlayers.find(
                         (p) => p.id === playerId
@@ -1563,26 +1570,26 @@ export default function DynamicMatchesTable({
                       return (
                         <div
                           key={playerId}
-                          className='bg-primary/20 text-[#141b34] px-3 py-1 rounded-full text-sm flex items-center gap-2'
+                          className="bg-primary/20 text-[#141b34] px-3 py-1 rounded-full text-sm flex items-center gap-2"
                         >
-                          <Avatar className='w-5 h-5'>
+                          <Avatar className="w-5 h-5">
                             <AvatarImage
                               src={
                                 getFullImageUrl(player?.image ?? "") ||
                                 "/user.png"
                               }
                               alt={player?.name}
-                              className='w-5 h-5 object-cover'
+                              className="w-5 h-5 object-cover"
                             />
                           </Avatar>
                           {player?.name}
-                          <span className='text-xs bg-white px-1 rounded'>
+                          <span className="text-xs bg-white px-1 rounded">
                             #{player?.jersey}
                           </span>
                           <button
-                            type='button'
+                            type="button"
                             onClick={() => handleRemovePlayer(playerId)}
-                            className='text-red-500 hover:text-red-700'
+                            className="text-red-500 hover:text-red-700"
                           >
                             <X size={14} />
                           </button>
@@ -1594,19 +1601,19 @@ export default function DynamicMatchesTable({
               )}
             </div>
 
-            <div className='flex justify-end gap-2'>
+            <div className="flex justify-end gap-2">
               <Button
-                variant='outline'
+                variant="outline"
                 onClick={() => {
                   setIsEditMatchOpen(false);
                   resetForm();
                 }}
-                className='hover:bg-gray-200 hover:text-black'
+                className="hover:bg-gray-200 hover:text-black"
               >
                 Cancel
               </Button>
               <Button
-                className='bg-primary hover:bg-primary/90 text-[#141b34]'
+                className="bg-primary hover:bg-primary/90 text-[#141b34]"
                 onClick={handleSubmit}
               >
                 Update
@@ -1619,51 +1626,51 @@ export default function DynamicMatchesTable({
       {/* Delete Confirmation Modal */}
       <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
         <DialogContent
-          className='sm:max-w-md p-0 overflow-hidden'
+          className="sm:max-w-md p-0 overflow-hidden"
           showCloseButton={false}
         >
-          <DialogHeader className='bg-red-500 p-4 flex flex-row items-center justify-between'>
-            <DialogTitle className='text-white text-xl'>
+          <DialogHeader className="bg-red-500 p-4 flex flex-row items-center justify-between">
+            <DialogTitle className="text-white text-xl">
               Delete Match
             </DialogTitle>
             <Button
-              variant='ghost'
-              size='icon'
-              className='h-6 w-6 hover:bg-red-600 rounded-full'
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 hover:bg-red-600 rounded-full"
               onClick={() => {
                 setIsDeleteModalOpen(false);
                 setMatchToDelete(null);
               }}
             >
-              <X className='h-5 w-5 text-white' />
+              <X className="h-5 w-5 text-white" />
             </Button>
           </DialogHeader>
 
-          <div className='p-6'>
-            <div className='flex items-center gap-4 mb-6'>
-              <div className='w-12 h-12 rounded-full bg-red-100 flex items-center justify-center'>
-                <Trash2 className='h-6 w-6 text-red-600' />
+          <div className="p-6">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                <Trash2 className="h-6 w-6 text-red-600" />
               </div>
               <div>
-                <h3 className='text-lg font-semibold text-gray-900'>
+                <h3 className="text-lg font-semibold text-gray-900">
                   Are you sure?
                 </h3>
-                <p className='text-sm text-gray-600'>
+                <p className="text-sm text-gray-600">
                   This action cannot be undone.
                 </p>
               </div>
             </div>
 
             {matchToDelete && (
-              <div className='bg-gray-50 rounded-lg p-4 mb-6'>
-                <p className='text-sm text-gray-600 mb-2'>
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <p className="text-sm text-gray-600 mb-2">
                   You are about to delete:
                 </p>
-                <div className='flex items-center gap-3'>
-                  <div className='flex items-center gap-2'>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     {matchToDelete.team_a_pics ? (
                       <Image
-                        className='w-6 h-6 object-contain'
+                        className="w-6 h-6 object-contain"
                         alt={`${matchToDelete.team_a} logo`}
                         src={
                           getFullImageUrl(matchToDelete.team_a_pics) ||
@@ -1673,19 +1680,19 @@ export default function DynamicMatchesTable({
                         height={24}
                       />
                     ) : (
-                      <div className='w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-xs'>
+                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-xs">
                         {getTeamInitials(matchToDelete.team_a)}
                       </div>
                     )}
-                    <span className='font-medium text-gray-900'>
+                    <span className="font-medium text-gray-900">
                       {matchToDelete.team_a}
                     </span>
                   </div>
-                  <span className='text-gray-500'>vs</span>
-                  <div className='flex items-center gap-2'>
+                  <span className="text-gray-500">vs</span>
+                  <div className="flex items-center gap-2">
                     {matchToDelete.team_b_pics ? (
                       <Image
-                        className='w-6 h-6 object-contain'
+                        className="w-6 h-6 object-contain"
                         alt={`${matchToDelete.team_b} logo`}
                         src={
                           getFullImageUrl(matchToDelete.team_b_pics) ||
@@ -1695,36 +1702,36 @@ export default function DynamicMatchesTable({
                         height={24}
                       />
                     ) : (
-                      <div className='w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-xs'>
+                      <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center text-gray-700 font-semibold text-xs">
                         {getTeamInitials(matchToDelete.team_b)}
                       </div>
                     )}
-                    <span className='font-medium text-gray-900'>
+                    <span className="font-medium text-gray-900">
                       {matchToDelete.team_b}
                     </span>
                   </div>
                 </div>
-                <p className='text-sm text-gray-600 mt-2'>
+                <p className="text-sm text-gray-600 mt-2">
                   {formatDate(matchToDelete.date)} at{" "}
                   {formatTime(matchToDelete.time)}
                 </p>
               </div>
             )}
 
-            <div className='flex justify-end gap-3'>
+            <div className="flex justify-end gap-3">
               <Button
-                variant='outline'
+                variant="outline"
                 onClick={() => {
                   setIsDeleteModalOpen(false);
                   setMatchToDelete(null);
                 }}
-                className='hover:bg-gray-100'
+                className="hover:bg-gray-100"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleConfirmDelete}
-                className='bg-red-600 hover:bg-red-700 text-white'
+                className="bg-red-600 hover:bg-red-700 text-white"
               >
                 Delete Match
               </Button>
