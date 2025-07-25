@@ -284,75 +284,75 @@ export default function VotingList({
   };
 
   return (
-    <main className='flex flex-col w-full items-center'>
+    <main className="flex flex-col w-full items-center">
       {/* Voting Section */}
-      <div className='flex flex-col items-start gap-5 w-full'>
-        <div className='flex items-center justify-between w-full font-oswald'>
+      <div className="flex flex-col items-start gap-5 w-full">
+        <div className="flex items-center justify-between w-full font-oswald">
           {title && (
-            <h1 className='text-2xl font-bold text-secondary font-oswald'>
+            <h1 className="text-2xl font-bold text-secondary font-oswald">
               Voting
             </h1>
           )}
           {!paginate && (
             <Link
-              href='/voting'
-              className='text-secondary text-base tracking-[0] leading-[normal]'
+              href="/voting"
+              className="text-secondary text-base tracking-[0] leading-[normal]"
             >
               See All
             </Link>
           )}
         </div>
 
-        <Card className='w-full min-h-74 rounded-xl overflow-hidden border-border p-0'>
-          <CardContent className='p-0'>
-            <div className='overflow-x-auto'>
-              <Table className='border-collapse min-w-3xl'>
-                <TableHeader className='border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300'>
+        <Card className="w-full min-h-74 rounded-xl overflow-hidden border-border p-0">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table className="border-collapse min-w-3xl">
+                <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300 dark:bg-yellow-300">
                   <TableRow>
-                    <TableHead className='font-normal text-secondary pl-6 py-4 min-w-32'>
+                    <TableHead className="font-normal text-secondary pl-6 py-4 min-w-32">
                       User
                     </TableHead>
-                    <TableHead className='font-normal text-secondary pl-5 py-4 min-w-32'>
+                    <TableHead className="font-normal text-secondary pl-5 py-4 min-w-32">
                       Email
                     </TableHead>
-                    <TableHead className='font-normal text-secondary pl-5 py-4 min-w-24'>
+                    <TableHead className="font-normal text-secondary pl-5 py-4 min-w-24">
                       Match #
                     </TableHead>
-                    <TableHead className='font-normal text-secondary pl-5 py-4 min-w-60'>
+                    <TableHead className="font-normal text-secondary pl-5 py-4 min-w-60">
                       Match Details
                     </TableHead>
-                    <TableHead className='font-normal text-secondary pl-5 py-4 min-w-28'>
+                    <TableHead className="font-normal text-secondary pl-5 py-4 min-w-28">
                       Who Will Win
                     </TableHead>
-                    <TableHead className='font-normal text-center text-secondary py-4 min-w-24'>
+                    <TableHead className="font-normal text-center text-secondary py-4 min-w-24">
                       Goals
                     </TableHead>
-                    <TableHead className='font-normal text-center text-secondary py-4 min-w-40'>
+                    <TableHead className="font-normal text-center text-secondary py-4 min-w-40">
                       Select Player
                     </TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody className='bg-white'>
+                <TableBody className="bg-white">
                   {loading ? (
                     <TableRow>
-                      <TableCell colSpan={7} className='text-center py-8'>
-                        <div className='font-normal text-blackblack-700 text-xl'>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <div className="font-normal text-blackblack-700 text-xl">
                           Loading voting data...
                         </div>
                       </TableCell>
                     </TableRow>
                   ) : error ? (
                     <TableRow>
-                      <TableCell colSpan={7} className='text-center py-8'>
-                        <div className='font-normal text-red-500 text-xl'>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <div className="font-normal text-red-500 text-xl">
                           Error: {error}
                         </div>
                       </TableCell>
                     </TableRow>
                   ) : currentData.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className='text-center py-8'>
-                        <div className='font-normal text-blackblack-700 text-xl'>
+                      <TableCell colSpan={7} className="text-center py-8">
+                        <div className="font-normal text-blackblack-700 text-xl">
                           No voting data available
                         </div>
                       </TableCell>
@@ -362,12 +362,12 @@ export default function VotingList({
                       const matchData = getMatchData(item.match);
                       return (
                         <TableRow key={item.id || index}>
-                          <TableCell className='px-6 py-3 min-w-32'>
-                            <div className='flex items-center gap-3'>
+                          <TableCell className="px-6 py-3 min-w-32">
+                            <div className="flex items-center gap-3">
                               <Avatar>
                                 <AvatarImage
-                                  className='w-10 h-10 object-cover rounded-full'
-                                  alt='User avatar'
+                                  className="w-10 h-10 object-cover rounded-full"
+                                  alt="User avatar"
                                   src={
                                     getFullImageUrl(
                                       item.user.user_profile.profile_picture
@@ -375,69 +375,69 @@ export default function VotingList({
                                   }
                                 />
                               </Avatar>
-                              <span className='font-normal text-blackblack-700 text-xl'>
+                              <span className="font-normal text-blackblack-700 text-xl">
                                 {item.user.user_profile.name}
                               </span>
                             </div>
                           </TableCell>
-                          <TableCell className='px-6 py-3 min-w-32'>
-                            <div className='font-normal text-blackblack-700 text-xl'>
+                          <TableCell className="px-6 py-3 min-w-32">
+                            <div className="font-normal text-blackblack-700 text-xl">
                               {item.user.email}
                             </div>
                           </TableCell>
-                          <TableCell className='px-6 py-3 min-w-24'>
-                            <div className='font-normal text-blackblack-700 text-xl'>
+                          <TableCell className="px-6 py-3 min-w-24">
+                            <div className="font-normal text-blackblack-700 text-xl">
                               #{item.match}
                             </div>
                           </TableCell>
-                          <TableCell className='px-6 py-3 min-w-60'>
+                          <TableCell className="px-6 py-3 min-w-60">
                             {matchData ? (
-                              <div className='flex items-center gap-4'>
+                              <div className="flex items-center gap-4">
                                 {/* Team A */}
-                                <div className='flex items-center gap-2'>
-                                  <Avatar className='w-8 h-8'>
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="w-8 h-8">
                                     {matchData.team_a_pics ? (
                                       <AvatarImage
-                                        className='w-8 h-8 object-cover rounded'
+                                        className="w-8 h-8 object-cover rounded"
                                         alt={`${matchData.team_a} logo`}
                                         src={getFullImageUrl(
                                           matchData.team_a_pics
                                         )}
                                       />
                                     ) : (
-                                      <AvatarFallback className='w-8 h-8 text-xs font-semibold'>
+                                      <AvatarFallback className="w-8 h-8 text-xs font-semibold">
                                         {getTeamInitials(matchData.team_a)}
                                       </AvatarFallback>
                                     )}
                                   </Avatar>
-                                  <span className='font-normal text-blackblack-700 text-sm'>
+                                  <span className="font-normal text-blackblack-700 text-sm">
                                     {matchData.team_a}
                                   </span>
                                 </div>
 
                                 {/* VS */}
-                                <span className='font-bold text-gray-500 text-sm'>
+                                <span className="font-bold text-gray-500 text-sm">
                                   VS
                                 </span>
 
                                 {/* Team B */}
-                                <div className='flex items-center gap-2'>
-                                  <Avatar className='w-8 h-8'>
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="w-8 h-8">
                                     {matchData.team_b_pics ? (
                                       <AvatarImage
-                                        className='w-8 h-8 object-cover rounded'
+                                        className="w-8 h-8 object-cover rounded"
                                         alt={`${matchData.team_b} logo`}
                                         src={getFullImageUrl(
                                           matchData.team_b_pics
                                         )}
                                       />
                                     ) : (
-                                      <AvatarFallback className='w-8 h-8 text-xs font-semibold'>
+                                      <AvatarFallback className="w-8 h-8 text-xs font-semibold">
                                         {getTeamInitials(matchData.team_b)}
                                       </AvatarFallback>
                                     )}
                                   </Avatar>
-                                  <span className='font-normal text-blackblack-700 text-sm'>
+                                  <span className="font-normal text-blackblack-700 text-sm">
                                     {matchData.team_b}
                                   </span>
                                 </div>
@@ -448,7 +448,7 @@ export default function VotingList({
                                     matchData.status === "live"
                                       ? "bg-red-100 text-red-700 border-red-300"
                                       : matchData.status === "upcoming"
-                                      ? "bg-blue-100 text-blue-700 border-blue-300"
+                                      ? "bg-blue-500 text-white border-blue-300 "
                                       : "bg-gray-100 text-gray-700 border-gray-300"
                                   }`}
                                 >
@@ -457,29 +457,29 @@ export default function VotingList({
                                 </Badge>
                               </div>
                             ) : (
-                              <div className='font-normal text-gray-500 text-sm'>
+                              <div className="font-normal text-gray-500 text-sm">
                                 Match data not available
                               </div>
                             )}
                           </TableCell>
-                          <TableCell className='px-6 py-3 min-w-28'>
-                            <div className='font-normal text-blackblack-700 text-xl'>
+                          <TableCell className="px-6 py-3 min-w-28">
+                            <div className="font-normal text-blackblack-700 text-xl">
                               {getTeamName(item.who_will_win)}
                             </div>
                           </TableCell>
-                          <TableCell className='px-6 py-3 text-center min-w-24'>
-                            <div className='font-normal text-blackblack-700 text-xl'>
+                          <TableCell className="px-6 py-3 text-center min-w-24">
+                            <div className="font-normal text-blackblack-700 text-xl">
                               {item.goal_difference}
                             </div>
                           </TableCell>
-                          <TableCell className='px-6 py-3 min-w-40'>
-                            <div className='flex items-center justify-center gap-2'>
+                          <TableCell className="px-6 py-3 min-w-40">
+                            <div className="flex items-center justify-center gap-2">
                               {item.selected_players.length > 0 ? (
                                 item.selected_players.map(
                                   (player: Player, idx: number) => (
                                     <Badge
                                       key={player.id || idx}
-                                      className='flex items-center justify-center px-3 w-10 h-10 tex-xs bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg'
+                                      className="flex items-center justify-center px-3 w-10 h-10 tex-xs bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg"
                                       title={player.name}
                                     >
                                       {player.jersey_number}
@@ -487,7 +487,7 @@ export default function VotingList({
                                   )
                                 )
                               ) : (
-                                <span className='font-normal text-gray-500 text-sm'>
+                                <span className="font-normal text-gray-500 text-sm">
                                   No players selected
                                 </span>
                               )}
@@ -505,7 +505,7 @@ export default function VotingList({
 
         {/* Pagination */}
         {paginate && totalPages > 1 && !loading && !error && (
-          <div className='flex justify-center w-full mt-4'>
+          <div className="flex justify-center w-full mt-4">
             <Pagination>
               <PaginationContent>
                 <PaginationItem>
@@ -524,12 +524,12 @@ export default function VotingList({
                 {generatePageNumbers().map((pageNum, index) => (
                   <PaginationItem key={index}>
                     {pageNum === "..." ? (
-                      <span className='px-3 py-2'>...</span>
+                      <span className="px-3 py-2">...</span>
                     ) : (
                       <PaginationLink
                         onClick={() => handlePageChange(pageNum as number)}
                         isActive={currentPage === pageNum}
-                        className='cursor-pointer'
+                        className="cursor-pointer"
                       >
                         {pageNum}
                       </PaginationLink>
