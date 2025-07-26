@@ -1,3 +1,4 @@
+// src\app\(dashboard)\components\DynamicMatchPage.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -25,7 +26,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Upload, X, CalendarIcon, Clock } from "lucide-react";
+import { Plus, Upload, X, CalendarIcon, Clock, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn, getFullImageUrl, userTimezone } from "@/lib/utils";
 import DynamicMatchesTable from "./DynamicMatchesTable";
@@ -58,6 +59,7 @@ interface FormData {
 export default function DynamicMatchPage() {
   const [isAddMatchOpen, setIsAddMatchOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     teamAName: "",
     teamBName: "",
@@ -70,7 +72,6 @@ export default function DynamicMatchPage() {
     winner: "no_winner",
     match_timezone: "",
   });
-
 
   const [availablePlayers, setAvailablePlayers] = useState<AvailablePlayer[]>(
     []
@@ -170,6 +171,9 @@ export default function DynamicMatchPage() {
   };
 
   const handleSubmit = async () => {
+    // Prevent double submission
+    if (isSubmitting) return;
+
     try {
       // Validate required fields
       if (
@@ -181,6 +185,8 @@ export default function DynamicMatchPage() {
         toast.error("Please fill in all required fields");
         return;
       }
+
+      setIsSubmitting(true);
 
       // Create FormData for multipart/form-data
       const submitFormData = new FormData();
@@ -232,6 +238,8 @@ export default function DynamicMatchPage() {
     } catch (error) {
       console.error("Error creating match:", error);
       toast.error("An error occurred while creating the match.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -365,6 +373,7 @@ export default function DynamicMatchPage() {
                 setIsAddMatchOpen(false);
                 resetForm();
               }}
+              disabled={isSubmitting}
             >
               <X className="h-5 w-5 text-red-500" />
             </Button>
@@ -382,6 +391,7 @@ export default function DynamicMatchPage() {
                     onChange={(e) =>
                       handleInputChange("teamAName", e.target.value)
                     }
+                    disabled={isSubmitting}
                   />
                   <Button
                     variant="outline"
@@ -397,6 +407,7 @@ export default function DynamicMatchPage() {
                       };
                       input.click();
                     }}
+                    disabled={isSubmitting}
                   >
                     <Upload size={18} />
                   </Button>
@@ -418,6 +429,7 @@ export default function DynamicMatchPage() {
                     onChange={(e) =>
                       handleInputChange("teamBName", e.target.value)
                     }
+                    disabled={isSubmitting}
                   />
                   <Button
                     variant="outline"
@@ -433,6 +445,7 @@ export default function DynamicMatchPage() {
                       };
                       input.click();
                     }}
+                    disabled={isSubmitting}
                   >
                     <Upload size={18} />
                   </Button>
@@ -455,6 +468,7 @@ export default function DynamicMatchPage() {
                     className="pl-10"
                     value={formData.time}
                     onChange={(e) => handleInputChange("time", e.target.value)}
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -468,6 +482,7 @@ export default function DynamicMatchPage() {
                         "w-full justify-start text-left font-normal",
                         !formData.date && "text-muted-foreground"
                       )}
+                      disabled={isSubmitting}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {formData.date ? (
@@ -497,6 +512,7 @@ export default function DynamicMatchPage() {
                 <Select
                   value={formData.status}
                   onValueChange={(value) => handleInputChange("status", value)}
+                  disabled={isSubmitting}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select Status" />
@@ -514,6 +530,7 @@ export default function DynamicMatchPage() {
                 <Select
                   value={formData.winner}
                   onValueChange={(value) => handleInputChange("winner", value)}
+                  disabled={isSubmitting}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select Winner" />
@@ -550,6 +567,7 @@ export default function DynamicMatchPage() {
                       }
                     }
                   }}
+                  disabled={isSubmitting}
                 />
               </div>
             )}
@@ -559,7 +577,7 @@ export default function DynamicMatchPage() {
                 Select Player
               </label>
               <div className="flex gap-2 mt-1">
-                <Select onValueChange={handleAddPlayer}>
+                <Select onValueChange={handleAddPlayer} disabled={isSubmitting}>
                   <SelectTrigger className="flex-1">
                     <SelectValue
                       className="text-gray-600"
@@ -645,6 +663,7 @@ export default function DynamicMatchPage() {
                             type="button"
                             onClick={() => handleRemovePlayer(playerId)}
                             className="text-red-500 hover:text-red-700"
+                            disabled={isSubmitting}
                           >
                             <X size={14} />
                           </button>
@@ -664,14 +683,23 @@ export default function DynamicMatchPage() {
                   resetForm();
                 }}
                 className="hover:bg-gray-200 hover:text-black"
+                disabled={isSubmitting}
               >
                 Cancel
               </Button>
               <Button
                 className="bg-primary hover:bg-primary/90 text-[#141b34]"
                 onClick={handleSubmit}
+                disabled={isSubmitting}
               >
-                Submit
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  "Submit"
+                )}
               </Button>
             </div>
           </div>

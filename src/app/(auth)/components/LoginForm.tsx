@@ -96,7 +96,7 @@ export default function LoginForm() {
   // Don't render until mounted to prevent hydration mismatch
   if (!mounted) {
     return (
-      <div className="min-h-screen flex bg-card">
+      <div className="min-h-screen flex flex-col lg:flex-row bg-card">
         <div className="flex-1 bg-card flex items-center justify-center">
           <div className="text-center">
             <Loader2 className="h-8 w-8 animate-spin mx-auto" />
@@ -104,7 +104,7 @@ export default function LoginForm() {
           </div>
         </div>
         <div className="flex-1 bg-white flex items-center justify-center">
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md px-4">
             <Card className="border-[#e2e2e2] shadow-lg">
               <CardHeader className="h-20" />
               <CardContent className="h-96" />
@@ -116,25 +116,27 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex bg-card font-oswald">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-card font-oswald">
       {/* Left Side - Welcome Message */}
-      <div className="flex-1 bg-card flex items-center justify-center p-8 text-foreground font-oswald">
-        <div className="max-w-md text-center space-y-6">
-          <h1 className="text-4xl font-bold leading-tight">Welcome Back!</h1>
-          <p className="text-muted text-lg">
+      <div className="flex-1 bg-card flex items-center justify-center p-4 sm:p-6 lg:p-8 text-foreground font-oswald">
+        <div className="max-w-md text-center space-y-4 sm:space-y-6">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold leading-tight">
+            Welcome Back!
+          </h1>
+          <p className="text-muted text-base sm:text-lg">
             Sign in to access your dashboard and manage your account
           </p>
         </div>
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 bg-white flex items-center justify-center p-8">
-        <Card className="w-full max-w-md border-[#e2e2e2] shadow-lg">
-          <CardHeader className="text-center pb-6">
-            <h2 className="text-2xl font-semibold text-[#222222] mb-2">
+      <div className="flex-1 bg-white flex items-center justify-center p-4 sm:p-6 lg:p-8">
+        <Card className="w-full max-w-md border-[#e2e2e2] shadow-lg -mt-20 md:mt-0">
+          <CardHeader className="text-center">
+            <h2 className="text-xl sm:text-2xl font-semibold text-[#222222]">
               Sign in to Account
             </h2>
-            <p className="text-muted text-sm">
+            {/* <p className="text-muted text-sm">
               Don&apos;t have an Account?{" "}
               <Link
                 href="/signup"
@@ -142,14 +144,17 @@ export default function LoginForm() {
               >
                 Sign Up Free
               </Link>
-            </p>
+            </p> */}
           </CardHeader>
 
-          <CardContent>
-            <form onSubmit={handleFormSubmit} className="space-y-6">
+          <CardContent className="px-4 sm:px-6">
+            <form
+              onSubmit={handleFormSubmit}
+              className="space-y-2 sm:space-y-6"
+            >
               {/* Error Display */}
               {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <div className="bg-red-100 border border-red-400 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded text-sm">
                   {error}
                   <button
                     type="button"
@@ -174,7 +179,7 @@ export default function LoginForm() {
                     id="email"
                     type="email"
                     placeholder="Enter your email"
-                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
+                    className={`pl-4 pr-10 h-10 sm:h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] text-sm sm:text-base ${
                       errors.email
                         ? "border-red-500 focus:border-red-500"
                         : "focus:border-[#001d38]"
@@ -182,7 +187,7 @@ export default function LoginForm() {
                     {...register("email")}
                     disabled={isLoading}
                   />
-                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#acacac]" />
+                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-[#acacac]" />
                 </div>
                 {errors.email && (
                   <p className="text-red-500 text-xs mt-1">
@@ -204,7 +209,7 @@ export default function LoginForm() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    className={`pl-4 pr-10 h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] ${
+                    className={`pl-4 pr-10 h-10 sm:h-12 border-[#e2e2e2] bg-[#fcfcff] text-[#222222] placeholder:text-[#acacac] text-sm sm:text-base ${
                       errors.password
                         ? "border-red-500 focus:border-red-500"
                         : "focus:border-[#001d38]"
@@ -219,9 +224,9 @@ export default function LoginForm() {
                     disabled={isLoading}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-5 w-5 text-[#acacac]" />
+                      <EyeOff className="h-4 w-4 sm:h-5 sm:w-5 text-[#acacac]" />
                     ) : (
-                      <Eye className="h-5 w-5 text-[#acacac]" />
+                      <Eye className="h-4 w-4 sm:h-5 sm:w-5 text-[#acacac]" />
                     )}
                   </button>
                 </div>
@@ -233,7 +238,7 @@ export default function LoginForm() {
               </div>
 
               {/* Remember Me and Forgot Password */}
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0">
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="rememberMe"
@@ -262,7 +267,7 @@ export default function LoginForm() {
               {/* Login Button */}
               <Button
                 type="submit"
-                className="w-full h-12 bg-primary hover:bg-[#001d38]/90 text-foreground hover:text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-10 sm:h-12 bg-primary hover:bg-[#001d38]/90 text-foreground hover:text-white font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 disabled={isLoading || isSubmitting}
               >
                 {isLoading ? (
@@ -277,8 +282,8 @@ export default function LoginForm() {
             </form>
 
             {/* Additional Info */}
-            <div className="mt-6 text-center">
-              <p className="text-xs text-muted">
+            <div className="mt-4 sm:mt-6 text-center">
+              <p className="text-xs text-muted px-2">
                 By signing in, you agree to our{" "}
                 <Link href="/terms" className="underline hover:text-green-500">
                   Terms of Service
