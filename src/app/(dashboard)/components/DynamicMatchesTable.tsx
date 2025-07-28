@@ -1121,7 +1121,6 @@ export default function DynamicMatchesTable({
                     <SelectItem value="upcoming">Upcoming</SelectItem>
                     <SelectItem value="live">Live</SelectItem>
                     <SelectItem value="finished">Finished</SelectItem>
-                    <SelectItem value="voting">Voting</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1450,7 +1449,6 @@ export default function DynamicMatchesTable({
                     <SelectItem value="upcoming">Upcoming</SelectItem>
                     <SelectItem value="live">Live</SelectItem>
                     <SelectItem value="finished">Finished</SelectItem>
-                    <SelectItem value="voting">Voting</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -521,7 +521,6 @@ export default function DynamicMatchPage() {
                     <SelectItem value="upcoming">Upcoming</SelectItem>
                     <SelectItem value="live">Live</SelectItem>
                     <SelectItem value="finished">Finished</SelectItem>
-                    <SelectItem value="voting">Voting</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
