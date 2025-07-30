@@ -26,13 +26,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Plus, Upload, X, CalendarIcon, Clock, Loader2 } from "lucide-react";
+import { Plus, X, CalendarIcon, Clock, Loader2, ImageUp } from "lucide-react";
 import { format } from "date-fns";
 import { cn, getFullImageUrl, userTimezone } from "@/lib/utils";
 import DynamicMatchesTable from "./DynamicMatchesTable";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
 import VotingList from "./VotingList";
+import Image from "next/image";
 
 interface AvailablePlayer {
   id: number;
@@ -72,6 +73,8 @@ export default function DynamicMatchPage() {
     winner: "no_winner",
     match_timezone: "",
   });
+
+  // console.log("Time zone::", userTimezone);
 
   const [availablePlayers, setAvailablePlayers] = useState<AvailablePlayer[]>(
     []
@@ -175,14 +178,16 @@ export default function DynamicMatchPage() {
     if (isSubmitting) return;
 
     try {
-      // Validate required fields
+      // Validate required fields INCLUDING IMAGES
       if (
         !formData.teamAName ||
         !formData.teamBName ||
         !formData.time ||
-        !formData.date
+        !formData.date ||
+        !formData.teamAImage ||
+        !formData.teamBImage
       ) {
-        toast.error("Please fill in all required fields");
+        toast.error("Please fill in all required fields including team images");
         return;
       }
 
@@ -210,14 +215,9 @@ export default function DynamicMatchPage() {
         submitFormData.append("winner", formData.winner);
       }
 
-      // Add images if selected
-      if (formData.teamAImage) {
-        submitFormData.append("team_a_pics", formData.teamAImage);
-      }
-
-      if (formData.teamBImage) {
-        submitFormData.append("team_b_pics", formData.teamBImage);
-      }
+      // Add images - now required
+      submitFormData.append("team_a_pics", formData.teamAImage);
+      submitFormData.append("team_b_pics", formData.teamBImage);
 
       // Create new match
       const response = await apiEndpoint.post("/matches/", submitFormData, {
@@ -243,6 +243,14 @@ export default function DynamicMatchPage() {
     }
   };
 
+  const handleRemoveImage = (team: "A" | "B") => {
+    const field = team === "A" ? "teamAImage" : "teamBImage";
+    setFormData((prev) => ({
+      ...prev,
+      [field]: null,
+    }));
+  };
+
   const handleMatchUpdate = () => {
     setRefreshKey((prev) => prev + 1);
   };
@@ -258,7 +266,7 @@ export default function DynamicMatchPage() {
           className="bg-primary hover:bg-primary/90 text-black"
           onClick={() => setIsAddMatchOpen(true)}
         >
-          <Plus size={18} />
+          <Plus size={20} />
           Add Match
         </Button>
       </div>
@@ -382,7 +390,9 @@ export default function DynamicMatchPage() {
           <div className="p-4 pt-0">
             <div className="grid grid-cols-2 gap-5 mb-4">
               <div className="space-y-2">
-                <label className="font-medium text-[#141b34]">Team A *</label>
+                <label className="font-medium text-[#141b34]">
+                  Team A <span className="text-red-600">*</span>
+                </label>
                 <div className="flex gap-2 mt-1">
                   <Input
                     placeholder="Name"
@@ -393,24 +403,46 @@ export default function DynamicMatchPage() {
                     }
                     disabled={isSubmitting}
                   />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9 bg-transparent"
-                    onClick={() => {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      input.accept = "image/*";
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) handleImageUpload("A", file);
-                      };
-                      input.click();
-                    }}
-                    disabled={isSubmitting}
-                  >
-                    <Upload size={18} />
-                  </Button>
+                  <div className="relative">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 bg-transparent"
+                      onClick={() => {
+                        const input = document.createElement("input");
+                        input.type = "file";
+                        input.accept = "image/*";
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement)
+                            .files?.[0];
+                          if (file) handleImageUpload("A", file);
+                        };
+                        input.click();
+                      }}
+                      disabled={isSubmitting}
+                    >
+                      <ImageUp size={24} />
+                    </Button>
+                    {formData.teamAImage && (
+                      <div className="absolute -top-2 -right-2 w-12 h-12 border-2 border-green-500 rounded-md overflow-hidden bg-white shadow-md">
+                        <Image
+                          src={URL.createObjectURL(formData.teamAImage)}
+                          alt="Team A"
+                          className="w-full h-full object-cover"
+                          width={40}
+                          height={40}
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => handleRemoveImage("A")}
+                          className="absolute -top-1 -right-1 w-3 h-3 hover:z-[60] bg-red-500 rounded-full flex items-center justify-center text-white text-xs hover:bg-red-600"
+                          disabled={isSubmitting}
+                        >
+                          <X size={8} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {formData.teamAImage && (
                   <p className="text-sm text-green-600">
@@ -420,7 +452,9 @@ export default function DynamicMatchPage() {
               </div>
 
               <div className="space-y-2">
-                <label className="font-medium text-[#141b34]">Team B *</label>
+                <label className="font-medium text-[#141b34]">
+                  Team B <span className="text-red-600">*</span>
+                </label>
                 <div className="flex gap-2 mt-1">
                   <Input
                     placeholder="Name"
@@ -431,24 +465,46 @@ export default function DynamicMatchPage() {
                     }
                     disabled={isSubmitting}
                   />
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    className="h-9 w-9 bg-transparent"
-                    onClick={() => {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      input.accept = "image/*";
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) handleImageUpload("B", file);
-                      };
-                      input.click();
-                    }}
-                    disabled={isSubmitting}
-                  >
-                    <Upload size={18} />
-                  </Button>
+                  <div className="relative">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 bg-transparent"
+                      onClick={() => {
+                        const input = document.createElement("input");
+                        input.type = "file";
+                        input.accept = "image/*";
+                        input.onchange = (e) => {
+                          const file = (e.target as HTMLInputElement)
+                            .files?.[0];
+                          if (file) handleImageUpload("B", file);
+                        };
+                        input.click();
+                      }}
+                      disabled={isSubmitting}
+                    >
+                      <ImageUp size={24} />
+                    </Button>
+                    {formData.teamBImage && (
+                      <div className="absolute -top-2 -right-2 w-12 h-12 border-2 border-green-500 rounded-md overflow-hidden bg-white shadow-md">
+                        <Image
+                          src={URL.createObjectURL(formData.teamBImage)}
+                          alt="Team B"
+                          className="w-full h-full object-cover"
+                          width={36}
+                          height={36}
+                        />
+                        <Button
+                          type="button"
+                          onClick={() => handleRemoveImage("B")}
+                          className="absolute -top-1 -right-1 w-3 h-3 hover:z-10 bg-red-500 rounded-full flex items-center justify-center text-white text-xs hover:bg-red-600"
+                          disabled={isSubmitting}
+                        >
+                          <X size={8} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 {formData.teamBImage && (
                   <p className="text-sm text-green-600">
@@ -460,7 +516,9 @@ export default function DynamicMatchPage() {
 
             <div className="grid grid-cols-2 gap-5 mb-4">
               <div className="space-y-2">
-                <label className="font-medium text-[#141b34]">Time *</label>
+                <label className="font-medium text-[#141b34]">
+                  Time <span className="text-red-600">*</span>
+                </label>
                 <div className="relative">
                   <Clock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                   <Input
@@ -473,7 +531,9 @@ export default function DynamicMatchPage() {
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="font-medium text-[#141b34]">Date *</label>
+                <label className="font-medium text-[#141b34]">
+                  Date <span className="text-red-600">*</span>
+                </label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -499,6 +559,16 @@ export default function DynamicMatchPage() {
                       onSelect={(date: Date | undefined) =>
                         handleInputChange("date", date)
                       }
+                      disabled={(date) => {
+                        // Get current date in user's timezone
+                        const now = new Date();
+                        const today = new Date(
+                          now.getFullYear(),
+                          now.getMonth(),
+                          now.getDate()
+                        );
+                        return date < today;
+                      }}
                       initialFocus
                     />
                   </PopoverContent>

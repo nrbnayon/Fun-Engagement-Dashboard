@@ -24,4 +24,16 @@ export const getFullImageUrl = (imagePath: string) => {
   return imagePath.startsWith("/") ? imagePath : `/${imagePath}`;
 };
 
-export const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+export let userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+(async () => {
+  try {
+    const res = await fetch("https://ipapi.co/timezone/");
+    if (res.ok) {
+      const tz = await res.text();
+      if (tz) userTimezone = tz;
+    }
+  } catch (err) {
+    console.warn("IP-based timezone fetch failed. Using system timezone.", err);
+  }
+})();
