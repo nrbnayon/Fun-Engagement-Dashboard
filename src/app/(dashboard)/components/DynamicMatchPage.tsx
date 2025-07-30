@@ -74,7 +74,7 @@ export default function DynamicMatchPage() {
     match_timezone: "",
   });
 
-  // console.log("Time zone::", userTimezone);
+  console.log("Time zone::", userTimezone);
 
   const [availablePlayers, setAvailablePlayers] = useState<AvailablePlayer[]>(
     []
