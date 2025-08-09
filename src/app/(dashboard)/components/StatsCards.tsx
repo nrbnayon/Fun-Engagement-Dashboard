@@ -141,8 +141,8 @@ export default function StatsCards() {
           console.error("Invalid voting response format:", voting);
         }
 
-        console.log("Get Upcoming match::::::::::::::", upcoming);
-        console.log("Get Voting match::::::::::::::", voting);
+        // console.log("Get Upcoming match::::::::::::::", upcoming);
+        // console.log("Get Voting match::::::::::::::", voting);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -284,7 +284,7 @@ export default function StatsCards() {
           {statsData.map((card, index) => (
             <Card
               key={index}
-              className="flex flex-col flex-1 sm:w-44 h-40 items-center justify-between gap-3 p-3 bg-surface border-border dark:bg-surface"
+              className="flex flex-col flex-1 w-44 md:w-48 h-40 items-center justify-between gap-3 p-3 bg-surface border-border dark:bg-surface"
             >
               <CardContent className="p-0 flex flex-col items-center justify-between gap-3 w-full h-full">
                 <div className="inline-flex items-center gap-2 p-3 bg-secondary-light dark:bg-surface-elevated rounded-full">
@@ -309,7 +309,7 @@ export default function StatsCards() {
             {matchCards.map((match, index) => (
               <Card
                 key={index}
-                className="flex flex-col w-full lg:w-auto h-40 items-start justify-between gap-6 px-4 sm:px-6 py-4 border-border bg-card dark:bg-surface"
+                className="flex flex-col w-full md:max-w-4xl h-40 items-start justify-between gap-6 px-4 sm:px-4 py-4 border-border bg-card dark:bg-surface"
               >
                 <CardContent className="p-0 w-full h-full flex flex-col justify-between">
                   <div className="font-regular-lg-regular text-foreground">
@@ -340,7 +340,7 @@ export default function StatsCards() {
                       <div className="w-full font-regular-lg-regular text-red-500 text-center text-xs sm:text-sm">
                         {match.status}
                       </div>
-                      <div className="w-full font-regular-lg-regular text-foreground text-center text-xs sm:text-sm">
+                      <div className="w-full text-foreground text-center text-xs sm:text-sm">
                         {match.time}
                       </div>
                     </div>
