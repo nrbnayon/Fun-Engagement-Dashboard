@@ -55,6 +55,7 @@ interface FormData {
   winner?: string;
   goal_difference?: number;
   match_timezone?: string | null;
+  date_time?: string | unknown;
 }
 
 export default function DynamicMatchPage() {
@@ -72,6 +73,7 @@ export default function DynamicMatchPage() {
     status: "upcoming",
     winner: "no_winner",
     match_timezone: "",
+    date_time: "",
   });
 
   console.log("Time zone::", userTimezone);
@@ -156,21 +158,27 @@ export default function DynamicMatchPage() {
       teamBImage: null,
       status: "upcoming",
       winner: "no_winner",
+      date_time: "",
     });
   };
 
-  const convertTimeToAPI = (timeStr: string) => {
-    // Convert from "14:30" format to "14:30:00" format
-    if (timeStr && !timeStr.includes(":00")) {
-      return `${timeStr}:00`;
-    }
-    return timeStr;
-  };
+  const convertDateTimeToISO = (date: Date | undefined, timeStr: string) => {
+    if (!date || !timeStr) return "";
 
-  const convertDateToAPI = (date: Date | undefined) => {
-    // Convert Date object to "yyyy-mm-dd" format
-    if (!date) return "";
-    return format(date, "yyyy-MM-dd");
+    const [hours, minutes, seconds = "00"] = timeStr.split(":");
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const day = date.getDate();
+
+    const localDateTime = new Date(
+      year,
+      month,
+      day,
+      parseInt(hours),
+      parseInt(minutes),
+      parseInt(seconds || "0")
+    );
+    return localDateTime.toISOString();
   };
 
   const handleSubmit = async () => {
@@ -178,7 +186,6 @@ export default function DynamicMatchPage() {
     if (isSubmitting) return;
 
     try {
-      // Validate required fields INCLUDING IMAGES
       if (
         !formData.teamAName ||
         !formData.teamBName ||
@@ -193,12 +200,20 @@ export default function DynamicMatchPage() {
 
       setIsSubmitting(true);
 
+      const combinedDateTime = convertDateTimeToISO(
+        formData.date,
+        formData.time
+      );
+      const timeWithSeconds =
+        formData.time + (formData.time.split(":").length === 2 ? ":00" : "");
+
       // Create FormData for multipart/form-data
       const submitFormData = new FormData();
       submitFormData.append("team_a", formData.teamAName);
       submitFormData.append("team_b", formData.teamBName);
-      submitFormData.append("time", convertTimeToAPI(formData.time));
-      submitFormData.append("date", convertDateToAPI(formData.date));
+      submitFormData.append("time", timeWithSeconds);
+      submitFormData.append("date", combinedDateTime);
+      submitFormData.append("date_time", combinedDateTime);
       submitFormData.append("match_timezone", userTimezone);
 
       // Send multiple fields with the same name for array handling
@@ -226,6 +241,8 @@ export default function DynamicMatchPage() {
         },
         timeout: 30000,
       });
+
+      console.log("Response::", response.data);
 
       if (response.data) {
         // Refresh matches data
@@ -444,11 +461,6 @@ export default function DynamicMatchPage() {
                     )}
                   </div>
                 </div>
-                {formData.teamAImage && (
-                  <p className="text-sm text-green-600">
-                    Image selected: {formData.teamAImage.name}
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -506,11 +518,6 @@ export default function DynamicMatchPage() {
                     )}
                   </div>
                 </div>
-                {formData.teamBImage && (
-                  <p className="text-sm text-green-600">
-                    Image selected: {formData.teamBImage.name}
-                  </p>
-                )}
               </div>
             </div>
 

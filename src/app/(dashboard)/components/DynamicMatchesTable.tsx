@@ -52,7 +52,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { cn, getFullImageUrl, userTimezone } from "@/lib/utils";
+import { cn, getDateOnly, getFullImageUrl, getTimeOnly, userTimezone } from "@/lib/utils";
 import { getAllMatch, deleteMatch } from "@/lib/services/matchDataApi";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
@@ -81,6 +81,7 @@ interface MatchData {
   winner?: string | null;
   goal_difference?: number;
   match_timezone?: string | null;
+  [key: string]: string | number | unknown;
 }
 
 interface AvailablePlayer {
@@ -88,6 +89,7 @@ interface AvailablePlayer {
   name: string;
   image: string;
   jersey: number;
+  [key: string]: string | number | unknown;
 }
 
 interface MatchesOverviewProps {
@@ -113,6 +115,7 @@ interface FormData {
   winner?: string;
   goal_difference?: number;
   match_timezone: string | null;
+  [key: string]: string | number | unknown;
 }
 
 export default function DynamicMatchesTable({
@@ -213,34 +216,7 @@ export default function DynamicMatchesTable({
       .map((word) => word.charAt(0).toUpperCase())
       .join("");
   };
-
-  // Helper function to format time
-  const formatTime = (timeString: string) => {
-    try {
-      const [hours, minutes] = timeString.split(":");
-      const hour24 = Number.parseInt(hours);
-      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
-      const ampm = hour24 >= 12 ? "PM" : "AM";
-      return `${hour12}:${minutes} ${ampm}`;
-    } catch {
-      return timeString;
-    }
-  };
-
-  // Helper function to format date
-  const formatDate = (dateString: string) => {
-    try {
-      const date = new Date(dateString);
-      return date.toLocaleDateString("en-US", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      });
-    } catch {
-      return dateString;
-    }
-  };
-
+  
   // Filter matches based on status
   const getFilteredMatches = () => {
     if (status === "all") {
@@ -823,14 +799,14 @@ export default function DynamicMatchesTable({
                       {/* Time */}
                       <TableCell className="px-6 py-4 text-center min-w-24">
                         <div className="font-normal text-blackblack-700 text-xl">
-                          {formatTime(match.time)}
+                          {getTimeOnly(match)}
                         </div>
                       </TableCell>
 
                       {/* Date */}
                       <TableCell className="px-6 py-4 text-center min-w-28">
                         <div className="font-normal text-blackblack-700 text-xl">
-                          {formatDate(match.date)}
+                          {getDateOnly(match)}
                         </div>
                       </TableCell>
 
@@ -1055,11 +1031,6 @@ export default function DynamicMatchesTable({
                     <Upload size={18} />
                   </Button>
                 </div>
-                {formData.teamBImage && (
-                  <p className="text-sm text-green-600">
-                    Image selected: {formData.teamBImage.name}
-                  </p>
-                )}
               </div>
             </div>
 
@@ -1347,11 +1318,6 @@ export default function DynamicMatchesTable({
                     <Upload size={18} />
                   </Button>
                 </div>
-                {formData.teamAImage && (
-                  <p className="text-sm text-green-600">
-                    New image selected: {formData.teamAImage.name}
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -1383,11 +1349,6 @@ export default function DynamicMatchesTable({
                     <Upload size={18} />
                   </Button>
                 </div>
-                {formData.teamBImage && (
-                  <p className="text-sm text-green-600">
-                    New image selected: {formData.teamBImage.name}
-                  </p>
-                )}
               </div>
             </div>
 
@@ -1710,8 +1671,8 @@ export default function DynamicMatchesTable({
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {formatDate(matchToDelete.date)} at{" "}
-                  {formatTime(matchToDelete.time)}
+                  {getDateOnly(matchToDelete)} at{" "}
+                  {getTimeOnly(matchToDelete)}
                 </p>
               </div>
             )}

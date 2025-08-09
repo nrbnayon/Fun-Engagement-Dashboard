@@ -1,6 +1,6 @@
 // src\app\(dashboard)\components\MainOverviewContent.tsx
 import React from "react";
-import {Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -14,20 +14,21 @@ import { UserIcon } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import {  getDateOnly, getTimeOnly } from "@/lib/utils";
 
 // Data for stats cards
 const statsData = [
   {
-    icon: <UserIcon className='h-6 w-6' />,
+    icon: <UserIcon className="h-6 w-6" />,
     title: "Total User",
     value: "1402",
   },
   {
     icon: (
       <Image
-        className='h-6 w-6'
-        alt='Voting'
-        src='/voting.svg'
+        className="h-6 w-6"
+        alt="Voting"
+        src="/voting.svg"
         width={24}
         height={24}
       />
@@ -96,23 +97,23 @@ const matchesData = Array(8).fill({
 
 export const MainOverviewContent = () => {
   return (
-    <main className='flex flex-col w-full items-center gap-6'>
+    <main className="flex flex-col w-full items-center gap-6">
       {/* Stats and Match Cards Row */}
-      <div className='flex  items-stretch gap-5 w-full'>
+      <div className="flex  items-stretch gap-5 w-full">
         {statsData.map((card, index) => (
           <Card
             key={index}
-            className='flex flex-col w-44 h-40 items-center justify-between gap-3 p-3 bg-white border-border'
+            className="flex flex-col w-44 h-40 items-center justify-between gap-3 p-3 bg-white border-border"
           >
-            <CardContent className='p-0 flex flex-col items-center justify-between gap-3 w-full h-full'>
-              <div className='inline-flex items-center gap-2 p-3 bg-secondary-light rounded-full'>
+            <CardContent className="p-0 flex flex-col items-center justify-between gap-3 w-full h-full">
+              <div className="inline-flex items-center gap-2 p-3 bg-secondary-light rounded-full">
                 {card.icon}
               </div>
-              <div className='flex flex-col items-start gap-1 w-full'>
-                <div className='w-full font-regular-lg-regular text-foreground text-center'>
+              <div className="flex flex-col items-start gap-1 w-full">
+                <div className="w-full font-regular-lg-regular text-foreground text-center">
                   {card.title}
                 </div>
-                <div className='font-oswald font-medium text-foreground text-3xl w-full text-center'>
+                <div className="font-oswald font-medium text-foreground text-3xl w-full text-center">
                   {card.value}
                 </div>
               </div>
@@ -124,46 +125,46 @@ export const MainOverviewContent = () => {
         {matchCards.map((match, index) => (
           <Card
             key={index}
-            className='flex flex-col w-96 h-40 items-start justify-between gap-6 px-6 py-4 border-border bg-card'
+            className="flex flex-col w-96 h-40 items-start justify-between gap-6 px-6 py-4 border-border bg-card"
           >
-            <CardContent className='p-0 w-full h-full flex flex-col justify-between'>
-              <div className='font-regular-lg-regular text-foreground'>
+            <CardContent className="p-0 w-full h-full flex flex-col justify-between">
+              <div className="font-regular-lg-regular text-foreground">
                 {match.title}
               </div>
-              <div className='inline-flex items-center gap-[38px]'>
-                <div className='flex flex-col w-14 items-center gap-3'>
+              <div className="inline-flex items-center gap-[38px]">
+                <div className="flex flex-col w-14 items-center gap-3">
                   <Avatar>
-                    <AvatarImage 
-                      className='w-10 h-10 object-cover rounded'
-                      alt='Team A logo'
+                    <AvatarImage
+                      className="w-10 h-10 object-cover rounded"
+                      alt="Team A logo"
                       src={match.teamA.logo}
                       width={40}
                       height={40}
                     />
                   </Avatar>
-                  <div className='w-full font-regular-lg-regular text-foreground text-center'>
+                  <div className="w-full font-regular-lg-regular text-foreground text-center">
                     {match.teamA.name}
                   </div>
                 </div>
-                <div className='flex flex-col w-24 items-center gap-3'>
-                  <div className='w-full font-regular-lg-regular text-red-500 text-center'>
+                <div className="flex flex-col w-24 items-center gap-3">
+                  <div className="w-full font-regular-lg-regular text-red-500 text-center">
                     {match.status}
                   </div>
-                  <div className='w-full font-regular-lg-regular text-foreground text-center'>
+                  <div className="w-full font-regular-lg-regular text-foreground text-center">
                     {match.time}
                   </div>
                 </div>
-                <div className='flex flex-col w-14 items-center gap-3'>
+                <div className="flex flex-col w-14 items-center gap-3">
                   <Avatar>
                     <AvatarImage
-                      className='w-10 h-10 object-cover rounded'
-                      alt='Team B logo'
+                      className="w-10 h-10 object-cover rounded"
+                      alt="Team B logo"
                       src={match.teamB.logo}
                       width={40}
                       height={40}
                     />
                   </Avatar>
-                  <div className='w-full font-regular-lg-regular text-foreground text-center'>
+                  <div className="w-full font-regular-lg-regular text-foreground text-center">
                     {match.teamB.name}
                   </div>
                 </div>
@@ -174,74 +175,77 @@ export const MainOverviewContent = () => {
       </div>
 
       {/* Voting Section */}
-      <div className='flex flex-col items-start gap-5 w-full'>
-        <div className='flex items-center justify-between w-full font-oswald'>
-          <h2 className='text-2xl text-secondary'>Voting</h2>
-          <Link href='voting' className='text-secondary text-base tracking-[0] leading-[normal]'>
+      <div className="flex flex-col items-start gap-5 w-full">
+        <div className="flex items-center justify-between w-full font-oswald">
+          <h2 className="text-2xl text-secondary">Voting</h2>
+          <Link
+            href="voting"
+            className="text-secondary text-base tracking-[0] leading-[normal]"
+          >
             See All
           </Link>
         </div>
 
-        <Card className='w-full min-h-74 rounded-xl bg-card overflow-hidden border-border p-0'>
-          <CardContent className='p-0'>
-            <Table className='border-collapse'>
-              <TableHeader className='border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300'>
+        <Card className="w-full min-h-74 rounded-xl bg-card overflow-hidden border-border p-0">
+          <CardContent className="p-0">
+            <Table className="border-collapse">
+              <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300">
                 <TableRow>
-                  <TableHead className='font-normal text-secondary pl-8 py-4'>
+                  <TableHead className="font-normal text-secondary pl-8 py-4">
                     User
                   </TableHead>
-                  <TableHead className='font-normal text-secondary pl-6 py-4'>
+                  <TableHead className="font-normal text-secondary pl-6 py-4">
                     Email
                   </TableHead>
-                  <TableHead className='font-normal text-secondary pl-6 py-4'>
+                  <TableHead className="font-normal text-secondary pl-6 py-4">
                     Who Will Win
                   </TableHead>
-                  <TableHead className='font-normal text-center text-secondary py-4'>
+                  <TableHead className="font-normal text-center text-secondary py-4">
                     Goals
                   </TableHead>
-                  <TableHead className='font-normal text-center text-secondary py-4'>
+                  <TableHead className="font-normal text-center text-secondary py-4">
                     Select Player
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className='bg-white'>
+              <TableBody className="bg-white">
                 {votingData.slice(0, 5).map((item, index) => (
                   <TableRow key={index}>
-                    <TableCell className='px-6 py-3'>
-                      <div className='flex items-center gap-3'>
+                    <TableCell className="px-6 py-3">
+                      <div className="flex items-center gap-3">
                         <Avatar>
                           <AvatarImage
-                            className='w-10 h-10 object-cover rounded-full'
-                            alt='User avatar'
+                            className="w-10 h-10 object-cover rounded-full"
+                            alt="User avatar"
                             src={item.user.avatar}
                           />
                         </Avatar>
-                        <span className='font-normal text-blackblack-700 text-xl'>
+                        <span className="font-normal text-blackblack-700 text-xl">
                           {item.user.name}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className='px-6 py-3'>
-                      <div className='font-normal text-blackblack-700 text-xl'>
+                    <TableCell className="px-6 py-3">
+                      <div className="font-normal text-blackblack-700 text-xl">
                         {item.email}
                       </div>
                     </TableCell>
-                    <TableCell className='px-6 py-3'>
-                      <div className='font-normal text-blackblack-700 text-xl'>
+                    <TableCell className="px-6 py-3">
+                      <div className="font-normal text-blackblack-700 text-xl">
                         {item.team}
                       </div>
                     </TableCell>
-                    <TableCell className='px-6 py-3 text-center'>
-                      <div className='font-normal text-blackblack-700 text-xl'>
+                    <TableCell className="px-6 py-3 text-center">
+                      <div className="font-normal text-blackblack-700 text-xl">
                         {item.goals}
                       </div>
                     </TableCell>
-                    <TableCell className='px-6 py-3'>
-                      <div className='flex items-center justify-center gap-2'>
+                    <TableCell className="px-6 py-3">
+                      <div className="flex items-center justify-center gap-2">
                         {item.players.map((player: string, idx: number) => (
                           <Badge
                             key={idx}
-                            className='flex items-center justify-center px-3 w-12 h-12 bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg'
+                            className="flex items-center justify-center px-3 w-12 h-12 bg-white rounded-full border border-solid border-[#fbf2c5] font-mono text-secondary text-lg"
                           >
                             {player}
                           </Badge>
@@ -257,83 +261,86 @@ export const MainOverviewContent = () => {
       </div>
 
       {/* Matches List Section */}
-      <div className='flex flex-col items-start gap-5 w-full'>
-        <div className='flex items-center justify-between w-full font-oswald'>
-          <h2 className='text-2xl text-secondary'>Matches List</h2>
-          <Link href='/matches' className='text-secondary text-base tracking-[0] leading-[normal]'>
+      <div className="flex flex-col items-start gap-5 w-full">
+        <div className="flex items-center justify-between w-full font-oswald">
+          <h2 className="text-2xl text-secondary">Matches List</h2>
+          <Link
+            href="/matches"
+            className="text-secondary text-base tracking-[0] leading-[normal]"
+          >
             See All
           </Link>
         </div>
 
-        <Card className='w-full min-h-74 rounded-xl bg-card overflow-hidden border-border p-0'>
-          <CardContent className='p-0'>
-            <Table className='border-collapse'>
-              <TableHeader className='border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300'>
+        <Card className="w-full min-h-74 rounded-xl bg-card overflow-hidden border-border p-0">
+          <CardContent className="p-0">
+            <Table className="border-collapse">
+              <TableHeader className="border-b-2 border-primary text-xl py-4 md:text-2xl bg-card hover:bg-yellow-300">
                 <TableRow>
-                  <TableHead className='font-normal text-secondary pl-8 py-4'>
+                  <TableHead className="font-normal text-secondary pl-8 py-4">
                     Team A
                   </TableHead>
-                  <TableHead className='font-normal text-secondary pl-6 py-4'>
+                  <TableHead className="font-normal text-secondary pl-6 py-4">
                     Team B
                   </TableHead>
-                  <TableHead className='font-normal text-center text-secondary py-4'>
+                  <TableHead className="font-normal text-center text-secondary py-4">
                     Time
                   </TableHead>
-                  <TableHead className='font-normal text-center text-secondary py-4'>
+                  <TableHead className="font-normal text-center text-secondary py-4">
                     Date
                   </TableHead>
-                  <TableHead className='font-normal text-center text-secondarys py-4'>
+                  <TableHead className="font-normal text-center text-secondarys py-4">
                     Player
                   </TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className='bg-white'>
+              <TableBody className="bg-white">
                 {matchesData.slice(0, 5).map((match, index) => (
                   <TableRow key={index}>
-                    <TableCell className='px-6 py-4'>
-                      <div className='flex items-center gap-3'>
-                        <div className='w-10 h-10 flex items-center justify-center'>
+                    <TableCell className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 flex items-center justify-center">
                           <Image
-                            className='w-9 h-9 object-contain'
+                            className="w-9 h-9 object-contain"
                             alt={`${match.teamA.name} logo`}
                             src={match.teamA.logo}
                             width={36}
                             height={36}
                           />
                         </div>
-                        <span className='font-normal text-blackblack-700 text-xl'>
+                        <span className="font-normal text-blackblack-700 text-xl">
                           {match.teamA.name}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className='px-6 py-4'>
-                      <div className='flex items-center gap-3'>
-                        <div className='w-10 h-10 flex items-center justify-center'>
+                    <TableCell className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 flex items-center justify-center">
                           <Image
-                            className='w-9 h-9 object-contain'
+                            className="w-9 h-9 object-contain"
                             alt={`${match.teamB.name} logo`}
                             src={match.teamB.logo}
                             width={36}
                             height={36}
                           />
                         </div>
-                        <span className='font-normal text-blackblack-700 text-xl'>
+                        <span className="font-normal text-blackblack-700 text-xl">
                           {match.teamB.name}
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell className='px-6 py-4 text-center'>
-                      <div className='font-normal text-blackblack-700 text-xl'>
-                        {match.time}
+                    <TableCell className="px-6 py-4 text-center">
+                      <div className="font-normal text-blackblack-700 text-xl">
+                        {getTimeOnly(match)}
                       </div>
                     </TableCell>
-                    <TableCell className='px-6 py-4 text-center'>
-                      <div className='font-normal text-blackblack-700 text-xl'>
-                        {match.date}
+                    <TableCell className="px-6 py-4 text-center">
+                      <div className="font-normal text-blackblack-700 text-xl">
+                        {getDateOnly(match)}
                       </div>
                     </TableCell>
-                    <TableCell className='px-6 py-4'>
-                      <div className='flex items-center justify-center'>
+                    <TableCell className="px-6 py-4">
+                      <div className="flex items-center justify-center">
                         {match.players
                           .slice(0, 8)
                           .map((player: string, idx: number) => (
@@ -342,7 +349,7 @@ export const MainOverviewContent = () => {
                               className={idx > 0 ? "-ml-2" : ""}
                             >
                               <AvatarImage
-                                className='w-10 h-10 object-cover rounded-full border-2 border-border'
+                                className="w-10 h-10 object-cover rounded-full border-2 border-border"
                                 alt={`Player ${idx + 1}`}
                                 src={
                                   typeof player === "string"
