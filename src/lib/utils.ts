@@ -119,7 +119,7 @@ export const getDateOnly = (match: { date_time?: string; date?: string }) => {
       weekday: "short",
       day: "numeric",
       month: "short",
-      year: "numeric", 
+      year: "numeric",
     };
     return dateObj.toLocaleDateString("en-US", options);
   }
@@ -150,4 +150,56 @@ export const getTimeOnly = (match: { date_time?: string; time?: string }) => {
       .padStart(2, "0")} ${period}`;
   }
   return match.time || "N/A";
+};
+
+export const convertDateTimeToUKTime = (
+  date: Date | undefined,
+  timeStr: string
+) => {
+  if (!date || !timeStr) return "";
+
+  const [hours, minutes, seconds = "00"] = timeStr.split(":");
+
+  // Format date as YYYY-MM-DD
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0"); // getMonth() is 0-indexed
+  const day = date.getDate().toString().padStart(2, "0");
+
+  // Format time as HH:MM:SS
+  const formattedTime = `${hours.padStart(2, "0")}:${minutes.padStart(
+    2,
+    "0"
+  )}:${seconds.padStart(2, "0")}`;
+
+  // Determine if the date falls during BST (British Summer Time)
+  // BST runs from last Sunday in March to last Sunday in October
+  const isBST = isDateInBST(date);
+  const offset = isBST ? "+01:00" : "+00:00";
+
+  return `${year}-${month}-${day}T${formattedTime}${offset}`;
+};
+
+// Helper function to determine if a date falls during British Summer Time
+const isDateInBST = (date: Date): boolean => {
+  const year = date.getFullYear();
+
+  // Find last Sunday in March
+  const marchLastSunday = getLastSundayOfMonth(year, 2); // March is month 2 (0-indexed)
+
+  // Find last Sunday in October
+  const octoberLastSunday = getLastSundayOfMonth(year, 9); // October is month 9 (0-indexed)
+
+  return date >= marchLastSunday && date < octoberLastSunday;
+};
+
+// Helper function to get the last Sunday of a given month
+const getLastSundayOfMonth = (year: number, month: number): Date => {
+  // Start with the last day of the month
+  const lastDay = new Date(year, month + 1, 0);
+
+  // Find the last Sunday
+  const dayOfWeek = lastDay.getDay();
+  const daysToSubtract = dayOfWeek === 0 ? 0 : dayOfWeek;
+
+  return new Date(year, month, lastDay.getDate() - daysToSubtract);
 };

@@ -28,7 +28,12 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Plus, X, CalendarIcon, Clock, Loader2, ImageUp } from "lucide-react";
 import { format } from "date-fns";
-import { cn, getFullImageUrl, userTimezone } from "@/lib/utils";
+import {
+  cn,
+  convertDateTimeToUKTime,
+  getFullImageUrl,
+  userTimezone,
+} from "@/lib/utils";
 import DynamicMatchesTable from "./DynamicMatchesTable";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
@@ -76,7 +81,7 @@ export default function DynamicMatchPage() {
     date_time: "",
   });
 
-  console.log("Time zone::", userTimezone);
+  // console.log("Time zone::", formData.date_time);
 
   const [availablePlayers, setAvailablePlayers] = useState<AvailablePlayer[]>(
     []
@@ -162,24 +167,24 @@ export default function DynamicMatchPage() {
     });
   };
 
-  const convertDateTimeToISO = (date: Date | undefined, timeStr: string) => {
-    if (!date || !timeStr) return "";
+  // const convertDateTimeToISO = (date: Date | undefined, timeStr: string) => {
+  //   if (!date || !timeStr) return "";
 
-    const [hours, minutes, seconds = "00"] = timeStr.split(":");
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const day = date.getDate();
+  //   const [hours, minutes, seconds = "00"] = timeStr.split(":");
+  //   const year = date.getFullYear();
+  //   const month = date.getMonth();
+  //   const day = date.getDate();
 
-    const localDateTime = new Date(
-      year,
-      month,
-      day,
-      parseInt(hours),
-      parseInt(minutes),
-      parseInt(seconds || "0")
-    );
-    return localDateTime.toISOString();
-  };
+  //   const localDateTime = new Date(
+  //     year,
+  //     month,
+  //     day,
+  //     parseInt(hours),
+  //     parseInt(minutes),
+  //     parseInt(seconds || "0")
+  //   );
+  //   return localDateTime.setZone("Europe/London").toISOString();
+  // };
 
   const handleSubmit = async () => {
     // Prevent double submission
@@ -200,7 +205,7 @@ export default function DynamicMatchPage() {
 
       setIsSubmitting(true);
 
-      const combinedDateTime = convertDateTimeToISO(
+      const combinedDateTime = convertDateTimeToUKTime(
         formData.date,
         formData.time
       );
@@ -242,7 +247,7 @@ export default function DynamicMatchPage() {
         timeout: 30000,
       });
 
-      console.log("Response::", response.data);
+      // console.log("Response::", response.data);
 
       if (response.data) {
         // Refresh matches data
