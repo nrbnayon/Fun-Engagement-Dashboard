@@ -52,7 +52,14 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { cn, getDateOnly, getFullImageUrl, getTimeOnly, userTimezone } from "@/lib/utils";
+import {
+  cn,
+  convertDateTimeToUKTime,
+  getDateOnly,
+  getFullImageUrl,
+  getTimeOnly,
+  userTimezone,
+} from "@/lib/utils";
 import { getAllMatch, deleteMatch } from "@/lib/services/matchDataApi";
 import { getAllPlayers } from "@/lib/services/playlistDataApi";
 import apiEndpoint from "@/lib/axios";
@@ -216,7 +223,7 @@ export default function DynamicMatchesTable({
       .map((word) => word.charAt(0).toUpperCase())
       .join("");
   };
-  
+
   // Filter matches based on status
   const getFilteredMatches = () => {
     if (status === "all") {
@@ -494,20 +501,6 @@ export default function DynamicMatchesTable({
     setEditingMatch(null);
   };
 
-  const convertTimeToAPI = (timeStr: string) => {
-    // Convert from "14:30" format to "14:30:00" format
-    if (timeStr && !timeStr.includes(":00")) {
-      return `${timeStr}:00`;
-    }
-    return timeStr;
-  };
-
-  const convertDateToAPI = (date: Date | undefined) => {
-    // Convert Date object to "yyyy-mm-dd" format
-    if (!date) return "";
-    return format(date, "yyyy-MM-dd");
-  };
-
   const convertTimeFromAPI = (timeStr: string) => {
     // Convert from "17:00:00" format to "17:00" format
     try {
@@ -521,104 +514,165 @@ export default function DynamicMatchesTable({
   const convertDateFromAPI = (dateStr: string) => {
     // Convert from "yyyy-mm-dd" format to Date object
     try {
-      return new Date(dateStr);
-    } catch {
+      if (!dateStr || typeof dateStr !== "string") {
+        return undefined;
+      }
+
+      // Clean the date string and validate format
+      const cleanDateStr = dateStr.trim();
+
+      // Check if it matches yyyy-mm-dd format
+      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+      if (!dateRegex.test(cleanDateStr)) {
+        return undefined;
+      }
+
+      const date = new Date(cleanDateStr);
+
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        return undefined;
+      }
+
+      return date;
+    } catch (error) {
+      console.error("Error converting date from API:", error);
       return undefined;
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      // Validate required fields
-      if (
-        !formData.teamAName ||
-        !formData.teamBName ||
-        !formData.time ||
-        !formData.date
-      ) {
-        toast.error("Please fill in all required fields");
-        return;
-      }
+ const handleSubmit = async () => {
+   try {
+     // Validate required fields
+     if (
+       !formData.teamAName ||
+       !formData.teamBName ||
+       !formData.time ||
+       !formData.date
+     ) {
+       toast.error("Please fill in all required fields");
+       return;
+     }
 
-      // Create FormData for multipart/form-data
-      const submitFormData = new FormData();
-      submitFormData.append("team_a", formData.teamAName);
-      submitFormData.append("team_b", formData.teamBName);
-      submitFormData.append("time", convertTimeToAPI(formData.time));
-      submitFormData.append("date", convertDateToAPI(formData.date));
+     // Convert date and time to UK timezone format (same as Add Match)
+     const combinedDateTime = convertDateTimeToUKTime(
+       formData.date,
+       formData.time
+     );
+     const timeWithSeconds =
+       formData.time + (formData.time.split(":").length === 2 ? ":00" : "");
 
-      formData.selectedPlayers.forEach((playerId) => {
-        submitFormData.append("selected_players_ids", playerId);
-      });
+     // Create FormData for multipart/form-data
+     const submitFormData = new FormData();
+     submitFormData.append("team_a", formData.teamAName);
+     submitFormData.append("team_b", formData.teamBName);
+     submitFormData.append("time", timeWithSeconds);
+     submitFormData.append("date", combinedDateTime);
+     submitFormData.append("date_time", combinedDateTime);
+     submitFormData.append("match_timezone", userTimezone);
 
-      if (formData.status) {
-        submitFormData.append("status", formData.status);
-      }
+     // Send multiple fields with the same name for array handling
+     formData.selectedPlayers.forEach((playerId) => {
+       submitFormData.append("selected_players_ids", playerId);
+     });
 
-      if (formData.winner && formData.winner !== "no_winner") {
-        submitFormData.append("winner", formData.winner);
-      }
+     if (formData.status) {
+       submitFormData.append("status", formData.status);
+     }
 
-      if (formData.goal_difference !== undefined) {
-        submitFormData.append(
-          "goal_difference",
-          formData.goal_difference.toString()
-        );
-      }
+     if (formData.winner && formData.winner !== "no_winner") {
+       submitFormData.append("winner", formData.winner);
+     }
 
-      submitFormData.append("match_timezone", userTimezone);
+     if (formData.goal_difference !== undefined) {
+       submitFormData.append(
+         "goal_difference",
+         formData.goal_difference.toString()
+       );
+     }
 
-      if (formData.teamAImage) {
-        submitFormData.append("team_a_pics", formData.teamAImage);
-      }
-      if (formData.teamBImage) {
-        submitFormData.append("team_b_pics", formData.teamBImage);
-      }
+     // Add images if provided
+     if (formData.teamAImage) {
+       submitFormData.append("team_a_pics", formData.teamAImage);
+     }
+     if (formData.teamBImage) {
+       submitFormData.append("team_b_pics", formData.teamBImage);
+     }
 
-      let response;
-      if (editingMatch) {
-        response = await apiEndpoint.put(
-          `/matches/${editingMatch.id}/`,
-          submitFormData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-            timeout: 30000,
-          }
-        );
-      } else {
-        response = await apiEndpoint.post("/matches/", submitFormData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          timeout: 30000,
-        });
-      }
+     let response;
+     if (editingMatch) {
+       response = await apiEndpoint.put(
+         `/matches/${editingMatch.id}/`,
+         submitFormData,
+         {
+           headers: { "Content-Type": "multipart/form-data" },
+           timeout: 30000,
+         }
+       );
+     } else {
+       response = await apiEndpoint.post("/matches/", submitFormData, {
+         headers: { "Content-Type": "multipart/form-data" },
+         timeout: 30000,
+       });
+     }
 
-      if (response.data) {
-        await fetchMatchesData();
-        if (onMatchUpdate) {
-          onMatchUpdate();
-        }
-        setIsAddMatchOpen(false);
-        setIsEditMatchOpen(false);
-        resetForm();
-        toast.success(
-          editingMatch
-            ? "Match updated successfully!"
-            : "Match created successfully!"
-        );
-      }
-    } catch (error) {
-      console.error("Error submitting match:", error);
-      toast.error("An error occurred while submitting the match.");
-    }
-  };
+     if (response.data) {
+       await fetchMatchesData();
+       if (onMatchUpdate) {
+         onMatchUpdate();
+       }
+       setIsAddMatchOpen(false);
+       setIsEditMatchOpen(false);
+       resetForm();
+       toast.success(
+         editingMatch
+           ? "Match updated successfully!"
+           : "Match created successfully!"
+       );
+     }
+   } catch (error) {
+     console.error("Error submitting match:", error);
+     toast.error("An error occurred while submitting the match.");
+   }
+ };
 
   const handleEdit = (match: MatchData) => {
     setEditingMatch(match);
+
+    // Convert the combined date_time back to separate date and time
+    let dateValue: Date | undefined = undefined;
+    let timeValue: string = "";
+
+    try {
+      if (match.date_time) {
+        // If date_time exists, use it to extract both date and time
+        const dateTimeObj = new Date(match.date_time as string);
+        if (!isNaN(dateTimeObj.getTime())) {
+          dateValue = dateTimeObj;
+          // Extract time in HH:MM format
+          timeValue = dateTimeObj.toLocaleTimeString("en-GB", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          });
+        }
+      } else {
+        // Fallback to separate date and time fields
+        dateValue = convertDateFromAPI(match.date);
+        timeValue = convertTimeFromAPI(match.time);
+      }
+    } catch (error) {
+      console.error("Error parsing date/time for edit:", error);
+      // Fallback to separate fields
+      dateValue = convertDateFromAPI(match.date);
+      timeValue = convertTimeFromAPI(match.time);
+    }
+
     setFormData({
       teamAName: match.team_a,
       teamBName: match.team_b,
-      time: convertTimeFromAPI(match.time),
-      date: convertDateFromAPI(match.date),
+      time: timeValue,
+      date: dateValue,
       selectedPlayers: match.selected_players.map((p) => p.id.toString()),
       teamAImage: null,
       teamBImage: null,
@@ -1671,8 +1725,7 @@ export default function DynamicMatchesTable({
                   </div>
                 </div>
                 <p className="text-sm text-gray-600 mt-2">
-                  {getDateOnly(matchToDelete)} at{" "}
-                  {getTimeOnly(matchToDelete)}
+                  {getDateOnly(matchToDelete)} at {getTimeOnly(matchToDelete)}
                 </p>
               </div>
             )}
