@@ -214,7 +214,7 @@ export default function DynamicMatchesTable({
       setLoading(false);
     }
   };
-  console.log("Fetched matches data:", allMatchesData);
+  // console.log("Fetched matches data:", allMatchesData);
 
   // Helper function to get team initials from team name
   const getTeamInitials = (teamName: string) => {
