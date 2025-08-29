@@ -214,6 +214,7 @@ export default function DynamicMatchesTable({
       setLoading(false);
     }
   };
+  console.log("Fetched matches data:", allMatchesData);
 
   // Helper function to get team initials from team name
   const getTeamInitials = (teamName: string) => {
@@ -541,132 +542,154 @@ export default function DynamicMatchesTable({
     }
   };
 
- const handleSubmit = async () => {
-   try {
-     // Validate required fields
-     if (
-       !formData.teamAName ||
-       !formData.teamBName ||
-       !formData.time ||
-       !formData.date
-     ) {
-       toast.error("Please fill in all required fields");
-       return;
-     }
+  const handleSubmit = async () => {
+    try {
+      // Validate required fields
+      if (
+        !formData.teamAName ||
+        !formData.teamBName ||
+        !formData.time ||
+        !formData.date
+      ) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
 
-     // Convert date and time to UK timezone format (same as Add Match)
-     const combinedDateTime = convertDateTimeToUKTime(
-       formData.date,
-       formData.time
-     );
-     const timeWithSeconds =
-       formData.time + (formData.time.split(":").length === 2 ? ":00" : "");
+      // Convert date and time to UK timezone format (same as Add Match)
+      const combinedDateTime = convertDateTimeToUKTime(
+        formData.date,
+        formData.time
+      );
+      const timeWithSeconds =
+        formData.time + (formData.time.split(":").length === 2 ? ":00" : "");
 
-     // Create FormData for multipart/form-data
-     const submitFormData = new FormData();
-     submitFormData.append("team_a", formData.teamAName);
-     submitFormData.append("team_b", formData.teamBName);
-     submitFormData.append("time", timeWithSeconds);
-     submitFormData.append("date", combinedDateTime);
-     submitFormData.append("date_time", combinedDateTime);
-     submitFormData.append("match_timezone", userTimezone);
+      // Create FormData for multipart/form-data
+      const submitFormData = new FormData();
+      submitFormData.append("team_a", formData.teamAName);
+      submitFormData.append("team_b", formData.teamBName);
+      submitFormData.append("time", timeWithSeconds);
+      submitFormData.append("date", combinedDateTime);
+      submitFormData.append("date_time", combinedDateTime);
+      submitFormData.append("match_timezone", userTimezone);
 
-     // Send multiple fields with the same name for array handling
-     formData.selectedPlayers.forEach((playerId) => {
-       submitFormData.append("selected_players_ids", playerId);
-     });
+      // Send multiple fields with the same name for array handling
+      formData.selectedPlayers.forEach((playerId) => {
+        submitFormData.append("selected_players_ids", playerId);
+      });
 
-     if (formData.status) {
-       submitFormData.append("status", formData.status);
-     }
+      if (formData.status) {
+        submitFormData.append("status", formData.status);
+      }
 
-     if (formData.winner && formData.winner !== "no_winner") {
-       submitFormData.append("winner", formData.winner);
-     }
+      if (formData.winner && formData.winner !== "no_winner") {
+        submitFormData.append("winner", formData.winner);
+      }
 
-     if (formData.goal_difference !== undefined) {
-       submitFormData.append(
-         "goal_difference",
-         formData.goal_difference.toString()
-       );
-     }
+      if (formData.goal_difference !== undefined) {
+        submitFormData.append(
+          "goal_difference",
+          formData.goal_difference.toString()
+        );
+      }
 
-     // Add images if provided
-     if (formData.teamAImage) {
-       submitFormData.append("team_a_pics", formData.teamAImage);
-     }
-     if (formData.teamBImage) {
-       submitFormData.append("team_b_pics", formData.teamBImage);
-     }
+      // Add images if provided
+      if (formData.teamAImage) {
+        submitFormData.append("team_a_pics", formData.teamAImage);
+      }
+      if (formData.teamBImage) {
+        submitFormData.append("team_b_pics", formData.teamBImage);
+      }
 
-     let response;
-     if (editingMatch) {
-       response = await apiEndpoint.put(
-         `/matches/${editingMatch.id}/`,
-         submitFormData,
-         {
-           headers: { "Content-Type": "multipart/form-data" },
-           timeout: 30000,
-         }
-       );
-     } else {
-       response = await apiEndpoint.post("/matches/", submitFormData, {
-         headers: { "Content-Type": "multipart/form-data" },
-         timeout: 30000,
-       });
-     }
+      let response;
+      if (editingMatch) {
+        response = await apiEndpoint.put(
+          `/matches/${editingMatch.id}/`,
+          submitFormData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            timeout: 30000,
+          }
+        );
+      } else {
+        response = await apiEndpoint.post("/matches/", submitFormData, {
+          headers: { "Content-Type": "multipart/form-data" },
+          timeout: 30000,
+        });
+      }
 
-     if (response.data) {
-       await fetchMatchesData();
-       if (onMatchUpdate) {
-         onMatchUpdate();
-       }
-       setIsAddMatchOpen(false);
-       setIsEditMatchOpen(false);
-       resetForm();
-       toast.success(
-         editingMatch
-           ? "Match updated successfully!"
-           : "Match created successfully!"
-       );
-     }
-   } catch (error) {
-     console.error("Error submitting match:", error);
-     toast.error("An error occurred while submitting the match.");
-   }
- };
+      if (response.data) {
+        await fetchMatchesData();
+        if (onMatchUpdate) {
+          onMatchUpdate();
+        }
+        setIsAddMatchOpen(false);
+        setIsEditMatchOpen(false);
+        resetForm();
+        toast.success(
+          editingMatch
+            ? "Match updated successfully!"
+            : "Match created successfully!"
+        );
+      }
+    } catch (error) {
+      console.error("Error submitting match:", error);
+      toast.error("An error occurred while submitting the match.");
+    }
+  };
 
-  const handleEdit = (match: MatchData) => {
-    setEditingMatch(match);
-
-    // Convert the combined date_time back to separate date and time
+  // NEW: Separate function specifically for parsing edit data
+  const parseEditDateTime = (match: MatchData) => {
     let dateValue: Date | undefined = undefined;
     let timeValue: string = "";
 
     try {
-      if (match.date_time) {
-        // If date_time exists, use it to extract both date and time
-        const dateTimeObj = new Date(match.date_time as string);
-        if (!isNaN(dateTimeObj.getTime())) {
-          dateValue = dateTimeObj;
-          // Extract time in HH:MM format
-          timeValue = dateTimeObj.toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: false,
-          });
+      // Priority 1: Use date_time if it exists (ISO format like "2025-08-30T10:00:00+01:00")
+      if (match.date_time && typeof match.date_time === "string") {
+        const dateTimeStr = match.date_time;
+
+        // Extract date part (YYYY-MM-DD)
+        const datePart = dateTimeStr.split("T")[0];
+        dateValue = new Date(datePart + "T00:00:00"); // Local date without timezone issues
+
+        // Extract time part directly from the ISO string
+        const timePart = dateTimeStr.split("T")[1];
+        if (timePart) {
+          // Get HH:MM from the time part (before timezone info)
+          const timeOnly = timePart.split("+")[0].split("-")[0]; // Handle both +01:00 and -05:00 timezones
+          const [hours, minutes] = timeOnly.split(":");
+          timeValue = `${hours}:${minutes}`;
+
+          return { date: dateValue, time: timeValue };
         }
-      } else {
-        // Fallback to separate date and time fields
+      }
+
+      // Priority 2: Fallback to separate date and time fields
+      if (match.date) {
         dateValue = convertDateFromAPI(match.date);
+      }
+
+      if (match.time) {
         timeValue = convertTimeFromAPI(match.time);
       }
+
+      return { date: dateValue, time: timeValue };
     } catch (error) {
-      console.error("Error parsing date/time for edit:", error);
-      // Fallback to separate fields
-      dateValue = convertDateFromAPI(match.date);
-      timeValue = convertTimeFromAPI(match.time);
+      console.error("Error parsing edit date/time:", error);
+
+      // Final fallback to separate fields
+      return {
+        date: convertDateFromAPI(match.date),
+        time: convertTimeFromAPI(match.time),
+      };
     }
+  };
+
+  // Updated handleEdit function - only this part changes
+  const handleEdit = (match: MatchData) => {
+    setEditingMatch(match);
+
+    // Use the dedicated edit parsing function
+    const { date: dateValue, time: timeValue } = parseEditDateTime(match);
 
     setFormData({
       teamAName: match.team_a,
@@ -711,6 +734,8 @@ export default function DynamicMatchesTable({
       setMatchToDelete(null);
     }
   };
+
+  console.log("Match submission response:", getAllMatch);
 
   return (
     <div className="space-y-6">
