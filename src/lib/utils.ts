@@ -42,17 +42,26 @@ export let userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 // ✅ NEW: Helper function to parse date_time and format for display
 export const formatDateTimeFromISO = (dateTimeISO: string) => {
   try {
-    // Parse the ISO string to Date object (automatically converts to local time)
-    const dateObj = new Date(dateTimeISO);
+    // Extract date and time parts directly from ISO string without conversion
+    const [datePart, timePart] = dateTimeISO.split("T");
 
-    // Check if the date is valid
-    if (isNaN(dateObj.getTime())) {
-      throw new Error("Invalid date");
+    if (!datePart || !timePart) {
+      throw new Error("Invalid ISO format");
     }
 
-    // Get local hours and minutes
-    const hours = dateObj.getHours();
-    const minutes = dateObj.getMinutes();
+    // Extract time without timezone conversion
+    let timeOnly = timePart;
+    if (timePart.includes("+")) {
+      timeOnly = timePart.split("+")[0];
+    } else if (timePart.includes("-")) {
+      const parts = timePart.split("-");
+      if (parts.length > 1) {
+        timeOnly = parts[0];
+      }
+    }
+
+    // Parse time components
+    const [hours, minutes] = timeOnly.split(":").map(Number);
 
     // Convert to 12-hour format
     const period = hours >= 12 ? "PM" : "AM";
@@ -60,6 +69,15 @@ export const formatDateTimeFromISO = (dateTimeISO: string) => {
     const timeStr = `${displayHours.toString().padStart(2, "0")}:${minutes
       .toString()
       .padStart(2, "0")} ${period}`;
+
+    // Parse date components directly from ISO string
+    const [year, month, day] = datePart.split("-").map(Number);
+    const dateObj = new Date(year, month - 1, day); // month is 0-indexed in Date constructor
+
+    // Check if the date is valid
+    if (isNaN(dateObj.getTime())) {
+      throw new Error("Invalid date components");
+    }
 
     // Format date
     const options: Intl.DateTimeFormatOptions = {
@@ -110,6 +128,58 @@ export const formatDateTime = (match: Match) => {
 
   // Priority 3: Default fallback
   return "Date not available";
+};
+
+export const getOriginalTimeOnly = (match: Match) => {
+  try {
+    // Priority 1: Use date_time if it exists (ISO format)
+    if (match.date_time && typeof match.date_time === "string") {
+      const timePart = match.date_time.split("T")[1];
+      if (timePart) {
+        // Handle both + and - timezone indicators
+        let timeOnly = timePart;
+        if (timePart.includes("+")) {
+          timeOnly = timePart.split("+")[0];
+        } else if (timePart.includes("-")) {
+          const parts = timePart.split("-");
+          if (parts.length > 1) {
+            timeOnly = parts[0];
+          }
+        }
+
+        const [hours, minutes] = timeOnly.split(":");
+        const hour24 = parseInt(hours, 10);
+        const min = parseInt(minutes, 10);
+
+        // Convert to 12-hour format with AM/PM
+        const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+        const ampm = hour24 >= 12 ? "PM" : "AM";
+        const formattedTime = `${hour12}:${min
+          .toString()
+          .padStart(2, "0")} ${ampm}`;
+
+        return formattedTime;
+      }
+    }
+
+    // Fallback to existing time field
+    if (match.time) {
+      const [hours, minutes] = match.time.split(":");
+      const hour24 = parseInt(hours, 10);
+      const min = parseInt(minutes, 10);
+
+      // Convert to 12-hour format with AM/PM
+      const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+      const ampm = hour24 >= 12 ? "PM" : "AM";
+
+      return `${hour12}:${min.toString().padStart(2, "0")} ${ampm}`;
+    }
+
+    return "--:--";
+  } catch (error) {
+    console.error("Error getting original time:", error);
+    return "--:--";
+  }
 };
 
 export const getDateOnly = (match: { date_time?: string; date?: string }) => {

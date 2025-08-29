@@ -787,8 +787,6 @@ export default function DynamicMatchesTable({
     }
   };
 
-  console.log("Match submission response:", getAllMatch);
-
   return (
     <div className="space-y-6">
       {/* Title and See All/Add Match Link */}
