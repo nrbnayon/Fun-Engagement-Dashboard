@@ -707,6 +707,58 @@ export default function DynamicMatchesTable({
     setIsEditMatchOpen(true);
   };
 
+  const getOriginalTimeOnly = (match: MatchData) => {
+    try {
+      // Priority 1: Use date_time if it exists (ISO format)
+      if (match.date_time && typeof match.date_time === "string") {
+        const timePart = match.date_time.split("T")[1];
+        if (timePart) {
+          // Handle both + and - timezone indicators
+          let timeOnly = timePart;
+          if (timePart.includes("+")) {
+            timeOnly = timePart.split("+")[0];
+          } else if (timePart.includes("-")) {
+            const parts = timePart.split("-");
+            if (parts.length > 1) {
+              timeOnly = parts[0];
+            }
+          }
+
+          const [hours, minutes] = timeOnly.split(":");
+          const hour24 = parseInt(hours, 10);
+          const min = parseInt(minutes, 10);
+
+          // Convert to 12-hour format with AM/PM
+          const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+          const ampm = hour24 >= 12 ? "PM" : "AM";
+          const formattedTime = `${hour12}:${min
+            .toString()
+            .padStart(2, "0")} ${ampm}`;
+
+          return formattedTime;
+        }
+      }
+
+      // Fallback to existing time field
+      if (match.time) {
+        const [hours, minutes] = match.time.split(":");
+        const hour24 = parseInt(hours, 10);
+        const min = parseInt(minutes, 10);
+
+        // Convert to 12-hour format with AM/PM
+        const hour12 = hour24 === 0 ? 12 : hour24 > 12 ? hour24 - 12 : hour24;
+        const ampm = hour24 >= 12 ? "PM" : "AM";
+
+        return `${hour12}:${min.toString().padStart(2, "0")} ${ampm}`;
+      }
+
+      return "--:--";
+    } catch (error) {
+      console.error("Error getting original time:", error);
+      return "--:--";
+    }
+  };
+
   const handleDeleteClick = (match: MatchData) => {
     setMatchToDelete(match);
     setIsDeleteModalOpen(true);
@@ -878,7 +930,7 @@ export default function DynamicMatchesTable({
                       {/* Time */}
                       <TableCell className="px-6 py-4 text-center min-w-24">
                         <div className="font-normal text-blackblack-700 text-xl">
-                          {getTimeOnly(match)}
+                          {getOriginalTimeOnly(match)}
                         </div>
                       </TableCell>
 
