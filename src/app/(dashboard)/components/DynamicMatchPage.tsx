@@ -257,9 +257,24 @@ export default function DynamicMatchPage() {
         resetForm();
         toast.success("Match created successfully!");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error creating match:", error);
-      toast.error("An error occurred while creating the match.");
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof (error as { response?: { data?: { message?: string } } }).response === "object" &&
+        (error as { response?: { data?: { message?: string } } }).response !== null &&
+        (error as { response?: { data?: { message?: string } } }).response !== undefined &&
+        (error as { response?: { data?: { message?: string } } }).response !== undefined 
+      ) {
+        toast.error(
+          (error as { response: { data?: { message?: string } } }).response.data?.message ||
+            "Failed to create match"
+        );
+      } else {
+        toast.error("Failed to create match");
+      }
     } finally {
       setIsSubmitting(false);
     }
