@@ -451,24 +451,24 @@ export default function DynamicMatchesTable({
   const displayTitle = getTitleDisplay();
 
   // Add/Edit Match Dialog Functions
- const handleInputChange = (
-   field: keyof FormData,
-   value: string | string[] | Date | number | undefined
- ) => {
-   setFormData((prev) => {
-     const updated = {
-       ...prev,
-       [field]: value,
-     };
+  const handleInputChange = (
+    field: keyof FormData,
+    value: string | string[] | Date | number | undefined
+  ) => {
+    setFormData((prev) => {
+      const updated = {
+        ...prev,
+        [field]: value,
+      };
 
-     // Auto-set goal_difference to 0 when winner is "draw"
-     if (field === "winner" && value === "draw") {
-       updated.goal_difference = 0;
-     }
+      // Auto-set goal_difference to 0 when winner is "draw"
+      if (field === "winner" && value === "draw") {
+        updated.goal_difference = 0;
+      }
 
-     return updated;
-   });
- };
+      return updated;
+    });
+  };
 
   const handleAddPlayer = (playerId: string) => {
     if (!formData.selectedPlayers.includes(playerId)) {
@@ -1253,30 +1253,20 @@ export default function DynamicMatchesTable({
             </div>
 
             {/* Goal Difference Field - Now with conditional rendering */}
-            {formData.winner && formData.winner !== "no_winner" && (
-              <div className="space-y-2 mb-4">
-                <label className="font-medium text-[#141b34]">
-                  Goal Difference
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder={
-                    formData.winner === "draw"
-                      ? "0 (Auto-set for draw)"
-                      : "Enter goal difference"
-                  }
-                  value={formData.goal_difference?.toString() || ""}
-                  disabled={formData.winner === "draw"} // Disable input for draw
-                  className={
-                    formData.winner === "draw"
-                      ? "bg-gray-100 cursor-not-allowed"
-                      : ""
-                  }
-                  onChange={(e) => {
-                    // Only allow changes if winner is not draw
-                    if (formData.winner !== "draw") {
+            {formData.winner &&
+              formData.winner !== "no_winner" &&
+              formData.winner !== "draw" && (
+                <div className="space-y-2 mb-4">
+                  <label className="font-medium text-[#141b34]">
+                    Goal Difference
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="Enter goal difference"
+                    value={formData.goal_difference?.toString() || ""}
+                    onChange={(e) => {
                       const value = e.target.value;
                       if (value === "") {
                         handleInputChange("goal_difference", undefined);
@@ -1286,16 +1276,10 @@ export default function DynamicMatchesTable({
                           handleInputChange("goal_difference", numValue);
                         }
                       }
-                    }
-                  }}
-                />
-                {formData.winner === "draw" && (
-                  <p className="text-sm text-gray-500 italic">
-                    Goal difference is automatically set to 0 for draw matches
-                  </p>
-                )}
-              </div>
-            )}
+                    }}
+                  />
+                </div>
+              )}
 
             <div className="space-y-2 mb-4">
               <label className="font-medium text-[#141b34]">
@@ -1589,29 +1573,20 @@ export default function DynamicMatchesTable({
               </div>
             </div>
 
-            {formData.winner && formData.winner !== "no_winner" && (
-              <div className="space-y-2 mb-4">
-                <label className="font-medium text-[#141b34]">
-                  Goal Difference
-                </label>
-                <Input
-                  type="number"
-                  min="0"
-                  step="1"
-                  placeholder={
-                    formData.winner === "draw"
-                      ? "0 (Auto-set for draw)"
-                      : "Enter goal difference"
-                  }
-                  value={formData.goal_difference?.toString() || ""}
-                  disabled={formData.winner === "draw"} // Disable input for draw
-                  className={
-                    formData.winner === "draw"
-                      ? "bg-gray-100 cursor-not-allowed"
-                      : ""
-                  }
-                  onChange={(e) => {
-                    if (formData.winner !== "draw") {
+            {formData.winner &&
+              formData.winner !== "no_winner" &&
+              formData.winner !== "draw" && (
+                <div className="space-y-2 mb-4">
+                  <label className="font-medium text-[#141b34]">
+                    Goal Difference
+                  </label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    placeholder="Enter goal difference"
+                    value={formData.goal_difference?.toString() || ""}
+                    onChange={(e) => {
                       const value = e.target.value;
                       if (value === "") {
                         handleInputChange("goal_difference", undefined);
@@ -1621,16 +1596,10 @@ export default function DynamicMatchesTable({
                           handleInputChange("goal_difference", numValue);
                         }
                       }
-                    }
-                  }}
-                />
-                {formData.winner === "draw" && (
-                  <p className="text-sm text-gray-500 italic">
-                    Goal difference is automatically set to 0 for draw matches
-                  </p>
-                )}
-              </div>
-            )}
+                    }}
+                  />
+                </div>
+              )}
 
             <div className="space-y-2 mb-4">
               <label className="font-medium text-[#141b34]">
