@@ -451,15 +451,24 @@ export default function DynamicMatchesTable({
   const displayTitle = getTitleDisplay();
 
   // Add/Edit Match Dialog Functions
-  const handleInputChange = (
-    field: keyof FormData,
-    value: string | string[] | Date | number | undefined
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+ const handleInputChange = (
+   field: keyof FormData,
+   value: string | string[] | Date | number | undefined
+ ) => {
+   setFormData((prev) => {
+     const updated = {
+       ...prev,
+       [field]: value,
+     };
+
+     // Auto-set goal_difference to 0 when winner is "draw"
+     if (field === "winner" && value === "draw") {
+       updated.goal_difference = 0;
+     }
+
+     return updated;
+   });
+ };
 
   const handleAddPlayer = (playerId: string) => {
     if (!formData.selectedPlayers.includes(playerId)) {
@@ -701,7 +710,8 @@ export default function DynamicMatchesTable({
       teamBImage: null,
       status: match.status,
       winner: match.winner || "no_winner",
-      goal_difference: match.goal_difference,
+      // Set goal_difference to 0 if winner is draw, otherwise use existing value
+      goal_difference: match.winner === "draw" ? 0 : match.goal_difference,
       match_timezone: userTimezone,
     });
     setIsEditMatchOpen(true);
@@ -1252,20 +1262,38 @@ export default function DynamicMatchesTable({
                   type="number"
                   min="0"
                   step="1"
-                  placeholder="Enter goal difference"
+                  placeholder={
+                    formData.winner === "draw"
+                      ? "0 (Auto-set for draw)"
+                      : "Enter goal difference"
+                  }
                   value={formData.goal_difference?.toString() || ""}
+                  disabled={formData.winner === "draw"} // Disable input for draw
+                  className={
+                    formData.winner === "draw"
+                      ? "bg-gray-100 cursor-not-allowed"
+                      : ""
+                  }
                   onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "") {
-                      handleInputChange("goal_difference", undefined);
-                    } else {
-                      const numValue = parseInt(value, 10);
-                      if (!isNaN(numValue) && numValue >= 0) {
-                        handleInputChange("goal_difference", numValue);
+                    // Only allow changes if winner is not draw
+                    if (formData.winner !== "draw") {
+                      const value = e.target.value;
+                      if (value === "") {
+                        handleInputChange("goal_difference", undefined);
+                      } else {
+                        const numValue = parseInt(value, 10);
+                        if (!isNaN(numValue) && numValue >= 0) {
+                          handleInputChange("goal_difference", numValue);
+                        }
                       }
                     }
                   }}
                 />
+                {formData.winner === "draw" && (
+                  <p className="text-sm text-gray-500 italic">
+                    Goal difference is automatically set to 0 for draw matches
+                  </p>
+                )}
               </div>
             )}
 
@@ -1570,20 +1598,37 @@ export default function DynamicMatchesTable({
                   type="number"
                   min="0"
                   step="1"
-                  placeholder="Enter goal difference"
+                  placeholder={
+                    formData.winner === "draw"
+                      ? "0 (Auto-set for draw)"
+                      : "Enter goal difference"
+                  }
                   value={formData.goal_difference?.toString() || ""}
+                  disabled={formData.winner === "draw"} // Disable input for draw
+                  className={
+                    formData.winner === "draw"
+                      ? "bg-gray-100 cursor-not-allowed"
+                      : ""
+                  }
                   onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === "") {
-                      handleInputChange("goal_difference", undefined);
-                    } else {
-                      const numValue = parseInt(value, 10);
-                      if (!isNaN(numValue) && numValue >= 0) {
-                        handleInputChange("goal_difference", numValue);
+                    if (formData.winner !== "draw") {
+                      const value = e.target.value;
+                      if (value === "") {
+                        handleInputChange("goal_difference", undefined);
+                      } else {
+                        const numValue = parseInt(value, 10);
+                        if (!isNaN(numValue) && numValue >= 0) {
+                          handleInputChange("goal_difference", numValue);
+                        }
                       }
                     }
                   }}
                 />
+                {formData.winner === "draw" && (
+                  <p className="text-sm text-gray-500 italic">
+                    Goal difference is automatically set to 0 for draw matches
+                  </p>
+                )}
               </div>
             )}
 
