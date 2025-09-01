@@ -120,6 +120,29 @@ export default function AdvertisementSection({
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+
+      if (file.size > maxSize) {
+        toast.error(
+          "Image size must not exceed 5MB. Please choose a smaller image."
+        );
+        // Reset the input value to allow selecting the same file again after error
+        if (event.target) {
+          event.target.value = "";
+        }
+        return;
+      }
+
+      // Check if file is an image
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select a valid image file.");
+        if (event.target) {
+          event.target.value = "";
+        }
+        return;
+      }
+
       setFormData((prev) => ({
         ...prev,
         image: file,
@@ -166,7 +189,24 @@ export default function AdvertisementSection({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith("image/")) {
+
+    if (file) {
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+
+      if (file.size > maxSize) {
+        toast.error(
+          "Image size must not exceed 5MB. Please choose a smaller image."
+        );
+        return;
+      }
+
+      // Check if file is an image
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select a valid image file.");
+        return;
+      }
+
       setFormData((prev) => ({
         ...prev,
         image: file,
@@ -648,7 +688,7 @@ export default function AdvertisementSection({
                         Upload
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Drag and drop an image or click to browse
+                        Drag and drop an image or click to browse (Max 5MB)
                       </p>
                     </div>
                   </div>
