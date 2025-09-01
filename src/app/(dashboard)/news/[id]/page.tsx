@@ -132,11 +132,11 @@ export default function NewsDetailPage() {
     const file = event.target.files?.[0];
     if (file) {
       // Check file size (5MB = 5 * 1024 * 1024 bytes)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      const maxSize = 20 * 1024 * 1024; // 5MB in bytes
 
       if (file.size > maxSize) {
         toast.error(
-          "Image size must not exceed 5MB. Please choose a smaller image."
+          "Image size must not exceed 20MB. Please choose a smaller image."
         );
         // Reset the input value to allow selecting the same file again after error
         if (event.target) {
@@ -180,11 +180,11 @@ export default function NewsDetailPage() {
       const file = files[0];
 
       // Check file size (5MB = 5 * 1024 * 1024 bytes)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      const maxSize = 20 * 1024 * 1024; // 20MB in bytes
 
       if (file.size > maxSize) {
         toast.error(
-          "Image size must not exceed 5MB. Please choose a smaller image."
+          "Image size must not exceed 20MB. Please choose a smaller image."
         );
         return;
       }

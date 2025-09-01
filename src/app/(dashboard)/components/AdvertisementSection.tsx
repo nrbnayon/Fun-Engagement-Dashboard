@@ -121,7 +121,7 @@ export default function AdvertisementSection({
     const file = event.target.files?.[0];
     if (file) {
       // Check file size (5MB = 5 * 1024 * 1024 bytes)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      const maxSize = 20 * 1024 * 1024; // 5MB in bytes
 
       if (file.size > maxSize) {
         toast.error(
@@ -192,7 +192,7 @@ export default function AdvertisementSection({
 
     if (file) {
       // Check file size (5MB = 5 * 1024 * 1024 bytes)
-      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      const maxSize = 20 * 1024 * 1024; // 5MB in bytes
 
       if (file.size > maxSize) {
         toast.error(
@@ -688,7 +688,7 @@ export default function AdvertisementSection({
                         Upload
                       </p>
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Drag and drop an image or click to browse (Max 5MB)
+                        Drag and drop an image or click to browse
                       </p>
                     </div>
                   </div>
