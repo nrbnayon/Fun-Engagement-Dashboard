@@ -131,6 +131,29 @@ export default function NewsDetailPage() {
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+
+      if (file.size > maxSize) {
+        toast.error(
+          "Image size must not exceed 5MB. Please choose a smaller image."
+        );
+        // Reset the input value to allow selecting the same file again after error
+        if (event.target) {
+          event.target.value = "";
+        }
+        return;
+      }
+
+      // Check if file is an image
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select a valid image file.");
+        if (event.target) {
+          event.target.value = "";
+        }
+        return;
+      }
+
       setFormData((prev) => ({
         ...prev,
         image: file,
@@ -152,21 +175,37 @@ export default function NewsDetailPage() {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     const files = e.dataTransfer.files;
+
     if (files.length > 0) {
       const file = files[0];
-      if (file.type.startsWith("image/")) {
-        setFormData((prev) => ({
-          ...prev,
-          image: file,
-        }));
 
-        // Create preview
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          setImagePreview(e.target?.result as string);
-        };
-        reader.readAsDataURL(file);
+      // Check file size (5MB = 5 * 1024 * 1024 bytes)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+
+      if (file.size > maxSize) {
+        toast.error(
+          "Image size must not exceed 5MB. Please choose a smaller image."
+        );
+        return;
       }
+
+      // Check if file is an image
+      if (!file.type.startsWith("image/")) {
+        toast.error("Please select a valid image file.");
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        image: file,
+      }));
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
