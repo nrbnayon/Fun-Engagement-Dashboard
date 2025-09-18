@@ -3,26 +3,20 @@ import { NextRequest, NextResponse } from "next/server";
 // Simple route definitions
 const protectedRoutes = [
   "/overview",
-  "/advertisements",
+  "/advertisements", 
   "/fan-ranking",
   "/matches",
   "/news",
-  "/player-list",
-  "/voting",
+  "/player-list", 
+  "/voting"
 ];
 
-const authRoutes = [
-  "/login",
-  "/signup",
-  "/forgot-password",
-  "/reset-password",
-  "/verify-otp",
-];
+const authRoutes = ["/login", "/signup", "/forgot-password", "/reset-password", "/verify-otp"];
 
 function isAuthenticated(request: NextRequest): boolean {
   const accessToken = request.cookies.get("accessToken");
   const refreshToken = request.cookies.get("refreshToken");
-
+  
   return !!(accessToken?.value && refreshToken?.value);
 }
 
@@ -47,15 +41,13 @@ export function middleware(request: NextRequest) {
   }
 
   // Check protected routes
-  const isProtectedRoute = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   if (isProtectedRoute && !userIsAuthenticated) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // Redirect authenticated users away from auth pages
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
+  const isAuthRoute = authRoutes.some(route => pathname.startsWith(route));
   if (isAuthRoute && userIsAuthenticated) {
     return NextResponse.redirect(new URL("/overview", request.url));
   }

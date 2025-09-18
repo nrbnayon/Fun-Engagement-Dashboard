@@ -69,18 +69,12 @@ const createAxiosInstance = (config?: AxiosRequestConfig): AxiosInstance => {
     (error) => Promise.reject(error)
   );
 
-  // Response interceptor - Handle errors (simplified)
+  // Response interceptor - Handle errors (REMOVED AUTO-LOGOUT)
   instance.interceptors.response.use(
     (response) => response,
     async (error: AxiosError) => {
-      // If 401, clear tokens and redirect to login
-      if (error.response?.status === 401) {
-        clearTokens();
-        if (typeof window !== "undefined") {
-          window.location.href = "/login";
-        }
-      }
-
+      // REMOVED: Automatic token clearing on 401
+      // Let components handle authentication errors manually
       return Promise.reject(createApiError(error));
     }
   );
@@ -111,11 +105,10 @@ const createApiError = (error: AxiosError): ApiError => {
 };
 
 /**
- * Save authentication tokens (simplified - let backend handle expiration)
+ * Save authentication tokens
  */
 export const saveTokens = (tokens: AuthTokens): void => {
   try {
-    // Simple cookie storage - backend handles expiration and security
     Cookies.set(ACCESS_TOKEN_COOKIE, tokens.accessToken, { path: "/" });
     Cookies.set(REFRESH_TOKEN_COOKIE, tokens.refreshToken, { path: "/" });
 
@@ -244,7 +237,7 @@ export const register = async (
 };
 
 /**
- * Logout user
+ * Logout user - MANUAL ONLY (not automatic)
  */
 export const logout = async (): Promise<void> => {
   try {
