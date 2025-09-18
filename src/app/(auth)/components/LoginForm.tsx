@@ -281,22 +281,6 @@ export default function LoginForm() {
               </Button>
             </form>
 
-            {/* Additional Info */}
-            <div className="mt-4 sm:mt-6 text-center">
-              <p className="text-xs text-muted px-2">
-                By signing in, you agree to our{" "}
-                <Link href="/terms" className="underline hover:text-green-500">
-                  Terms of Service
-                </Link>{" "}
-                and{" "}
-                <Link
-                  href="/privacy"
-                  className="underline hover:text-green-500"
-                >
-                  Privacy Policy
-                </Link>
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>
