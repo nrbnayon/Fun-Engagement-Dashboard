@@ -263,14 +263,18 @@ export default function DynamicMatchPage() {
         typeof error === "object" &&
         error !== null &&
         "response" in error &&
-        typeof (error as { response?: { data?: { message?: string } } }).response === "object" &&
-        (error as { response?: { data?: { message?: string } } }).response !== null &&
-        (error as { response?: { data?: { message?: string } } }).response !== undefined &&
-        (error as { response?: { data?: { message?: string } } }).response !== undefined 
+        typeof (error as { response?: { data?: { message?: string } } })
+          .response === "object" &&
+        (error as { response?: { data?: { message?: string } } }).response !==
+          null &&
+        (error as { response?: { data?: { message?: string } } }).response !==
+          undefined &&
+        (error as { response?: { data?: { message?: string } } }).response !==
+          undefined
       ) {
         toast.error(
-          (error as { response: { data?: { message?: string } } }).response.data?.message ||
-            "Failed to create match"
+          (error as { response: { data?: { message?: string } } }).response.data
+            ?.message || "Failed to create match"
         );
       } else {
         toast.error("Failed to create match");
@@ -403,10 +407,11 @@ export default function DynamicMatchPage() {
       {/* Add Match Dialog */}
       <Dialog open={isAddMatchOpen} onOpenChange={setIsAddMatchOpen}>
         <DialogContent
-          className="sm:max-w-md p-0 overflow-hidden"
+          className="sm:max-w-md p-0 overflow-hidden flex flex-col max-h-[90vh]"
           showCloseButton={false}
         >
-          <DialogHeader className="bg-primary p-4 flex flex-row items-center justify-between">
+          {/* Fixed Header */}
+          <DialogHeader className="bg-primary p-4 flex flex-row items-center justify-between flex-shrink-0">
             <DialogTitle className="text-[#141b34] text-xl">
               Add Match
             </DialogTitle>
@@ -424,7 +429,8 @@ export default function DynamicMatchPage() {
             </Button>
           </DialogHeader>
 
-          <div className="p-4 pt-0">
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto p-4 pt-0 mb-2">
             <div className="grid grid-cols-2 gap-5 mb-4">
               <div className="space-y-2">
                 <label className="font-medium text-[#141b34]">
@@ -682,7 +688,7 @@ export default function DynamicMatchPage() {
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
                     {loadingPlayers ? (
                       <SelectItem value="loading" disabled>
                         Loading players...
@@ -725,79 +731,82 @@ export default function DynamicMatchPage() {
                 </Select>
               </div>
 
-              {/* Selected Players */}
+              {/* Selected Players - Scrollable if many */}
               {formData.selectedPlayers.length > 0 && (
                 <div className="mt-3">
                   <label className="text-sm font-medium text-[#141b34] mb-2 block">
                     Selected Players ({formData.selectedPlayers.length})
                   </label>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.selectedPlayers.map((playerId) => {
-                      const player = availablePlayers.find(
-                        (p) => p.id.toString() === playerId
-                      );
-                      return (
-                        <div
-                          key={playerId}
-                          className="bg-primary/20 text-[#141b34] px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                        >
-                          <Avatar className="w-5 h-5">
-                            <AvatarImage
-                              src={
-                                getFullImageUrl(player?.image ?? "") ||
-                                "/user.png"
-                              }
-                              alt={player?.name}
-                              className="w-5 h-5 object-cover"
-                            />
-                          </Avatar>
-                          {player?.name}
-                          <span className="text-xs bg-white px-1 rounded">
-                            #{player?.jersey_number}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemovePlayer(playerId)}
-                            className="text-red-500 hover:text-red-700"
-                            disabled={isSubmitting}
+                  <div className="max-h-[120px] overflow-y-auto border rounded-md p-2 bg-gray-50">
+                    <div className="flex flex-wrap gap-2">
+                      {formData.selectedPlayers.map((playerId) => {
+                        const player = availablePlayers.find(
+                          (p) => p.id.toString() === playerId
+                        );
+                        return (
+                          <div
+                            key={playerId}
+                            className="bg-primary/20 text-[#141b34] px-3 py-1 rounded-full text-sm flex items-center gap-2"
                           >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      );
-                    })}
+                            <Avatar className="w-5 h-5">
+                              <AvatarImage
+                                src={
+                                  getFullImageUrl(player?.image ?? "") ||
+                                  "/user.png"
+                                }
+                                alt={player?.name}
+                                className="w-5 h-5 object-cover"
+                              />
+                            </Avatar>
+                            {player?.name}
+                            <span className="text-xs bg-white px-1 rounded">
+                              #{player?.jersey_number}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePlayer(playerId)}
+                              className="text-red-500 hover:text-red-700"
+                              disabled={isSubmitting}
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
             </div>
+          </div>
 
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsAddMatchOpen(false);
-                  resetForm();
-                }}
-                className="hover:bg-gray-200 hover:text-black"
-                disabled={isSubmitting}
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-primary hover:bg-primary/90 text-[#141b34]"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  "Submit"
-                )}
-              </Button>
-            </div>
+          {/* Fixed Footer */}
+          <div className="flex justify-end gap-2 p-4 pt-0 border-t bg-white flex-shrink-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsAddMatchOpen(false);
+                resetForm();
+              }}
+              className="hover:bg-gray-200 hover:text-black"
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-primary hover:bg-primary/90 text-[#141b34]"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                "Submit"
+              )}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

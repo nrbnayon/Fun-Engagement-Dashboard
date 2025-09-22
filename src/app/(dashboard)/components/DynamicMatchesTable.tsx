@@ -315,6 +315,12 @@ export default function DynamicMatchesTable({
             ✅ Finished
           </div>
         );
+      case "inactive":
+        return (
+          <div className="font-normal text-green-500 text-xl capitalize">
+            ✅ Finished
+          </div>
+        );
       case "voting":
         return (
           <div className="font-normal text-purple-500 text-xl capitalize">
@@ -332,7 +338,7 @@ export default function DynamicMatchesTable({
 
   // Get winner display component
   const getWinnerDisplay = (match: MatchData) => {
-    if (match.status.toLowerCase() !== "finished") {
+    if (match.status.toLowerCase() !== "finished" && match.status.toLowerCase() !== "inactive")  {
       return null;
     }
 
@@ -392,7 +398,10 @@ export default function DynamicMatchesTable({
         label: "Result",
         className: "font-normal text-center text-secondary py-4 min-w-32",
       });
-    } else if (status.toLowerCase() === "finished") {
+    } else if (
+      status.toLowerCase() === "finished" ||
+      status.toLowerCase() === "inactive"
+    ) {
       baseHeaders.push({
         key: "result",
         label: "Winner",
@@ -951,7 +960,8 @@ export default function DynamicMatchesTable({
 
                       {/* Status (conditional) */}
                       {(status === "all" ||
-                        status.toLowerCase() !== "finished") && (
+                        status.toLowerCase() === "finished" ||
+                        status.toLowerCase() === "inactive") && (
                         <TableCell className="px-6 py-4 text-center min-w-32">
                           {getStatusDisplay(match)}
                         </TableCell>
@@ -1406,12 +1416,14 @@ export default function DynamicMatchesTable({
       </Dialog>
 
       {/* Edit Match Dialog */}
+      {/* Edit Match Dialog */}
       <Dialog open={isEditMatchOpen} onOpenChange={setIsEditMatchOpen}>
         <DialogContent
-          className="sm:max-w-md p-0 overflow-hidden"
+          className="sm:max-w-md p-0 overflow-hidden flex flex-col max-h-[90vh]"
           showCloseButton={false}
         >
-          <DialogHeader className="bg-primary p-4 flex flex-row items-center justify-between">
+          {/* Fixed Header */}
+          <DialogHeader className="bg-primary p-4 flex flex-row items-center justify-between flex-shrink-0">
             <DialogTitle className="text-[#141b34] text-xl">
               Edit Match
             </DialogTitle>
@@ -1428,7 +1440,8 @@ export default function DynamicMatchesTable({
             </Button>
           </DialogHeader>
 
-          <div className="p-4 pt-0">
+          {/* Scrollable Content Area */}
+          <div className="flex-1 overflow-y-auto p-4 pt-0">
             <div className="grid grid-cols-2 gap-5 mb-4">
               <div className="space-y-2">
                 <label className="font-medium text-[#141b34]">Team A *</label>
@@ -1614,7 +1627,7 @@ export default function DynamicMatchesTable({
                       }
                     />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[200px] overflow-y-auto">
                     {loadingPlayers ? (
                       <SelectItem value="loading" disabled>
                         Loading players...
@@ -1658,69 +1671,72 @@ export default function DynamicMatchesTable({
                 </Select>
               </div>
 
-              {/* Selected Players */}
+              {/* Selected Players - Scrollable if many */}
               {formData.selectedPlayers.length > 0 && (
                 <div className="mt-3">
                   <label className="text-sm font-medium text-[#141b34] mb-2 block">
                     Selected Players ({formData.selectedPlayers.length})
                   </label>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.selectedPlayers.map((playerId) => {
-                      const player = availablePlayers.find(
-                        (p) => p.id === playerId
-                      );
-                      return (
-                        <div
-                          key={playerId}
-                          className="bg-primary/20 text-[#141b34] px-3 py-1 rounded-full text-sm flex items-center gap-2"
-                        >
-                          <Avatar className="w-5 h-5">
-                            <AvatarImage
-                              src={
-                                getFullImageUrl(player?.image ?? "") ||
-                                "/user.png"
-                              }
-                              alt={player?.name}
-                              className="w-5 h-5 object-cover"
-                            />
-                          </Avatar>
-                          {player?.name}
-                          <span className="text-xs bg-white px-1 rounded">
-                            #{player?.jersey}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemovePlayer(playerId)}
-                            className="text-red-500 hover:text-red-700"
+                  <div className="max-h-[120px] overflow-y-auto border rounded-md p-2 bg-gray-50">
+                    <div className="flex flex-wrap gap-2">
+                      {formData.selectedPlayers.map((playerId) => {
+                        const player = availablePlayers.find(
+                          (p) => p.id === playerId
+                        );
+                        return (
+                          <div
+                            key={playerId}
+                            className="bg-primary/20 text-[#141b34] px-3 py-1 rounded-full text-sm flex items-center gap-2"
                           >
-                            <X size={14} />
-                          </button>
-                        </div>
-                      );
-                    })}
+                            <Avatar className="w-5 h-5">
+                              <AvatarImage
+                                src={
+                                  getFullImageUrl(player?.image ?? "") ||
+                                  "/user.png"
+                                }
+                                alt={player?.name}
+                                className="w-5 h-5 object-cover"
+                              />
+                            </Avatar>
+                            {player?.name}
+                            <span className="text-xs bg-white px-1 rounded">
+                              #{player?.jersey}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemovePlayer(playerId)}
+                              className="text-red-500 hover:text-red-700"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
             </div>
+          </div>
 
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setIsEditMatchOpen(false);
-                  resetForm();
-                }}
-                className="hover:bg-gray-200 hover:text-black"
-              >
-                Cancel
-              </Button>
-              <Button
-                className="bg-primary hover:bg-primary/90 text-[#141b34]"
-                onClick={handleSubmit}
-              >
-                Update
-              </Button>
-            </div>
+          {/* Fixed Footer */}
+          <div className="flex justify-end gap-2 p-4 pt-0 border-t bg-white flex-shrink-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setIsEditMatchOpen(false);
+                resetForm();
+              }}
+              className="hover:bg-gray-200 hover:text-black"
+            >
+              Cancel
+            </Button>
+            <Button
+              className="bg-primary hover:bg-primary/90 text-[#141b34]"
+              onClick={handleSubmit}
+            >
+              Update
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
