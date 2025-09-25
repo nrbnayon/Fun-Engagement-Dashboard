@@ -646,7 +646,7 @@ export default function NewsListPage({ itemsPerPage = 12 }: NewsPageProps) {
                   onChange={(value) =>
                     handleInputChange("description", value || "")
                   }
-                  preview="edit"
+                  preview="live"
                   hideToolbar={false}
                   visibleDragbar={false}
                   data-color-mode="light"

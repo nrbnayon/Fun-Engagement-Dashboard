@@ -483,7 +483,7 @@ export default function NewsDetailPage() {
                     onChange={(value) =>
                       handleInputChange("description", value || "")
                     }
-                    preview="edit"
+                    preview="live"
                     hideToolbar={false}
                     visibleDragbar={false}
                     data-color-mode="light"

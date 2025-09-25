@@ -168,13 +168,19 @@ export default function DynamicMatchesTable({
   const [loadingPlayers, setLoadingPlayers] = useState(false);
 
   // Add useEffect to fetch players
+  // Add useEffect to fetch players
   useEffect(() => {
     const fetchPlayers = async () => {
       setLoadingPlayers(true);
       try {
         const response = await getAllPlayers();
         if (response.success && Array.isArray(response.data)) {
-          const formattedPlayers = response.data.map((player: Player) => ({
+          // Filter only active players before formatting
+          const activePlayersOnly = response.data.filter(
+            (player: Player) => player.status?.toLowerCase() === "active"
+          );
+
+          const formattedPlayers = activePlayersOnly.map((player: Player) => ({
             id: player.id.toString(),
             name: player.name,
             image: player.image,
@@ -338,7 +344,10 @@ export default function DynamicMatchesTable({
 
   // Get winner display component
   const getWinnerDisplay = (match: MatchData) => {
-    if (match.status.toLowerCase() !== "finished" && match.status.toLowerCase() !== "inactive")  {
+    if (
+      match.status.toLowerCase() !== "finished" &&
+      match.status.toLowerCase() !== "inactive"
+    ) {
       return null;
     }
 

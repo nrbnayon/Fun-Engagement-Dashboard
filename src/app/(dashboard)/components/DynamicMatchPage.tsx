@@ -89,33 +89,38 @@ export default function DynamicMatchPage() {
   const [loadingPlayers, setLoadingPlayers] = useState(false);
 
   // Add useEffect to fetch players
-  useEffect(() => {
-    const fetchPlayers = async () => {
-      setLoadingPlayers(true);
-      try {
-        const response = await getAllPlayers();
-        if (response.success && Array.isArray(response.data)) {
-          const formattedPlayers = response.data.map(
-            (player: AvailablePlayer) => ({
-              id: player.id,
-              name: player.name,
-              image: player.image,
-              jersey_number: player.jersey_number,
-              status: player.status,
-            })
-          );
-          setAvailablePlayers(formattedPlayers);
-        }
-      } catch (error) {
-        console.error("Error fetching players:", error);
-        toast.error("Failed to load players");
-      } finally {
-        setLoadingPlayers(false);
-      }
-    };
+useEffect(() => {
+  const fetchPlayers = async () => {
+    setLoadingPlayers(true);
+    try {
+      const response = await getAllPlayers();
+      if (response.success && Array.isArray(response.data)) {
+        // Filter only active players before formatting
+        const activePlayersOnly = response.data.filter(
+          (player: AvailablePlayer) => player.status?.toLowerCase() === "active"
+        );
 
-    fetchPlayers();
-  }, []);
+        const formattedPlayers = activePlayersOnly.map(
+          (player: AvailablePlayer) => ({
+            id: player.id,
+            name: player.name,
+            image: player.image,
+            jersey_number: player.jersey_number,
+            status: player.status,
+          })
+        );
+        setAvailablePlayers(formattedPlayers);
+      }
+    } catch (error) {
+      console.error("Error fetching players:", error);
+      toast.error("Failed to load players");
+    } finally {
+      setLoadingPlayers(false);
+    }
+  };
+
+  fetchPlayers();
+}, []);
 
   // Form handling functions
   const handleInputChange = (
