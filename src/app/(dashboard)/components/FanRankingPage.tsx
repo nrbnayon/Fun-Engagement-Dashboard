@@ -19,14 +19,24 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { toast } from "sonner";
- 
+
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import apiEndpoint from "@/lib/axios";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
- 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 // Updated interface to match API response structure
 interface FanRankingData {
   id: number;
@@ -35,15 +45,14 @@ interface FanRankingData {
   email: string;
   points: number;
 }
- 
- 
+
 interface FanRankingListProps {
   paginate?: boolean;
   itemsPerPage?: number;
   limit?: number;
   title?: boolean;
 }
- 
+
 export default function FanRankingPage({
   paginate = false,
   itemsPerPage = 12,
@@ -55,29 +64,27 @@ export default function FanRankingPage({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleteId, setDeleteId] = useState<number | null>(null);
- 
- 
+
   // Fetch data from API
   useEffect(() => {
     const fetchFanRankingData = async () => {
       try {
         setLoading(true);
         const response = await apiEndpoint.get("/fans/leaderboard/");
- 
+
         // Define the expected API response item type
         type ApiFanRankingItem = {
-        rank: number;
-        points: number;
-        id: number;
-        user: {
-          email: string;
-          user_profile: {
-            name: string;
+          rank: number;
+          points: number;
+          id: number;
+          user: {
+            email: string;
+            user_profile: {
+              name: string;
+            };
           };
         };
-      };
- 
- 
+
         // Transform API data to match component structure
         const transformedData: FanRankingData[] = response.data.map(
           (item: ApiFanRankingItem) => ({
@@ -88,8 +95,7 @@ export default function FanRankingPage({
             points: item.points,
           })
         );
- 
- 
+
         setFanRankingData(transformedData);
         setError(null);
       } catch (err) {
@@ -99,37 +105,35 @@ export default function FanRankingPage({
         setLoading(false);
       }
     };
- 
+
     fetchFanRankingData();
   }, []);
- 
-const handleDeleteRank = async () => {
-  if (!deleteId) return;
- 
-  try {
-    await apiEndpoint.delete(`/fans/${deleteId}/delete/`);
-    setFanRankingData((prev) => prev.filter((fan) => fan.id !== deleteId));
-    toast.success("Fan deleted successfully!");
-  } catch (err) {
-    console.error("Error deleting fan:", err);
-    toast.error("Failed to delete fan. Please try again.");
-  } finally {
-    setDeleteId(null);
-  }
-};
- 
- 
- 
+
+  const handleDeleteRank = async () => {
+    if (!deleteId) return;
+
+    try {
+      await apiEndpoint.delete(`/fans/${deleteId}/delete/`);
+      setFanRankingData((prev) => prev.filter((fan) => fan.id !== deleteId));
+      toast.success("Fan deleted successfully!");
+    } catch (err) {
+      console.error("Error deleting fan:", err);
+      toast.error("Failed to delete fan. Please try again.");
+    } finally {
+      setDeleteId(null);
+    }
+  };
+
   // Function to convert rank number to ordinal (1st, 2nd, 3rd, etc.)
   const getOrdinalRank = (rank: number): string => {
     const suffix = ["th", "st", "nd", "rd"];
     const v = rank % 100;
     return rank + (suffix[(v - 20) % 10] || suffix[v] || suffix[0]);
   };
- 
+
   // Determine data to show
   const dataToShow = paginate ? fanRankingData : fanRankingData.slice(0, limit);
- 
+
   // Calculate pagination
   const totalPages = paginate
     ? Math.ceil(fanRankingData.length / itemsPerPage)
@@ -139,15 +143,15 @@ const handleDeleteRank = async () => {
   const currentData = paginate
     ? fanRankingData.slice(startIndex, endIndex)
     : dataToShow;
- 
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
- 
+
   const generatePageNumbers = () => {
     const pageNumbers = [];
     const maxVisiblePages = 5;
- 
+
     if (totalPages <= maxVisiblePages) {
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
@@ -175,10 +179,10 @@ const handleDeleteRank = async () => {
         pageNumbers.push(totalPages);
       }
     }
- 
+
     return pageNumbers;
   };
- 
+
   // Loading state
   if (loading) {
     return (
@@ -202,7 +206,7 @@ const handleDeleteRank = async () => {
       </main>
     );
   }
- 
+
   // Error state
   if (error) {
     return (
@@ -224,7 +228,7 @@ const handleDeleteRank = async () => {
       </main>
     );
   }
- 
+
   return (
     <main className="flex flex-col w-full items-center">
       {/* Fan Ranking Section */}
@@ -244,7 +248,7 @@ const handleDeleteRank = async () => {
             </Link>
           )}
         </div>
- 
+
         <Card className="w-full min-h-74 rounded-xl overflow-hidden border-border p-0">
           <CardContent className="p-0">
             <Table className="border-collapse">
@@ -294,40 +298,42 @@ const handleDeleteRank = async () => {
                         </div>
                       </TableCell>
                       <TableCell className="px-6 py-3 text-center">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            onClick={() => setDeleteId(fanRank.id)}
-                            className="bg-gray-200"
-                            variant="ghost"
-                          >
-                            <Trash2 className="w-4 h-4 text-red-500" />
-                          </Button>
-                        </AlertDialogTrigger>
- 
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Fan</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete <b>{fanRank.name}</b>? This action
-                              cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel onClick={() => setDeleteId(null)}>
-                              Cancel
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={handleDeleteRank}
-                              className="bg-red-500 text-white hover:bg-red-600"
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              onClick={() => setDeleteId(fanRank.id)}
+                              className="bg-gray-200 hover:bg-red-200"
+                              variant="ghost"
                             >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
- 
+                              <Trash2 className="w-4 h-4 text-red-500" />
+                            </Button>
+                          </AlertDialogTrigger>
+
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Fan</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete{" "}
+                                <b>{fanRank.name}</b>? This action cannot be
+                                undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel
+                                onClick={() => setDeleteId(null)}
+                              >
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={handleDeleteRank}
+                                className="bg-red-500 text-white hover:bg-red-600"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
                     </TableRow>
                   ))
                 ) : (
@@ -343,7 +349,7 @@ const handleDeleteRank = async () => {
             </Table>
           </CardContent>
         </Card>
- 
+
         {/* Pagination */}
         {paginate && totalPages > 1 && (
           <div className="flex justify-center w-full mt-4">
@@ -361,7 +367,7 @@ const handleDeleteRank = async () => {
                     }
                   />
                 </PaginationItem>
- 
+
                 {generatePageNumbers().map((pageNum, index) => (
                   <PaginationItem key={index}>
                     {pageNum === "..." ? (
@@ -377,7 +383,7 @@ const handleDeleteRank = async () => {
                     )}
                   </PaginationItem>
                 ))}
- 
+
                 <PaginationItem>
                   <PaginationNext
                     onClick={() =>
@@ -398,4 +404,3 @@ const handleDeleteRank = async () => {
     </main>
   );
 }
- 
