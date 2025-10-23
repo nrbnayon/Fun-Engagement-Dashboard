@@ -354,7 +354,7 @@ export default function FanRankingPage({
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={5} className="px-6 py-8 text-center">
+                    <TableCell colSpan={6} className="px-6 py-8 text-center">
                       <div className="text-lg text-secondary">
                         No fan ranking data available
                       </div>
