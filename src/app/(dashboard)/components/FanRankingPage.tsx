@@ -1,4 +1,3 @@
-// src\app\(dashboard)\components\FanRankingPage.tsx
 "use client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,7 +23,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import apiEndpoint from "@/lib/axios";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, Loader2 } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -66,46 +65,50 @@ export default function FanRankingPage({
   const [deleteId, setDeleteId] = useState<number | null>(null);
 
   // Fetch data from API
-  useEffect(() => {
-    const fetchFanRankingData = async () => {
-      try {
+  const fetchFanRankingData = async (showLoading = true) => {
+    try {
+      if (showLoading) {
         setLoading(true);
-        const response = await apiEndpoint.get("/fans/leaderboard/");
+      }
+      const response = await apiEndpoint.get("/fans/leaderboard/");
 
-        // Define the expected API response item type
-        type ApiFanRankingItem = {
-          rank: number;
-          points: number;
-          id: number;
-          user: {
-            email: string;
-            user_profile: {
-              name: string;
-            };
+      // Define the expected API response item type
+      type ApiFanRankingItem = {
+        rank: number;
+        points: number;
+        id: number;
+        user: {
+          email: string;
+          user_profile: {
+            name: string;
           };
         };
+      };
 
-        // Transform API data to match component structure
-        const transformedData: FanRankingData[] = response.data.map(
-          (item: ApiFanRankingItem) => ({
-            id: item.id, // 👈 Add this line
-            rank: item.rank,
-            name: item.user.user_profile.name,
-            email: item.user.email,
-            points: item.points,
-          })
-        );
+      // Transform API data to match component structure
+      const transformedData: FanRankingData[] = response.data.map(
+        (item: ApiFanRankingItem) => ({
+          id: item.id,
+          rank: item.rank,
+          name: item.user.user_profile.name,
+          email: item.user.email,
+          points: item.points,
+        })
+      );
 
-        setFanRankingData(transformedData);
-        setError(null);
-      } catch (err) {
-        console.error("Error fetching fan ranking data:", err);
-        setError("Failed to load fan ranking data");
-      } finally {
+      setFanRankingData(transformedData);
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching fan ranking data:", err);
+      setError("Failed to load fan ranking data");
+    } finally {
+      if (showLoading) {
         setLoading(false);
       }
-    };
+    }
+  };
 
+  useEffect(() => {
     fetchFanRankingData();
   }, []);
 
@@ -114,8 +117,20 @@ export default function FanRankingPage({
 
     try {
       await apiEndpoint.delete(`/fans/${deleteId}/delete/`);
-      setFanRankingData((prev) => prev.filter((fan) => fan.id !== deleteId));
       toast.success("Fan deleted successfully!");
+
+      // Refetch data to update ranks (without showing loading state)
+      await fetchFanRankingData(false);
+
+      // Reset to first page if current page becomes empty
+      if (paginate) {
+        const newTotalPages = Math.ceil(
+          (fanRankingData.length - 1) / itemsPerPage
+        );
+        if (currentPage > newTotalPages && newTotalPages > 0) {
+          setCurrentPage(newTotalPages);
+        }
+      }
     } catch (err) {
       console.error("Error deleting fan:", err);
       toast.error("Failed to delete fan. Please try again.");
@@ -196,7 +211,8 @@ export default function FanRankingPage({
           <Card className="w-full min-h-74 rounded-xl overflow-hidden border-border p-0">
             <CardContent className="p-6">
               <div className="flex justify-center items-center h-32">
-                <div className="text-lg text-secondary">
+                <div className="flex items-center gap-2 text-lg text-secondary">
+                  <Loader2 className="w-5 h-5 animate-spin" />
                   Loading fan rankings...
                 </div>
               </div>
@@ -338,7 +354,7 @@ export default function FanRankingPage({
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={4} className="px-6 py-8 text-center">
+                    <TableCell colSpan={5} className="px-6 py-8 text-center">
                       <div className="text-lg text-secondary">
                         No fan ranking data available
                       </div>
